@@ -16,10 +16,24 @@ export const BusinessFormSchema = yup.object({
   description: yup.string().optional().default(null),
   logo: yup
     .mixed<FileList>()
-    .required("Logo is mandatory!")
+    .required()
+    .test("required", "Logo is mandatory!", (value) => {
+      return value && value.length > 0;
+    })
     .test(
       "fileType",
       "Only JPG/PNG allowed!",
       (value) => value && ["image/jpeg", "image/png"].includes(value?.[0]?.type)
+    ),
+  media: yup
+    .mixed<File[]>()
+    .nullable()
+    .default(null)
+    .test("fileType", "Only images and Videos allowed!", (value) =>
+      value
+        ? Array.from(value).every((file) =>
+            ["image/", "video/"].some((type) => file.type.startsWith(type))
+          )
+        : true
     ),
 });

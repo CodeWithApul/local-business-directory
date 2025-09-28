@@ -1,17 +1,111 @@
 import { type Location } from "../hooks/useUserLocation";
 
 export interface IBusiness {
-  id: number;
+  id: string;
   name: string;
   category: string;
+  logo: string;
+  ownerName: string;
+  phone: string;
+  email?: string;
+  address: string;
+  description?: string;
+  media?: string[]; // URLs of images/videos
+  latitude?: number;
+  longitude?: number;
 }
 export const dummyBusiness: IBusiness[] = [
-  { id: 2, name: "Indy Decor", category: "Home Decor" },
-  { id: 3, name: "Taste of India", category: "Restaurant" },
-  { id: 4, name: "Bloom Beauty Studio", category: "Salon & Spa" },
-  { id: 5, name: "TechFix Mobile Repair", category: "Electronics Repair" },
-  { id: 6, name: "GreenLeaf Grocers", category: "Grocery" },
-  { id: 7, name: "Yoga Roots", category: "Fitness & Wellness" },
+  // Add latitude and longitude for map integration in all records below
+  {
+    id: "2",
+    name: "Indy Decor",
+    category: "Home Decor",
+    logo: "https://placehold.net/building-600x400.png",
+    ownerName: "Alice Johnson",
+    phone: "(555) 123-4567",
+    email: "alice@indydecor.com",
+    address: "123 Main St, Indianapolis, IN",
+    description: "Your one-stop shop for home decor and furnishings.",
+    media: [
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+    ],
+  },
+  {
+    id: "3",
+    name: "Taste of India",
+    category: "Restaurant",
+    logo: "https://placehold.net/building-600x400.png",
+    ownerName: "Raj Patel",
+    phone: "(555) 987-6543",
+    email: "raj@tasteofindia.com",
+    address: "789 Curry St, Indianapolis, IN",
+    description: "Authentic Indian cuisine with a modern twist.",
+    media: [
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+    ],
+  },
+  {
+    id: "4",
+    name: "Bloom Beauty Studio",
+    category: "Salon & Spa",
+    logo: "https://placehold.net/building-600x400.png",
+    ownerName: "Maya Singh",
+    phone: "(555) 555-1212",
+    email: "maya@bloombeautystudio.com",
+    address: "456 Elm St, Indianapolis, IN",
+    description: "A serene escape for all your beauty needs.",
+    media: [
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+    ],
+  },
+  {
+    id: "5",
+    name: "TechFix Mobile Repair",
+    category: "Electronics Repair",
+    logo: "https://placehold.net/building-600x400.png",
+    ownerName: "David Lee",
+    phone: "(555) 222-3333",
+    email: "david@techfix.com",
+    address: "321 Tech Ave, Indianapolis, IN",
+    description: "Fast and reliable repair services for all your devices.",
+    media: [
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+    ],
+  },
+  {
+    id: "6",
+    name: "GreenLeaf Grocers",
+    category: "Grocery",
+    logo: "https://placehold.net/building-600x400.png",
+    ownerName: "Sara Green",
+    phone: "(555) 444-5555",
+    email: "sara@greenleafgrocers.com",
+    address: "654 Market St, Indianapolis, IN",
+    description: "Fresh, organic, and locally sourced groceries.",
+    media: [
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+    ],
+  },
+  {
+    id: "7",
+    name: "Yoga Roots",
+    category: "Fitness & Wellness",
+    logo: "https://placehold.net/building-600x400.png",
+    ownerName: "Lena Martinez",
+    phone: "(555) 666-7777",
+    email: "lena@yogaroots.com",
+    address: "987 Zen Ln, Indianapolis, IN",
+    description: "Find your balance with our yoga and wellness classes.",
+    media: [
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+    ],
+  },
   //   { id: 8, name: "Little Learners Preschool", category: "Education" },
   //   { id: 9, name: "Urban Tailors", category: "Clothing & Alterations" },
   //   { id: 10, name: "Café Chaiwala", category: "Restaurant" },
@@ -184,3 +278,15 @@ export const dummyLocations: Location[] = [
     source: "manual",
   },
 ];
+
+// State > District > Block > Village/Area
+
+// Bihar > Gopalganj > Phuleria > Gularbaga
+
+// Location Search .... > Gularbaga ---->
+//  ----- Gularbaga, Phuleria, Gopalganj, Bihar
+//  ------ Gularbaga, Block 2, Gopalganj, Bihar
+//  ------- Gularbaga, Block 2, Gopalganj, Bihar
+//  ------- Gularbaga, Bihar
+// Data Migration -------------
+// State ->* District ->* Block ->* Village

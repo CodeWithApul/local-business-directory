@@ -17,11 +17,13 @@ import Typography from "@mui/material/Typography";
 import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// import "../styles/toastOverride.css";
 
 const drawerWidth = 240;
 const navItems = [
   { name: "Home", url: "/" },
   { name: "Add Business", url: "/add-business" },
+  { name: "Shop Login", url: "/shop/login" },
 ];
 
 export default function DrawerAppBar() {

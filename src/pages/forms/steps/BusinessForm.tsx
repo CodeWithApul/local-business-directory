@@ -21,16 +21,24 @@ const categories: string[] = Array.from(
   new Set(dummyBusiness.map((b) => b.category))
 );
 interface BusinessFormProps {
+  initialValues?: Partial<BusinessFormValues>;
+  mode: "create" | "edit";
   onSubmit: (data: BusinessFormValues) => void;
 }
 
-export default function BusinessForm({ onSubmit }: BusinessFormProps) {
+export default function BusinessForm({
+  onSubmit,
+  initialValues,
+  mode,
+}: BusinessFormProps) {
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<BusinessFormValues>({
+    defaultValues: initialValues,
     resolver: yupResolver(BusinessFormSchema),
   });
   const logoFile = watch("logo");
@@ -53,6 +61,22 @@ export default function BusinessForm({ onSubmit }: BusinessFormProps) {
       filereader.readAsDataURL(logoFile[0]);
     } else setImagePreview(null);
   }, [logoFile]);
+
+  const [files, setFiles] = useState<File[]>([]);
+  const [previewMedia, setPreviewMedia] = useState<string[]>([]);
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const media = Array.from(e.target.files || []);
+    setFiles(media);
+    setValue("media", media);
+    setPreviewMedia(media.map((m) => URL.createObjectURL(m)));
+  };
+
+  useEffect(() => {
+    return () => {
+      previewMedia.forEach((oldMedia) => URL.revokeObjectURL(oldMedia));
+    };
+  }, [previewMedia]);
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -118,6 +142,15 @@ export default function BusinessForm({ onSubmit }: BusinessFormProps) {
           error={!!errors.address}
           helperText={errors.address?.message}
         />
+        <TextField
+          label="Description"
+          multiline
+          rows={4}
+          fullWidth
+          {...register("description")}
+          error={!!errors.description}
+          helperText={errors.description?.message}
+        />
         <Button variant="outlined" component="label">
           Choose your Logo *
           <input type="file" hidden accept="image/*" {...register("logo")} />
@@ -139,17 +172,52 @@ export default function BusinessForm({ onSubmit }: BusinessFormProps) {
             }}
           />
         )}
-        <TextField
-          label="Description"
-          multiline
-          rows={4}
-          fullWidth
-          {...register("description")}
-          error={!!errors.description}
-          helperText={errors.description?.message}
-        />
+        {mode === "edit" && (
+          <>
+            <Button variant="outlined" component="label">
+              Choose your Photos / Videos
+              <input
+                type="file"
+                hidden
+                multiple
+                accept="image/*,video/*"
+                {...register("media")}
+                onChange={handleMediaChange}
+              />
+            </Button>
+            {errors.media && (
+              <FormHelperText error>{errors.media.message}</FormHelperText>
+            )}
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              {previewMedia &&
+                previewMedia.map((url, idx) =>
+                  files[idx].type.startsWith("image") ? (
+                    <Box
+                      component="img"
+                      src={url}
+                      alt={`preview-${idx}`}
+                      sx={{
+                        width: 200,
+                        height: 200,
+                        borderRadius: 2,
+                        border: "1px solid #ccc",
+                        display: "flex",
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      component="video"
+                      src={url}
+                      controls
+                      sx={{ width: 200, height: 200 }}
+                    />
+                  )
+                )}
+            </Box>
+          </>
+        )}
         <Button variant="contained" color="primary" type="submit">
-          Submit
+          {mode === "edit" ? "Update" : "Create"} Business
         </Button>
       </Stack>
     </Box>

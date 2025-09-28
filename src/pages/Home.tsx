@@ -113,7 +113,12 @@ function Home() {
         <Grid container rowSpacing={2} columnSpacing={2}>
           {filteredBusiness.map((b) => (
             <Grid key={b.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <BusinessCard name={b.name} category={b.category} />
+              <BusinessCard
+                name={b.name}
+                category={b.category}
+                id={b.id}
+                logo={b.logo}
+              />
             </Grid>
           ))}
         </Grid>

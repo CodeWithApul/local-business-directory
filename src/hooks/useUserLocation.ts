@@ -1,7 +1,7 @@
 // hooks/useUserLocation.ts
 import { useEffect, useState } from "react";
-import { fetchCityFromCoords } from "../utils/geoUtils";
-// import { dummyLocations } from "../data/dummyData";
+// import { fetchCityFromCoords } from "../utils/geoUtils";
+import { dummyLocations } from "../data/dummyData";
 
 export type Location = {
   lat: number;
@@ -17,11 +17,11 @@ export const useUserLocation = () => {
     if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        const city = await fetchCityFromCoords(latitude, longitude);
-        setLocation({ lat: latitude, lng: longitude, city, source: "auto" });
-        // setLocation({ ...dummyLocations[1] });
+      async () => {
+        // const { latitude, longitude } = pos.coords;
+        // const city = await fetchCityFromCoords(latitude, longitude);
+        // setLocation({ lat: latitude, lng: longitude, city, source: "auto" });
+        setLocation({ ...dummyLocations[1] });
       },
       (err) => console.error("Location error:", err),
       { enableHighAccuracy: true }

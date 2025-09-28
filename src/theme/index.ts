@@ -15,6 +15,12 @@ const theme = createTheme({
       primary: "#333",
       secondary: "#555",
     },
+    // success: {
+    //   main: "#ff6b01",
+    // },
+    // error: {
+    //   main: "#333",
+    // },
   },
   typography: {
     fontFamily: `'Raleway', 'Segoe UI', 'sans-serif'`,

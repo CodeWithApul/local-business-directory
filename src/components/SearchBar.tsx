@@ -72,6 +72,7 @@ const SearchBar = ({
               },
             },
           }}
+          fullWidth
         >
           {categories.map((cat) => (
             <MenuItem key={cat} value={cat}>
@@ -79,7 +80,17 @@ const SearchBar = ({
             </MenuItem>
           ))}
         </TextField>
-        <Button variant="contained" sx={{ px: 4 }} onClick={onSearch}>
+        <Button
+          variant="contained"
+          sx={{
+            px: 4,
+            width: {
+              xs: "100%",
+              sm: "200px",
+            },
+          }}
+          onClick={onSearch}
+        >
           <SearchIcon fontSize="small" /> Search
         </Button>
       </Stack>

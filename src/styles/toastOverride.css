@@ -1,0 +1,19 @@
+:root {
+  --toastify-color-success: #4caf50;
+  --toastify-color-error: #f44336;
+  --toastify-font-family: "Roboto", sans-serif;
+}
+
+.Toastify__toast {
+  font-family: var(--toastify-font-family);
+}
+
+.Toastify__toast--success {
+  /* background-color: var(--toastify-color-success); */
+  color: var(--toastify-color-success);
+}
+
+.Toastify__toast--error {
+  /* background-color: var(--toastify-color-error); */
+  color: var(--toastify-color-error);
+}

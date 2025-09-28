@@ -5,9 +5,10 @@ import BusinessForm, {
 } from "./forms/steps/BusinessForm";
 import VerifyBusinessForm from "./forms/steps/VerifyBusinessStepForm";
 import SuccessBusinessForm from "./forms/steps/SuccessBusinessForm";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { HorizontalLinearAlternativeLabelStepper } from "../components/HorizontalLinearAlternativeLabelStepper";
+import useScrollToTop from "../hooks/useScrollToTop";
 
 enum FormStep {
   InitialDetails = 0,
@@ -26,11 +27,7 @@ function AddBusinessPage() {
   const [businessFormData, setBusinessFormData] =
     useState<BusinessFormValues | null>(null);
 
-  useEffect(() => {
-    setBusinessFormData(null);
-    setStep(FormStep.InitialDetails);
-    console.log("useEffect");
-  }, []);
+  useScrollToTop(step); // Scroll to Top when step changes
 
   const onSubmitBusinessForm = (data: BusinessFormValues) => {
     setBusinessFormData(data);
@@ -57,14 +54,16 @@ function AddBusinessPage() {
   };
   return (
     <Box sx={{ maxWidth: 600, margin: "auto", padding: 5 }}>
-      <Typography variant="h4">Register your Business</Typography>
+      <Typography variant="h6" sx={{ textAlign: "center", fontWeight: 700 }}>
+        Register your Business
+      </Typography>
       <HorizontalLinearAlternativeLabelStepper
         activeStep={step}
         steps={steps}
       />
 
       {step === FormStep.InitialDetails && (
-        <BusinessForm onSubmit={onSubmitBusinessForm} />
+        <BusinessForm mode="create" onSubmit={onSubmitBusinessForm} />
       )}
       {step === FormStep.OTPVerification && (
         <VerifyBusinessForm onSubmit={onSubmitOTPForm} />
