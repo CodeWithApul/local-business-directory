@@ -55,10 +55,17 @@ function BusinessDetailPage() {
               address={business.address}
             />
           </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <ImageGallery media={business.media} />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <MapSection
+              latitude={business.latitude}
+              longitude={business.longitude}
+              markerText={business.address}
+            />
+          </Grid>
         </Grid>
-        <ImageGallery media={business.media} />
-
-        <MapSection latitude={0} longitude={0} />
       </Box>
     )
   );

@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 
 interface ImageGalleryProps {
   media?: string[];
@@ -7,7 +7,7 @@ interface ImageGalleryProps {
 const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
   return (
     <Box sx={{ pt: 2, pb: 2 }}>
-      {/* <Typography variant="h6">Image Gallery</Typography> */}
+      <Typography variant="h6">Image Gallery</Typography>
       <Grid container spacing={2}>
         {media?.map((src, index) => (
           <Grid sx={{ xs: 6, md: 4 }} key={index}>

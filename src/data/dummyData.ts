@@ -15,7 +15,6 @@ export interface IBusiness {
   longitude?: number;
 }
 export const dummyBusiness: IBusiness[] = [
-  // Add latitude and longitude for map integration in all records below
   {
     id: "2",
     name: "Indy Decor",
@@ -24,12 +23,14 @@ export const dummyBusiness: IBusiness[] = [
     ownerName: "Alice Johnson",
     phone: "(555) 123-4567",
     email: "alice@indydecor.com",
-    address: "123 Main St, Indianapolis, IN",
+    address: "123 Main St, Patna, Bihar",
     description: "Your one-stop shop for home decor and furnishings.",
     media: [
       "https://placehold.net/building-600x400.png",
       "https://placehold.net/building-600x400.png",
     ],
+    latitude: 25.5941,
+    longitude: 85.1376,
   },
   {
     id: "3",
@@ -39,12 +40,19 @@ export const dummyBusiness: IBusiness[] = [
     ownerName: "Raj Patel",
     phone: "(555) 987-6543",
     email: "raj@tasteofindia.com",
-    address: "789 Curry St, Indianapolis, IN",
+    address: "789 Curry St, Gaya, Bihar",
     description: "Authentic Indian cuisine with a modern twist.",
     media: [
       "https://placehold.net/building-600x400.png",
       "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
+      "https://placehold.net/building-600x400.png",
     ],
+    latitude: 24.7955,
+    longitude: 84.9994,
   },
   {
     id: "4",
@@ -54,12 +62,14 @@ export const dummyBusiness: IBusiness[] = [
     ownerName: "Maya Singh",
     phone: "(555) 555-1212",
     email: "maya@bloombeautystudio.com",
-    address: "456 Elm St, Indianapolis, IN",
+    address: "456 Elm St, Bhagalpur, Bihar",
     description: "A serene escape for all your beauty needs.",
     media: [
       "https://placehold.net/building-600x400.png",
       "https://placehold.net/building-600x400.png",
     ],
+    latitude: 25.3476,
+    longitude: 86.9824,
   },
   {
     id: "5",
@@ -69,12 +79,14 @@ export const dummyBusiness: IBusiness[] = [
     ownerName: "David Lee",
     phone: "(555) 222-3333",
     email: "david@techfix.com",
-    address: "321 Tech Ave, Indianapolis, IN",
+    address: "321 Tech Ave, Muzaffarpur, Bihar",
     description: "Fast and reliable repair services for all your devices.",
     media: [
       "https://placehold.net/building-600x400.png",
       "https://placehold.net/building-600x400.png",
     ],
+    latitude: 26.1224,
+    longitude: 85.3906,
   },
   {
     id: "6",
@@ -84,12 +96,14 @@ export const dummyBusiness: IBusiness[] = [
     ownerName: "Sara Green",
     phone: "(555) 444-5555",
     email: "sara@greenleafgrocers.com",
-    address: "654 Market St, Indianapolis, IN",
+    address: "654 Market St, Purnia, Bihar",
     description: "Fresh, organic, and locally sourced groceries.",
     media: [
       "https://placehold.net/building-600x400.png",
       "https://placehold.net/building-600x400.png",
     ],
+    latitude: 25.7771,
+    longitude: 87.4753,
   },
   {
     id: "7",
@@ -99,12 +113,14 @@ export const dummyBusiness: IBusiness[] = [
     ownerName: "Lena Martinez",
     phone: "(555) 666-7777",
     email: "lena@yogaroots.com",
-    address: "987 Zen Ln, Indianapolis, IN",
+    address: "987 Zen Ln, Darbhanga, Bihar",
     description: "Find your balance with our yoga and wellness classes.",
     media: [
       "https://placehold.net/building-600x400.png",
       "https://placehold.net/building-600x400.png",
     ],
+    latitude: 26.1527,
+    longitude: 85.897,
   },
   //   { id: 8, name: "Little Learners Preschool", category: "Education" },
   //   { id: 9, name: "Urban Tailors", category: "Clothing & Alterations" },
