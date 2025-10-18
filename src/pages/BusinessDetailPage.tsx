@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useBusinessDetails } from "../hooks/useBusinessDetails";
-import BusinessProfile from "./BusinessProfile";
-import ImageGallery from "./ImageGallery";
-import ContactDetails from "./ContactDetails";
-import MapSection from "./MapSection";
+import BusinessProfile from "./sub-components/BusinessProfile";
+import ImageGallery from "./sub-components/ImageGallery";
+import ContactDetails from "./sub-components/ContactDetails";
+import MapSection from "./sub-components/MapSection";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 

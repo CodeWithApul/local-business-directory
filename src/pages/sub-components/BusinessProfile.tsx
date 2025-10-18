@@ -8,7 +8,7 @@ import {
   Divider,
 } from "@mui/material";
 import { Person, Storefront } from "@mui/icons-material";
-import type { IBusiness } from "../data/dummyData";
+import type { IBusiness } from "../../data/dummyData";
 
 //  <BusinessProfile />
 {

@@ -10,6 +10,7 @@ import { LoginTypes } from "./types/LoginTypes";
 import ShopDashboard from "./pages/ShopDashboard";
 import AppLayout from "./AppLayout";
 import BusinessDetailPage from "./pages/BusinessDetailPage";
+import ShopBookings from "./pages/ShopBookings";
 
 export default function App() {
   const locationKey = useLocation().key;
@@ -32,6 +33,7 @@ export default function App() {
             element={<BusinessDetailPage key={locationKey} />}
           />
           <Route path="/shop" element={<ShopDashboard />} />
+          <Route path="/shop/bookings" element={<ShopBookings />} />
         </Routes>
       </AppLayout>
     </ThemeProvider>

@@ -10,8 +10,8 @@ import {
   TextField,
 } from "@mui/material";
 import { Lock } from "@mui/icons-material";
-import ContactRow from "../components/ContactRow";
-import { ContactType } from "../types/ContactTypes";
+import ContactRow from "../../components/ContactRow";
+import { ContactType } from "../../types/ContactTypes";
 
 interface ContactDetailsProps {
   phone: string;

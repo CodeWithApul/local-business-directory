@@ -7,14 +7,16 @@ import Footer from "./components/Footer";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
-  const shopRoutes = ["/shop"];
+  const shopRoutesPrefixes = ["/shop"];
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
       <CssBaseline />
 
       <Box component="main" flexGrow={1}>
-        {shopRoutes.includes(pathname) ? (
+        {shopRoutesPrefixes.some((route) =>
+          pathname.toLowerCase().includes(route.toLowerCase())
+        ) ? (
           <MiniDrawer>{children}</MiniDrawer>
         ) : (
           <>
