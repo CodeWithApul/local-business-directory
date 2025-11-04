@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  status     String     @default("active")
+  businesses Business[]
+}
+
+model Business {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String
+  phone       String
+  email       String
+  website     String?
+  logoUrl     String?
+  categoryId  Int
+  ownerId     Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  status      String          @default("active")
+  address     Address?
+  category    Category        @relation(fields: [categoryId], references: [id])
+  owner       User            @relation(fields: [ownerId], references: [id])
+  medias      BusinessMedia[]
+  Review      Review[]
+}
+
+model BusinessMedia {
+  id         Int      @id @default(autoincrement())
+  url        String
+  type       String
+  businessId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+model Address {
+  id         Int      @id @default(autoincrement())
+  street     String
+  city       String
+  state      String
+  country    String
+  postalCode String
+  lat        Float?
+  lon        Float?
+  businessId Int      @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
+  email      String     @unique
+  password   String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  status     String     @default("active")
+  businesses Business[]
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  comment    String?
+  businessId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+  business   Business @relation(fields: [businessId], references: [id])
+}

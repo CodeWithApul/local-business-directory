@@ -1,15 +1,19 @@
 import express from "express";
+import businessRoutes from "./routes/business";
+// import categoryRoutes from "./routes/category";
+// import userRoutes from './routes/user';
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
-app.get("/", (req, res) => {
-  res.send("Backend is running!");
-});
+app.use(express.json());
+app.use("/api/businesses", businessRoutes);
+// app.use("/api/categories", categoryRoutes);
+// app.use('/api/users', userRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
