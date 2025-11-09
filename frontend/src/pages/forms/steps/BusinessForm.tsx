@@ -134,7 +134,7 @@ export default function BusinessForm({
           // FIXME: Check for Uniqueness
         />
         <TextField
-          label="Address"
+          label="Address - This will go to street until we have separate fields for street, city, state, country, postal code"
           variant="outlined"
           multiline
           rows={2}

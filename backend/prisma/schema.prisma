@@ -21,16 +21,17 @@ model Business {
   id          Int             @id @default(autoincrement())
   name        String
   description String
-  phone       String
+  phoneNumber       String
   email       String
   website     String?
   logoUrl     String?
   categoryId  Int
   ownerId     Int
+  addressId   Int             @unique
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   status      String          @default("active")
-  address     Address?
+  address     Address         @relation(fields: [addressId], references: [id])
   category    Category        @relation(fields: [categoryId], references: [id])
   owner       User            @relation(fields: [ownerId], references: [id])
   medias      BusinessMedia[]
@@ -57,18 +58,19 @@ model Address {
   postalCode String
   lat        Float?
   lon        Float?
-  businessId Int      @unique
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   status     String   @default("active")
-  business   Business @relation(fields: [businessId], references: [id])
+  business   Business?
 }
 
 model User {
   id         Int        @id @default(autoincrement())
   username   String     @unique
   email      String     @unique
+  phoneNumber String
   password   String
+  verificationToken String?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   status     String     @default("active")
