@@ -49,7 +49,7 @@ router.post("/update/:id", async (req, res) => {
   res.json(updatedUser);
 });
 
-router.post("/generate-otp", async (req, res) => {
+router.post("/generate-otp", async (req: Request, res: Response) => {
   const { email, phoneNumber, userId } = req.body;
   try {
     const otp = digitOnlyOTP(6);
