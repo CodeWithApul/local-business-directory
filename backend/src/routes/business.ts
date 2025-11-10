@@ -3,12 +3,11 @@ import { Router } from "express";
 import { z, prettifyError } from "zod/v4";
 import multer from "multer";
 import path from "path";
-
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth.middleware";
-
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Response } from "express";
+
 const router = Router();
 const prisma = new PrismaClient();
 
@@ -46,7 +45,7 @@ const storage = multer.diskStorage({
 const fileFilter = (
   req: Express.Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback,
+  cb: multer.FileFilterCallback
 ) => {
   if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
@@ -70,7 +69,7 @@ export const BusinessFormSchema = z.object({
     .string()
     .regex(
       /^[+]?[0-9]{10,15}$/,
-      "Phone number must be valid and contain 10-15 digits (with optional '+')",
+      "Phone number must be valid and contain 10-15 digits (with optional '+')"
     ),
   state: z.string(),
   street: z.string().min(3),
@@ -247,7 +246,7 @@ router.post(
       console.error("Error updating business:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  },
+  }
 );
 
 export default router;

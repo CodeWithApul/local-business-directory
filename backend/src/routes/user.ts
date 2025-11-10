@@ -1,16 +1,15 @@
 import bcrypt from "bcrypt";
 import { Router } from "express";
-
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
 import sendEmail from "../utils/emailService";
 import { generateToken, verifyRefreshToken } from "../utils/jwt";
 import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
-
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
+
 const router = Router();
 const prisma = new PrismaClient();
 const saltRounds = 10;
@@ -61,8 +60,6 @@ router.post("/generate-otp", async (req: Request, res: Response) => {
     await sendEmail(email, otp);
     // Send OTP via SMS
     await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
-    // Send OTP via SMS (not implemented here)
-    // await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
   } catch (error) {
     console.error("Error generating or sending OTP:", error);
     return res.status(500).json({ error: "Failed to generate or send OTP" });
