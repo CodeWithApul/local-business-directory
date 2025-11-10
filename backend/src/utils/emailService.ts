@@ -1,4 +1,5 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
+
 const sendEmail = async (email: string, otp: string) => {
   //   const transporter = nodemailer.createTransport({
   //     service: "gmail",
@@ -11,6 +12,9 @@ const sendEmail = async (email: string, otp: string) => {
   //     },
   //   });
   /* for testing purpose only */
+  console.log("SMTP_EMAIL:", process.env.SMTP_EMAIL);
+  console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD);
+  console.log("EMAIL_FROM:", process.env.EMAIL_FROM);
   const transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,
