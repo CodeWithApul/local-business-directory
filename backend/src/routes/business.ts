@@ -1,9 +1,13 @@
+import crypto from "crypto";
 import { Router } from "express";
 import multer from "multer";
-import crypto from "crypto";
 import path from "path";
-import fs from "fs";
-import { PrismaClient, type User } from "../generated/prisma/client";
+
+import { PrismaClient } from "../generated/prisma/client";
+import { authMiddleware } from "../middleware/auth.middleware";
+
+import type { AuthenticatedRequest } from "../types/auth";
+import type { Response } from "express";
 const router = Router();
 const prisma = new PrismaClient();
 
@@ -126,11 +130,12 @@ router.post("/create", upload.single("logo"), async (req, res) => {
 
 router.post(
   "/update",
+  authMiddleware,
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "media", maxCount: 10 },
   ]),
-  async (req, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const {
         businessId, // Assuming you pass the business ID to update

@@ -4,3 +4,4 @@ dist
 logs
 *.log
 /src/generated/prisma
+/tmp
