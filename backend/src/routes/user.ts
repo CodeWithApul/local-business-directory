@@ -1,17 +1,16 @@
-import bcrypt from "bcrypt";
-import { Router } from "express";
+import bcrypt from 'bcrypt';
+import { Router } from 'express';
 
-import { PrismaClient } from "../generated/prisma/client";
-import { authMiddleware } from "../middleware/auth.middleware";
-import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
-import sendEmail from "../utils/emailService";
-import { generateToken, verifyRefreshToken } from "../utils/jwt";
-import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
+import { PrismaClient } from '../generated/prisma/client';
+import { authMiddleware } from '../middleware/auth.middleware';
+import { clearSecureCookie, setSecureCookie } from '../utils/cookie';
+import sendEmail from '../utils/emailService';
+import { generateToken, verifyRefreshToken } from '../utils/jwt';
+import { digitOnlyOTP, sendOTPViaSMS } from '../utils/otpService';
 
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
-
 const router = Router();
 const prisma = new PrismaClient();
 const saltRounds = 10;
@@ -37,14 +36,6 @@ router.post("/create", async (req, res) => {
   res.json(user);
 });
 
-router.get("/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-  res.json(user);
-});
-
 router.post("/update/:id", async (req, res) => {
   const userId = parseInt(req.params.id);
   const updatedUser = await prisma.user.update({
@@ -63,7 +54,7 @@ router.post("/generate-otp", async (req, res) => {
   try {
     const otp = digitOnlyOTP(6);
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: parseInt(userId) },
       data: { verificationToken: otp },
     });
     // Send OTP via email
@@ -138,6 +129,14 @@ router.post("/logout", async (req: Request, res: Response) => {
   res.sendStatus(200);
 
   res.json({ message: "Logged out successfully" });
+});
+
+router.get("/:id", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  res.json(user);
 });
 
 export default router;
