@@ -1,4 +1,5 @@
 import twilio from "twilio";
+import otpGenerator from "otp-generator";
 
 const sendOTPViaSMS = async (phoneNumber: string, otp: string) => {
   const client = twilio(
@@ -11,8 +12,6 @@ const sendOTPViaSMS = async (phoneNumber: string, otp: string) => {
     to: phoneNumber,
   });
 };
-
-import otpGenerator from "otp-generator";
 
 const digitOnlyOTP = (length: number): string => {
   const otp = otpGenerator.generate(length, {

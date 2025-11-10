@@ -1,17 +1,29 @@
-import { PrismaClient } from "../generated/prisma/client";
-import { Router } from "express";
 import bcrypt from "bcrypt";
+import { Router } from "express";
+
+import { PrismaClient } from "../generated/prisma/client";
+import { authMiddleware } from "../middleware/auth.middleware";
+import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
 import sendEmail from "../utils/emailService";
+import { generateToken, verifyRefreshToken } from "../utils/jwt";
 import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
+
+import type { JwtPayload } from "jsonwebtoken";
+import type { AuthenticatedRequest } from "../types/auth";
+import type { Request, Response } from "express";
 
 const router = Router();
 const prisma = new PrismaClient();
 const saltRounds = 10;
 
-router.get("/", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
+router.get(
+  "/",
+  authMiddleware,
+  async (_req: AuthenticatedRequest, res: Response) => {
+    const users = await prisma.user.findMany();
+    res.json(users);
+  }
+);
 
 router.post("/create", async (req, res) => {
   const user = await prisma.user.create({
@@ -56,7 +68,7 @@ router.post("/generate-otp", async (req, res) => {
     });
     // Send OTP via email
     await sendEmail(email, otp);
-    // Send OTP via SMS (not implemented here)
+    // Send OTP via SMS
     await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
   } catch (error) {
     console.error("Error generating or sending OTP:", error);
@@ -100,7 +112,32 @@ router.post("/login", async (req, res) => {
   if (!isPasswordValid) {
     return res.status(400).json({ error: "Invalid password" });
   }
-  res.json({ message: "Login successful", user });
+  const { accessToken, refreshToken } = generateToken(user.id.toString());
+  res.cookie("refreshToken", refreshToken, { httpOnly: true });
+  res.json({ accessToken });
+});
+
+router.post("refresh-token", async (req, res) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    return res.status(401).json({ error: "No refresh token provided" });
+  }
+  try {
+    const { userId } = verifyRefreshToken(token) as JwtPayload;
+    const { accessToken, refreshToken } = generateToken(userId);
+    setSecureCookie(res, refreshToken);
+    res.json({ accessToken });
+  } catch (error) {
+    return res.status(401).json({ error: "Invalid refresh token" });
+  }
+});
+
+router.post("/logout", async (req: Request, res: Response) => {
+  clearSecureCookie(res);
+  res.sendStatus(200);
+
+  res.json({ message: "Logged out successfully" });
 });
 
 export default router;
