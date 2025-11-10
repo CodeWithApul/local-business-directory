@@ -51,13 +51,13 @@ router.post("/generate-otp", async (req, res) => {
   try {
     const otp = digitOnlyOTP(6);
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: parseInt(userId) },
       data: { verificationToken: otp },
     });
     // Send OTP via email
     await sendEmail(email, otp);
     // Send OTP via SMS (not implemented here)
-    await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
+    // await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
   } catch (error) {
     console.error("Error generating or sending OTP:", error);
     return res.status(500).json({ error: "Failed to generate or send OTP" });

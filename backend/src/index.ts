@@ -3,6 +3,7 @@ import businessRoutes from "./routes/business";
 import categoryRoutes from "./routes/category";
 import userRoutes from "./routes/user";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -10,6 +11,9 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
+
+app.use(cors());
+
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/business", businessRoutes);
