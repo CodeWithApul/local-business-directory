@@ -14,7 +14,7 @@ import Grid from "@mui/material/Grid";
   <ImageGallery />
   <ContactSection />
   <Footer />
-</Container> 
+</Container>
 
 Components:
 BusinessProfile.tsx — name, category, description
@@ -29,7 +29,6 @@ function BusinessDetailPage() {
   const { id } = useParams();
   if (!id) throw Error("No id present in URL");
   const { business, loading, error } = useBusinessDetails(id);
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   if (!business) return <p>No business found.</p>;

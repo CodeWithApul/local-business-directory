@@ -10,9 +10,18 @@ export const BusinessFormSchema = yup.object({
     .required("Phone Number is required!")
     .matches(
       /^[+]?[0-9]{10,15}$/,
-      "Phone number must be valid and contain 10-15 digits (with optional '+')"
+      "Phone number must be valid and contain 10-15 digits (with optional '+')",
     ),
-  address: yup.string().optional().default(null),
+  state: yup.string().required("State Name is required!").default(null),
+  street: yup.string().required("Street Name is required!").default(null),
+
+  city: yup.string().required("City Name is required!").default(null),
+  country: yup.string().required("Country Name is required").default(null),
+  postalCode: yup
+    .string()
+    .trim()
+    .required("Enter your postal code")
+    .matches(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
   description: yup.string().optional().default(null),
   logo: yup
     .mixed<FileList>()
@@ -23,7 +32,8 @@ export const BusinessFormSchema = yup.object({
     .test(
       "fileType",
       "Only JPG/PNG allowed!",
-      (value) => value && ["image/jpeg", "image/png"].includes(value?.[0]?.type)
+      (value) =>
+        value && ["image/jpeg", "image/png"].includes(value?.[0]?.type),
     ),
   media: yup
     .mixed<File[]>()
@@ -32,8 +42,8 @@ export const BusinessFormSchema = yup.object({
     .test("fileType", "Only images and Videos allowed!", (value) =>
       value
         ? Array.from(value).every((file) =>
-            ["image/", "video/"].some((type) => file.type.startsWith(type))
+            ["image/", "video/"].some((type) => file.type.startsWith(type)),
           )
-        : true
+        : true,
     ),
 });

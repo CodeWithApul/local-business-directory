@@ -24,33 +24,84 @@ const steps: { key: FormStep; label: string }[] = [
 
 function AddBusinessPage() {
   const [step, setStep] = useState<FormStep>(FormStep.InitialDetails);
-  const [businessFormData, setBusinessFormData] =
-    useState<BusinessFormValues | null>(null);
+  const [userId, setUserId] = useState(null);
 
   useScrollToTop(step); // Scroll to Top when step changes
 
-  const onSubmitBusinessForm = (data: BusinessFormValues) => {
-    setBusinessFormData(data);
-    console.log(businessFormData);
+  const onSubmitBusinessForm = async (data: BusinessFormValues) => {
+    console.log(data);
+    const formData = new FormData();
+    formData.append("logo", data.logo[0]);
+    formData.append("businessName", data.businessName);
+    formData.append("ownerName", data.ownerName);
+    formData.append("street", data.street);
+    formData.append("country", data.country);
+    formData.append("city", data.city);
+    formData.append("state", data.state);
+    formData.append("postalCode", String(data.postalCode));
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("email", data.email);
+    formData.append("category", data.category);
+    formData.append("description", data.description ?? "");
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/business/create`,
+
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+    const json = await res.json();
+
     // FIXME: Trigger OTP send via backend
     // await sendOTP(data.email, data.phone);
+    if (!res.ok) {
+      return toast.error(`Something went wrong ${json.error}`);
+    }
+
+    const otpRes = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/users/generate-otp`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          email: data.email,
+          userId: json.userId,
+          phoneNumber: data.phoneNumber,
+        }),
+      },
+    );
+
+    if (!otpRes.ok) {
+      return toast.error("Failed to send otp, try again later.");
+    }
+    setUserId(json.userId);
     setStep(FormStep.OTPVerification);
 
-    console.log("Form Data:", {
-      ...data,
-      // logo: data.logo[0]?.name,
-    });
+    return toast.error(
+      `We have send an OTP to ${data.email} adn ${data.phoneNumber}`,
+    );
   };
 
-  const onSubmitOTPForm = (otp: string) => {
-    console.log("onSubmitOTPForm", "OTP => ", otp);
-    const isValid = true; // await verifyOTP(otp, email);// FIXME:
-    if (isValid) {
-      setStep(FormStep.Success);
-      // submitFormData(businessFormData); // save details to backend // FIXME:
-    } else {
-      toast.error("Invalid OTP");
+  const onSubmitOTPForm = async (otp: string, password: string) => {
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/users/verify-otp`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ otp: otp, userId: userId, password: password }),
+      },
+    );
+
+    if (!res.ok) {
+      return toast.error("Invalid OTP");
     }
+    setStep(FormStep.Success);
+    return toast.success("You account has been created.");
   };
   return (
     <Box sx={{ maxWidth: 600, margin: "auto", padding: 5 }}>
