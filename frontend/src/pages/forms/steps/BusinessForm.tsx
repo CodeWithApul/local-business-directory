@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { type InferType } from "yup";
+import categories from "../../../data/categories.json";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -13,13 +14,9 @@ import {
 } from "@mui/material";
 
 import { BusinessFormSchema } from "../ValidationSchema.ts";
-import { dummyBusiness } from "../../../data/dummyData.ts";
 
 export type BusinessFormValues = InferType<typeof BusinessFormSchema>;
 
-const categories: string[] = Array.from(
-  new Set(dummyBusiness.map((b) => b.category))
-);
 interface BusinessFormProps {
   initialValues?: Partial<BusinessFormValues>;
   mode: "create" | "edit";
@@ -101,8 +98,8 @@ export default function BusinessForm({
           select
         >
           {categories.map((c, index) => (
-            <MenuItem key={index} value={c}>
-              {c}
+            <MenuItem key={index} value={c.id}>
+              {c.name}
             </MenuItem>
           ))}
         </TextField>
@@ -134,13 +131,54 @@ export default function BusinessForm({
           // FIXME: Check for Uniqueness
         />
         <TextField
-          label="Address - This will go to street until we have separate fields for street, city, state, country, postal code"
+          label="Street"
           variant="outlined"
-          multiline
-          rows={2}
-          {...register("address")}
-          error={!!errors.address}
-          helperText={errors.address?.message}
+          required
+          fullWidth
+          {...register("street")}
+          error={!!errors.street}
+          helperText={errors.street?.message}
+          // FIXME: Check for Uniqueness
+        />
+        <TextField
+          label="City"
+          variant="outlined"
+          required
+          fullWidth
+          {...register("city")}
+          error={!!errors.city}
+          helperText={errors.city?.message}
+          // FIXME: Check for Uniqueness
+        />
+        <TextField
+          label="State"
+          variant="outlined"
+          required
+          fullWidth
+          {...register("state")}
+          error={!!errors.state}
+          helperText={errors.state?.message}
+          // FIXME: Check for Uniqueness
+        />
+        <TextField
+          label="Country"
+          variant="outlined"
+          required
+          fullWidth
+          {...register("country")}
+          error={!!errors.country}
+          helperText={errors.country?.message}
+          // FIXME: Check for Uniqueness
+        />
+        <TextField
+          label="Postal Code"
+          variant="outlined"
+          required
+          fullWidth
+          {...register("postalCode")}
+          error={!!errors.postalCode}
+          helperText={errors.postalCode?.message}
+          // FIXME: Check for Uniqueness
         />
         <TextField
           label="Description"
@@ -211,7 +249,7 @@ export default function BusinessForm({
                       controls
                       sx={{ width: 200, height: 200 }}
                     />
-                  )
+                  ),
                 )}
             </Box>
           </>

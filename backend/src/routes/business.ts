@@ -5,6 +5,8 @@ import path from "path";
 
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth.middleware";
+import { validateSchema } from "../middleware/validateSchema.middleware";
+import { BusinessFormSchema } from "../schema/business";
 
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Response } from "express";
@@ -60,73 +62,81 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
 });
 
-router.post("/create", upload.single("logo"), async (req, res) => {
-  try {
-    const {
-      businessName,
-      description,
-      category,
-      street,
-      city,
-      state,
-      country,
-      postalCode,
-      phoneNumber,
-      email,
-      ownerName,
-    } = req.body;
+router.post(
+  "/create",
+  validateSchema(BusinessFormSchema),
+  upload.single("logo"),
+  async (req, res) => {
+    try {
+      console.dir(req.body, { depth: null, color: true });
+      const {
+        businessName,
+        description,
+        category,
+        street,
+        city,
+        state,
+        country,
+        postalCode,
+        phoneNumber,
+        email,
+        ownerName,
+      } = req.body;
 
-    if (!req.file) {
-      return res.status(400).send("No file uploaded or invalid file type.");
-    }
-    /*  
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ error: "No file uploaded or invalid file type." });
+      }
+      /*
       // const randomStr = crypto.randomBytes(8).toString("hex");
       // const ext = path.extname(req.file.originalname);
       // const newFilename = `${randomStr}${ext}`;
       // const newPath = path.join("uploads", newFilename);
       // fs.renameSync(req.file.path, newPath);
     */
-    // upload logo and get URL (skipped for brevity)
-    // create owner if not exists (skipped for brevity)
-    // check email uniqueness (skipped for brevity)
+      // upload logo and get URL (skipped for brevity)
+      // create owner if not exists (skipped for brevity)
+      // check email uniqueness (skipped for brevity)
 
-    const newBusiness = await prisma.business.create({
-      data: {
-        name: businessName,
-        description,
-        category: { connect: { id: parseInt(category) } },
-        address: {
-          create: {
-            street,
-            city: city || "",
-            state: state || "",
-            postalCode: postalCode || "",
-            country: country || "",
-          },
-        },
-        phoneNumber,
-        email,
-        logoUrl: req.file.path, // In real app, use uploaded URL
-        owner: {
-          connectOrCreate: {
-            where: { email, phoneNumber }, // Check if the owner exists by email and mobile number
+      const business = await prisma.business.create({
+        data: {
+          name: businessName,
+          description,
+          category: { connect: { id: parseInt(category) } },
+          address: {
             create: {
-              username: ownerName,
-              email,
-              phoneNumber,
-              password: "defaultPassword", // Generate a secure password in a real app
+              street,
+              city: city || "",
+              state: state || "",
+              postalCode: postalCode || "",
+              country: country || "",
             },
           },
+          phoneNumber,
+          email,
+          logoUrl: req.file.path, // In real app, use uploaded URL
+          owner: {
+            connectOrCreate: {
+              where: { email, phoneNumber }, // Check if the owner exists by email and mobile number
+              create: {
+                username: ownerName,
+                email,
+                phoneNumber,
+                password: "defaultPassword", // Generate a secure password in a real app
+              },
+            },
+          },
+          status: "active",
         },
-        status: "active",
-      },
-    });
-    res.status(201).json(newBusiness);
-  } catch (error) {
-    console.error("Error creating business:", error);
-    res.status(500).json({ error: "Internal server error" });
+      });
+      res.status(201).json({ userId: business.ownerId });
+    } catch (error) {
+      console.error("Error creating business:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 router.post(
   "/update",

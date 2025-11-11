@@ -1,16 +1,15 @@
-import bcrypt from 'bcrypt';
-import { Router } from 'express';
-
-import { PrismaClient } from '../generated/prisma/client';
-import { authMiddleware } from '../middleware/auth.middleware';
-import { clearSecureCookie, setSecureCookie } from '../utils/cookie';
-import sendEmail from '../utils/emailService';
-import { generateToken, verifyRefreshToken } from '../utils/jwt';
-import { digitOnlyOTP, sendOTPViaSMS } from '../utils/otpService';
-
+import bcrypt from "bcrypt";
+import { Router } from "express";
+import { PrismaClient } from "../generated/prisma/client";
+import { authMiddleware } from "../middleware/auth.middleware";
+import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
+import sendEmail from "../utils/emailService";
+import { generateToken, verifyRefreshToken } from "../utils/jwt";
+import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
+
 const router = Router();
 const prisma = new PrismaClient();
 const saltRounds = 10;
