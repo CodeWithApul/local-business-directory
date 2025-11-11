@@ -38,7 +38,7 @@ function AddBusinessPage() {
     formData.append("country", data.country);
     formData.append("city", data.city);
     formData.append("state", data.state);
-    formData.append("postalCode", String(data.postalCode));
+    formData.append("postalCode", data.postalCode);
     formData.append("phoneNumber", data.phoneNumber);
     formData.append("email", data.email);
     formData.append("category", data.category);
@@ -80,9 +80,7 @@ function AddBusinessPage() {
     setUserId(json.userId);
     setStep(FormStep.OTPVerification);
 
-    return toast.error(
-      `We have send an OTP to ${data.email} adn ${data.phoneNumber}`,
-    );
+    toast.error(`We have send an OTP to ${data.email} and ${data.phoneNumber}`);
   };
 
   const onSubmitOTPForm = async (otp: string, password: string) => {
@@ -101,7 +99,7 @@ function AddBusinessPage() {
       return toast.error("Invalid OTP");
     }
     setStep(FormStep.Success);
-    return toast.success("You account has been created.");
+    toast.success("You account has been created.");
   };
   return (
     <Box sx={{ maxWidth: 600, margin: "auto", padding: 5 }}>

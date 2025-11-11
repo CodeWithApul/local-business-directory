@@ -76,12 +76,7 @@ export default function BusinessForm({
   }, [previewMedia]);
 
   return (
-    <Box
-      encType="multipart/form-data"
-      component="form"
-      onSubmit={handleSubmit(onSubmit)}
-      noValidate
-    >
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
       <Stack spacing={2}>
         <TextField
           label="Business Name"
