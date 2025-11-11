@@ -24,7 +24,7 @@ const steps: { key: FormStep; label: string }[] = [
 ];
 
 function AddBusinessPage() {
-  const [step, setStep] = useState<FormStep>(FormStep.OTPVerification);
+  const [step, setStep] = useState<FormStep>(FormStep.InitialDetails);
   const [userId, setUserId] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");

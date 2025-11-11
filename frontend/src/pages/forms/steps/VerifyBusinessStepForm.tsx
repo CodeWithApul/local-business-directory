@@ -7,9 +7,13 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 function VerifyBusinessForm({
   onSubmit,
+  email,
+  userId,
+  phoneNumber,
 }: {
   onSubmit: (otp: string, password: string) => void;
   email: string;
@@ -19,7 +23,7 @@ function VerifyBusinessForm({
   const [otp, setOtp] = useState<string>("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<boolean>(false);
-  const [secondsRemaining, setSecondsRemaining] = useState(30);
+  const [secondsRemaining, setSecondsRemaining] = useState(60);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   useEffect(() => {
@@ -37,6 +41,34 @@ function VerifyBusinessForm({
       return () => clearInterval(interval);
     }
   }, [secondsRemaining, isButtonDisabled]);
+
+  const handleResendOtp = async (
+    phoneNumber: string,
+    email: string,
+    userId: string,
+  ) => {
+    const otpRes = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/users/generate-otp`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          email: email,
+          userId: userId,
+          phoneNumber: phoneNumber,
+        }),
+      },
+    );
+
+    if (!otpRes.ok) {
+      return toast.error(`Something went wrong, try again later`);
+    }
+    setIsButtonDisabled(true);
+    setSecondsRemaining(60);
+    toast.success("OTP resent successfully.");
+  };
 
   const onSubmitVerification = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,10 +116,10 @@ function VerifyBusinessForm({
 
         <Button
           variant="text"
-          // onClick={handleResendOtp}
+          onClick={() => handleResendOtp(phoneNumber, email, userId)}
           disabled={isButtonDisabled} // MUI Button uses the 'disabled' prop
           color="primary"
-          sx={{ textTransform: "none" }} // Optional: removes all caps styling
+          sx={{ textTransform: "none" }}
         >
           Send Again
         </Button>
