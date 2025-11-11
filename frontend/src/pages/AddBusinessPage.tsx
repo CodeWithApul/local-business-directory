@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { HorizontalLinearAlternativeLabelStepper } from "../components/HorizontalLinearAlternativeLabelStepper";
 import useScrollToTop from "../hooks/useScrollToTop";
+import { setFormData } from "../utils/createFormData";
 
 enum FormStep {
   InitialDetails = 0,
@@ -23,33 +24,36 @@ const steps: { key: FormStep; label: string }[] = [
 ];
 
 function AddBusinessPage() {
-  const [step, setStep] = useState<FormStep>(FormStep.InitialDetails);
-  const [userId, setUserId] = useState(null);
+  const [step, setStep] = useState<FormStep>(FormStep.OTPVerification);
+  const [userId, setUserId] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   useScrollToTop(step); // Scroll to Top when step changes
 
   const onSubmitBusinessForm = async (data: BusinessFormValues) => {
-    console.log(data);
-    const formData = new FormData();
-    formData.append("logo", data.logo[0]);
-    formData.append("businessName", data.businessName);
-    formData.append("ownerName", data.ownerName);
-    formData.append("street", data.street);
-    formData.append("country", data.country);
-    formData.append("city", data.city);
-    formData.append("state", data.state);
-    formData.append("postalCode", data.postalCode);
-    formData.append("phoneNumber", data.phoneNumber);
-    formData.append("email", data.email);
-    formData.append("category", data.category);
-    formData.append("description", data.description ?? "");
+    const formData = setFormData({
+      logo: data.logo[0],
+      businessName: data.businessName,
+      ownerName: data.ownerName,
+      street: data.street,
+      country: data.country,
+      city: data.city,
+      state: data.state,
+      postalCode: data.postalCode,
+      phoneNumber: data.phoneNumber,
+      email: data.email,
+      category: data.category,
+      description: data.description,
+    });
+
     const res = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/api/business/create`,
 
       {
         method: "POST",
         body: formData,
-      },
+      }
     );
     const json = await res.json();
 
@@ -71,13 +75,15 @@ function AddBusinessPage() {
           userId: json.userId,
           phoneNumber: data.phoneNumber,
         }),
-      },
+      }
     );
 
     if (!otpRes.ok) {
       return toast.error("Failed to send otp, try again later.");
     }
     setUserId(json.userId);
+    setPhoneNumber(data.phoneNumber);
+    setEmail(data.email);
     setStep(FormStep.OTPVerification);
 
     toast.error(`We have send an OTP to ${data.email} and ${data.phoneNumber}`);
@@ -92,7 +98,7 @@ function AddBusinessPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ otp: otp, userId: userId, password: password }),
-      },
+      }
     );
 
     if (!res.ok) {
@@ -115,7 +121,12 @@ function AddBusinessPage() {
         <BusinessForm mode="create" onSubmit={onSubmitBusinessForm} />
       )}
       {step === FormStep.OTPVerification && (
-        <VerifyBusinessForm onSubmit={onSubmitOTPForm} />
+        <VerifyBusinessForm
+          email={email}
+          userId={userId}
+          phoneNumber={phoneNumber}
+          onSubmit={onSubmitOTPForm}
+        />
       )}
       {step === FormStep.Success && <SuccessBusinessForm />}
     </Box>
