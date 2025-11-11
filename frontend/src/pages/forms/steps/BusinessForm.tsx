@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { type InferType } from "yup";
-import categories from "../../../data/categories.json";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -13,7 +11,10 @@ import {
   TextField,
 } from "@mui/material";
 
+import categories from "../../../data/categories.json";
 import { BusinessFormSchema } from "../ValidationSchema.ts";
+
+import type { InferType } from "yup";
 
 export type BusinessFormValues = InferType<typeof BusinessFormSchema>;
 
@@ -96,6 +97,7 @@ export default function BusinessForm({
           error={!!errors.category}
           helperText={errors.category?.message}
           select
+          value={watch("category") || initialValues?.category || ""}
         >
           {categories.map((c, index) => (
             <MenuItem key={index} value={c.id}>
@@ -249,7 +251,7 @@ export default function BusinessForm({
                       controls
                       sx={{ width: 200, height: 200 }}
                     />
-                  ),
+                  )
                 )}
             </Box>
           </>
