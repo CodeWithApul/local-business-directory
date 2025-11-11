@@ -1,14 +1,14 @@
-import { Box, Typography } from "@mui/material";
-
-import BusinessForm, {
-  type BusinessFormValues,
-} from "./forms/steps/BusinessForm";
-import VerifyBusinessForm from "./forms/steps/VerifyBusinessStepForm";
-import SuccessBusinessForm from "./forms/steps/SuccessBusinessForm";
 import { useState } from "react";
 import { toast } from "react-toastify";
+
+import { Box, Typography } from "@mui/material";
+
 import { HorizontalLinearAlternativeLabelStepper } from "../components/HorizontalLinearAlternativeLabelStepper";
 import useScrollToTop from "../hooks/useScrollToTop";
+import { addBusiness, sendOTP, verifyOTP } from "../services/businessService";
+import BusinessForm, { BusinessFormValues } from "./forms/steps/BusinessForm";
+import SuccessBusinessForm from "./forms/steps/SuccessBusinessForm";
+import VerifyBusinessForm from "./forms/steps/VerifyBusinessStepForm";
 
 enum FormStep {
   InitialDetails = 0,
@@ -30,70 +30,32 @@ function AddBusinessPage() {
 
   const onSubmitBusinessForm = async (data: BusinessFormValues) => {
     console.log(data);
-    const formData = new FormData();
-    formData.append("logo", data.logo[0]);
-    formData.append("businessName", data.businessName);
-    formData.append("ownerName", data.ownerName);
-    formData.append("street", data.street);
-    formData.append("country", data.country);
-    formData.append("city", data.city);
-    formData.append("state", data.state);
-    formData.append("postalCode", data.postalCode);
-    formData.append("phoneNumber", data.phoneNumber);
-    formData.append("email", data.email);
-    formData.append("category", data.category);
-    formData.append("description", data.description ?? "");
-    const res = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/business/create`,
 
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-    const json = await res.json();
+    const res = await addBusiness(data);
+    const { userId, error } = await res.json();
 
-    // FIXME: Trigger OTP send via backend
-    // await sendOTP(data.email, data.phone);
     if (!res.ok) {
-      return toast.error(`Something went wrong ${json.error}`);
+      return toast.error(`Something went wrong ${error}`);
     }
 
-    const otpRes = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/users/generate-otp`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          email: data.email,
-          userId: json.userId,
-          phoneNumber: data.phoneNumber,
-        }),
-      },
-    );
+    const otpRes = await sendOTP(data.email, data.phoneNumber, userId); // Trigger OTP send
 
     if (!otpRes.ok) {
-      return toast.error("Failed to send otp, try again later.");
+      return toast.error("Failed to send OTP, try again later.");
     }
-    setUserId(json.userId);
+    setUserId(userId);
     setStep(FormStep.OTPVerification);
 
-    toast.error(`We have send an OTP to ${data.email} and ${data.phoneNumber}`);
+    toast.success(
+      `We have send an OTP to ${data.email} and ${data.phoneNumber}`
+    );
   };
 
   const onSubmitOTPForm = async (otp: string, password: string) => {
-    const res = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/users/verify-otp`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ otp: otp, userId: userId, password: password }),
-      },
-    );
+    if (!userId) {
+      return toast.error("User ID is missing. Please restart the process.");
+    }
+    const res = await verifyOTP(userId, otp, password);
 
     if (!res.ok) {
       return toast.error("Invalid OTP");
@@ -112,7 +74,11 @@ function AddBusinessPage() {
       />
 
       {step === FormStep.InitialDetails && (
-        <BusinessForm mode="create" onSubmit={onSubmitBusinessForm} />
+        <BusinessForm
+          mode="create"
+          onSubmit={onSubmitBusinessForm}
+          initialValues={{ category: "" }}
+        />
       )}
       {step === FormStep.OTPVerification && (
         <VerifyBusinessForm onSubmit={onSubmitOTPForm} />
