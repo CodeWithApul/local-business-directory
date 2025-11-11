@@ -8,19 +8,7 @@ export async function getBusinesses() {
 }
 
 export async function addBusiness(data: BusinessFormValues) {
-  const formData = new FormData();
-  formData.append("logo", data.logo[0]);
-  formData.append("businessName", data.businessName);
-  formData.append("ownerName", data.ownerName);
-  formData.append("street", data.street);
-  formData.append("country", data.country);
-  formData.append("city", data.city);
-  formData.append("state", data.state);
-  formData.append("postalCode", data.postalCode);
-  formData.append("phoneNumber", data.phoneNumber);
-  formData.append("email", data.email);
-  formData.append("category", data.category);
-  formData.append("description", data.description ?? "");
+  const formData = toFormDataTyped(data);
 
   const res = await fetch(`${BASE_API_URL}/business/create`, {
     method: "POST",
@@ -50,4 +38,27 @@ export async function verifyOTP(userId: string, otp: string, password: string) {
     body: JSON.stringify({ userId, otp, password }),
   });
   return res;
+}
+
+function toFormDataTyped(data: BusinessFormValues): FormData {
+  const formData = new FormData();
+  formData.append("logo", data.logo[0]);
+  // data.media.forEach((file) => formData.append("media", file));
+  (
+    [
+      "businessName",
+      "ownerName",
+      "street",
+      "country",
+      "city",
+      "state",
+      "postalCode",
+      "phoneNumber",
+      "email",
+      "category",
+    ] as const
+  ).forEach((key) => formData.append(key, data[key]));
+
+  formData.append("description", data.description ?? "");
+  return formData;
 }
