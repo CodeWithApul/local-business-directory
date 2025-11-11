@@ -6,10 +6,11 @@ import { Box, Typography } from "@mui/material";
 import { HorizontalLinearAlternativeLabelStepper } from "../components/HorizontalLinearAlternativeLabelStepper";
 import useScrollToTop from "../hooks/useScrollToTop";
 import { addBusiness, sendOTP, verifyOTP } from "../services/businessService";
-import BusinessForm, { BusinessFormValues } from "./forms/steps/BusinessForm";
+import BusinessForm from "./forms/steps/BusinessForm";
 import SuccessBusinessForm from "./forms/steps/SuccessBusinessForm";
 import VerifyBusinessForm from "./forms/steps/VerifyBusinessStepForm";
 
+import type { BusinessFormValues } from "./forms/steps/BusinessForm";
 enum FormStep {
   InitialDetails = 0,
   OTPVerification = 1,
