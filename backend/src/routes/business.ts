@@ -1,13 +1,15 @@
 import crypto from "crypto";
 import { Router } from "express";
-import { z, prettifyError } from "zod/v4";
 import multer from "multer";
 import path from "path";
+
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth.middleware";
+import { validateSchema } from "../middleware/validateSchema.middleware";
+import { BusinessFormSchema } from "../schema/business";
+
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Response } from "express";
-
 const router = Router();
 const prisma = new PrismaClient();
 
@@ -45,7 +47,7 @@ const storage = multer.diskStorage({
 const fileFilter = (
   req: Express.Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback,
+  cb: multer.FileFilterCallback
 ) => {
   if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
@@ -60,104 +62,81 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
 });
 
-export const BusinessFormSchema = z.object({
-  businessName: z.string(),
-  category: z.string(),
-  ownerName: z.string(),
-  email: z.email().optional(),
-  phoneNumber: z
-    .string()
-    .regex(
-      /^[+]?[0-9]{10,15}$/,
-      "Phone number must be valid and contain 10-15 digits (with optional '+')",
-    ),
-  state: z.string(),
-  street: z.string().min(3),
-  city: z.string().min(3, "Enter a valid"),
-  country: z.string(),
-  postalCode: z
-    .string()
-    .trim()
-    .regex(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
-  description: z.string(),
-});
+router.post(
+  "/create",
+  validateSchema(BusinessFormSchema),
+  upload.single("logo"),
+  async (req, res) => {
+    try {
+      console.dir(req.body, { depth: null, color: true });
+      const {
+        businessName,
+        description,
+        category,
+        street,
+        city,
+        state,
+        country,
+        postalCode,
+        phoneNumber,
+        email,
+        ownerName,
+      } = req.body;
 
-router.post("/create", upload.single("logo"), async (req, res) => {
-  const parse = BusinessFormSchema.safeParse(req.body);
-
-  if (!parse.success) {
-    return res.status(400).json({ error: prettifyError(parse.error) });
-  }
-
-  try {
-    console.dir(req.body, { depth: null, color: true });
-    const {
-      businessName,
-      description,
-      category,
-      street,
-      city,
-      state,
-      country,
-      postalCode,
-      phoneNumber,
-      email,
-      ownerName,
-    } = req.body;
-
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ error: "No file uploaded or invalid file type." });
-    }
-    /*
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ error: "No file uploaded or invalid file type." });
+      }
+      /*
       // const randomStr = crypto.randomBytes(8).toString("hex");
       // const ext = path.extname(req.file.originalname);
       // const newFilename = `${randomStr}${ext}`;
       // const newPath = path.join("uploads", newFilename);
       // fs.renameSync(req.file.path, newPath);
     */
-    // upload logo and get URL (skipped for brevity)
-    // create owner if not exists (skipped for brevity)
-    // check email uniqueness (skipped for brevity)
+      // upload logo and get URL (skipped for brevity)
+      // create owner if not exists (skipped for brevity)
+      // check email uniqueness (skipped for brevity)
 
-    const newBusiness = await prisma.business.create({
-      data: {
-        name: businessName,
-        description,
-        category: { connect: { id: parseInt(category) } },
-        address: {
-          create: {
-            street,
-            city: city || "",
-            state: state || "",
-            postalCode: postalCode || "",
-            country: country || "",
-          },
-        },
-        phoneNumber,
-        email,
-        logoUrl: req.file.path, // In real app, use uploaded URL
-        owner: {
-          connectOrCreate: {
-            where: { email, phoneNumber }, // Check if the owner exists by email and mobile number
+      const business = await prisma.business.create({
+        data: {
+          name: businessName,
+          description,
+          category: { connect: { id: parseInt(category) } },
+          address: {
             create: {
-              username: ownerName,
-              email,
-              phoneNumber,
-              password: "defaultPassword", // Generate a secure password in a real app
+              street,
+              city: city || "",
+              state: state || "",
+              postalCode: postalCode || "",
+              country: country || "",
             },
           },
+          phoneNumber,
+          email,
+          logoUrl: req.file.path, // In real app, use uploaded URL
+          owner: {
+            connectOrCreate: {
+              where: { email, phoneNumber }, // Check if the owner exists by email and mobile number
+              create: {
+                username: ownerName,
+                email,
+                phoneNumber,
+                password: "defaultPassword", // Generate a secure password in a real app
+              },
+            },
+          },
+          status: "active",
         },
-        status: "active",
-      },
-    });
-    res.status(201).json({ userId: newBusiness.ownerId });
-  } catch (error) {
-    console.error("Error creating business:", error);
-    res.status(500).json({ error: "Internal server error" });
+      });
+      res.status(201).json({ userId: business.ownerId });
+    } catch (error) {
+      console.error("Error creating business:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 router.post(
   "/update",
@@ -246,7 +225,7 @@ router.post(
       console.error("Error updating business:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  },
+  }
 );
 
 export default router;
