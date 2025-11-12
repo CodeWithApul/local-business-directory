@@ -27,9 +27,7 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-export const LoginSchema = UserSchema.pick({
-  password: true,
-}).extend({
+export const LoginSchema = z.object({
   username: z.union([
     z.email({ message: "Invalid email format" }),
     z
@@ -40,6 +38,18 @@ export const LoginSchema = UserSchema.pick({
         "Mobile number must be valid and contain 10-15 digits (with optional '+')"
       ),
   ]),
+  password: z
+    .string()
+    .trim()
+    .min(8, { message: "Password must be at least 8 characters long" })
+    .max(16, { message: "Password must not exceed 16 characters" })
+    .regex(/[A-Z]/, {
+      message: "Password must contain at least one uppercase letter",
+    })
+    .regex(/[0-9]/, { message: "Password must contain at least one number" })
+    .regex(/[^A-Za-z0-9]/, {
+      message: "Password must contain at least one special character",
+    }),
 });
 
 export type Login = z.infer<typeof LoginSchema>;
