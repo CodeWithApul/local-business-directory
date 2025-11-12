@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
 
 export const BusinessFormSchema = z.object({
+  businessId: z.string().optional(),
   businessName: z.string(),
   category: z.string(),
   ownerName: z.string(),
@@ -21,3 +22,4 @@ export const BusinessFormSchema = z.object({
     .regex(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
   description: z.string(),
 });
+export type BusinessForm = z.infer<typeof BusinessFormSchema>;

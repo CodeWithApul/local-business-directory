@@ -52,12 +52,18 @@ export default function BusinessForm({
   //     }
   //   };
   /* Preview Image ------*/
+  // const logoFile = watch("logo");
   useEffect(() => {
-    if (logoFile && logoFile.length > 0) {
-      const filereader = new FileReader();
-      filereader.onloadend = () => setImagePreview(filereader.result as string);
-      filereader.readAsDataURL(logoFile[0]);
-    } else setImagePreview(null);
+    const logo = logoFile?.[0];
+    console.log("logoFile changed:", logo, typeof logo);
+    if (logoFile?.[0]) {
+      // const filereader = new FileReader();
+      // filereader.onloadend = () => setImagePreview(filereader.result as string);
+      // filereader.readAsDataURL(logoFile?.[0]);
+      setImagePreview(URL.createObjectURL(logoFile?.[0]));
+    } else {
+      setImagePreview(null);
+    }
   }, [logoFile]);
 
   const [files, setFiles] = useState<File[]>([]);

@@ -1,11 +1,14 @@
 import { Router } from "express";
+
 import { PrismaClient } from "../generated/prisma/client";
 import { SortOrder } from "../generated/prisma/internal/prismaNamespace";
+
+import type { Request, Response } from "express";
 
 const router = Router();
 const prisma = new PrismaClient();
 
-router.get(["/", "/list"], async (req, res) => {
+router.get(["/", "/list"], async (_req: Request, res: Response) => {
   const categories = await prisma.category.findMany({
     select: {
       id: true,
@@ -16,7 +19,7 @@ router.get(["/", "/list"], async (req, res) => {
   res.json(categories);
 });
 
-router.post("/create", async (req, res) => {
+router.post("/create", async (req: Request, res: Response) => {
   const category = await prisma.category.create({
     data: {
       name: req.body.name,

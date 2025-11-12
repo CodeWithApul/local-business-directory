@@ -1,6 +1,7 @@
+import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
 
-const BASE_API_URL = "${import.meta.env.VITE_BACKEND_URL}/api";
+const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export async function getBusinesses() {
   const res = await fetch(BASE_API_URL + "/business", { method: "GET" });
@@ -8,14 +9,12 @@ export async function getBusinesses() {
 }
 
 export async function addBusiness(data: BusinessFormValues) {
-  const formData = toFormDataTyped(data);
+  const formData = toFormDataBusiness(data);
 
-  const res = await fetch(`${BASE_API_URL}/business/create`, {
+  return await fetch(`${BASE_API_URL}/business/create`, {
     method: "POST",
     body: formData,
   });
-
-  return res;
 }
 
 export async function sendOTP(
@@ -23,42 +22,46 @@ export async function sendOTP(
   phoneNumber: string,
   userId: string
 ) {
-  const res = await fetch(`${BASE_API_URL}/users/generate-otp`, {
+  return await fetch(`${BASE_API_URL}/users/generate-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, phoneNumber, userId }),
   });
-  return res;
 }
 
 export async function verifyOTP(userId: string, otp: string, password: string) {
-  const res = await fetch(`${BASE_API_URL}/users/verify-otp`, {
+  return await fetch(`${BASE_API_URL}/users/verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId, otp, password }),
   });
-  return res;
 }
 
-function toFormDataTyped(data: BusinessFormValues): FormData {
-  const formData = new FormData();
-  formData.append("logo", data.logo[0]);
+function toFormDataBusiness(data: BusinessFormValues): FormData {
+  return toFormData({
+    logo: data.logo[0],
+    businessName: data.businessName,
+    ownerName: data.ownerName,
+    street: data.street,
+    country: data.country,
+    city: data.city,
+    state: data.state,
+    postalCode: data.postalCode,
+    phoneNumber: data.phoneNumber,
+    email: data.email,
+    category: data.category,
+    description: data.description,
+    media: data.media,
+  });
   // data.media.forEach((file) => formData.append("media", file));
-  (
-    [
-      "businessName",
-      "ownerName",
-      "street",
-      "country",
-      "city",
-      "state",
-      "postalCode",
-      "phoneNumber",
-      "email",
-      "category",
-    ] as const
-  ).forEach((key) => formData.append(key, data[key]));
+}
 
-  formData.append("description", data.description ?? "");
+function toFormData(data: FormEntity): FormData {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(data)) {
+    formData.append(key, value ?? "");
+  }
   return formData;
 }
+
+export type FormEntity = BusinessFormValues | CategoryFormValues;
