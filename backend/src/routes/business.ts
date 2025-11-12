@@ -8,12 +8,14 @@ import { authMiddleware } from "../middleware/auth.middleware";
 import { validateSchema } from "../middleware/validateSchema.middleware";
 import { BusinessFormSchema } from "../schema/business";
 
+import type { BusinessForm } from "../schema/business";
 import type { AuthenticatedRequest } from "../types/auth";
-import type { Response } from "express";
+import type { Request, Response } from "express";
+
 const router = Router();
 const prisma = new PrismaClient();
 
-router.get(["/", "/list"], async (req, res) => {
+router.get(["/", "/list"], async (_req: Request, res: Response) => {
   try {
     const businesses = await prisma.business.findMany({
       where: { status: "active" },
@@ -31,10 +33,10 @@ router.get(["/", "/list"], async (req, res) => {
 });
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (_req: Request, _file: Express.Multer.File, cb) {
     cb(null, "./tmp/uploads");
   },
-  filename: function (req, file, cb) {
+  filename: function (_req: Request, file: Express.Multer.File, cb) {
     //cb(null, "temp-" + Date.now() + path.extname(file.originalname));
     const randomStr = crypto.randomBytes(12).toString("hex");
     const ext = path.extname(file.originalname);
@@ -45,7 +47,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (
-  req: Express.Request,
+  _req: Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
@@ -81,7 +83,7 @@ router.post(
         phoneNumber,
         email,
         ownerName,
-      } = req.body;
+      }: BusinessForm = req.body;
 
       if (!req.file) {
         return res
@@ -114,14 +116,14 @@ router.post(
             },
           },
           phoneNumber,
-          email,
+          email: email ?? "",
           logoUrl: req.file.path, // In real app, use uploaded URL
           owner: {
             connectOrCreate: {
               where: { email, phoneNumber }, // Check if the owner exists by email and mobile number
               create: {
                 username: ownerName,
-                email,
+                email: email ?? "",
                 phoneNumber,
                 password: "defaultPassword", // Generate a secure password in a real app
               },
@@ -141,6 +143,7 @@ router.post(
 router.post(
   "/update",
   authMiddleware,
+  validateSchema(BusinessFormSchema),
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "media", maxCount: 10 },
@@ -160,7 +163,7 @@ router.post(
         phoneNumber,
         email,
         ownerName,
-      } = req.body;
+      }: BusinessForm = req.body;
 
       // Extract files from the request
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -174,7 +177,7 @@ router.post(
 
       // Update the business
       const updatedBusiness = await prisma.business.update({
-        where: { id: parseInt(businessId) },
+        where: { id: parseInt(businessId), ownerId: req.user?.id },
         data: {
           name: businessName,
           description,
@@ -196,7 +199,7 @@ router.post(
               where: { email, phoneNumber },
               create: {
                 username: ownerName,
-                email,
+                email: email ?? "",
                 phoneNumber,
                 password: "defaultPassword", // Generate a secure password in a real app
               },

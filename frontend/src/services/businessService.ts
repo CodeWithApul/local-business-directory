@@ -1,17 +1,67 @@
+import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
 
-const API_URL = "http://localhost:5000/api/businesses";
+const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export async function getBusinesses() {
-  const res = await fetch(API_URL);
+  const res = await fetch(BASE_API_URL + "/business", { method: "GET" });
   return res.json();
 }
 
 export async function addBusiness(data: BusinessFormValues) {
-  const res = await fetch(API_URL, {
+  const formData = toFormDataBusiness(data);
+
+  return await fetch(`${BASE_API_URL}/business/create`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function sendOTP(
+  email: string,
+  phoneNumber: string,
+  userId: string
+) {
+  return await fetch(`${BASE_API_URL}/users/generate-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ email, phoneNumber, userId }),
   });
-  return res.json();
 }
+
+export async function verifyOTP(userId: string, otp: string, password: string) {
+  return await fetch(`${BASE_API_URL}/users/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, otp, password }),
+  });
+}
+
+function toFormDataBusiness(data: BusinessFormValues): FormData {
+  return toFormData({
+    logo: data.logo[0],
+    businessName: data.businessName,
+    ownerName: data.ownerName,
+    street: data.street,
+    country: data.country,
+    city: data.city,
+    state: data.state,
+    postalCode: data.postalCode,
+    phoneNumber: data.phoneNumber,
+    email: data.email,
+    category: data.category,
+    description: data.description,
+    media: data.media,
+  });
+  // data.media.forEach((file) => formData.append("media", file));
+}
+
+function toFormData(data: FormEntity): FormData {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(data)) {
+    formData.append(key, value ?? "");
+  }
+  return formData;
+}
+
+export type FormEntity = BusinessFormValues | CategoryFormValues;

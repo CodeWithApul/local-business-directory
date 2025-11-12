@@ -1,15 +1,20 @@
 import bcrypt from "bcrypt";
 import { Router } from "express";
+
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth.middleware";
+import { validateSchema } from "../middleware/validateSchema.middleware";
+import { LoginSchema, UserSchema } from "../schema/user";
 import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
 import sendEmail from "../utils/emailService";
 import { generateToken, verifyRefreshToken } from "../utils/jwt";
 import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
+
+import type { User, Login } from "../schema/user";
+
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
-
 const router = Router();
 const prisma = new PrismaClient();
 const saltRounds = 10;
@@ -23,30 +28,43 @@ router.get(
   }
 );
 
-router.post("/create", async (req, res) => {
-  const user = await prisma.user.create({
-    data: {
-      username: req.body.username,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber || null,
-      password: req.body.password || "defaultPassword", // In real app, hash the password
-    },
-  });
-  res.json(user);
-});
+router.post(
+  "/create",
+  authMiddleware,
+  validateSchema(UserSchema),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { username, email, phoneNumber, password }: User = req.body;
+    const user = await prisma.user.create({
+      data: {
+        username,
+        email: email ?? "",
+        phoneNumber,
+        password, // In real app, hash the password
+      },
+    });
+    res.json(user);
+  }
+);
 
-router.post("/update/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      password: req.body.password,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-    },
-  });
-  res.json(updatedUser);
-});
+router.post(
+  "/update/:id",
+  authMiddleware,
+  validateSchema(UserSchema),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = parseInt(req.params.id);
+    const { username, email, phoneNumber, password }: User = req.body;
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        username,
+        password,
+        email,
+        phoneNumber,
+      },
+    });
+    res.json(updatedUser);
+  }
+);
 
 router.post("/generate-otp", async (req: Request, res: Response) => {
   const { email, phoneNumber, userId } = req.body;
@@ -88,8 +106,8 @@ router.post("/verify-otp", async (req, res) => {
   res.json({ message: `OTP verified successfully!` });
 });
 
-router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+router.post("/login", validateSchema(LoginSchema), async (req, res) => {
+  const { username, password }: Login = req.body;
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ email: username }, { phoneNumber: username }],
