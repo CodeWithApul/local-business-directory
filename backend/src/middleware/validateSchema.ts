@@ -7,7 +7,7 @@ export function validateSchema(schema: z.ZodTypeAny) {
     if (!parse.success) {
       return res.status(400).json({ error: prettifyError(parse.error) });
     }
-    req.body = parse.data as { body: any; query: any; params: any };
+    req.body = parse.data;
     next();
   };
 }
