@@ -4,8 +4,8 @@ import multer from "multer";
 import path from "path";
 
 import { PrismaClient } from "../generated/prisma/client";
-import { authMiddleware } from "../middleware/auth.middleware";
-import { validateSchema } from "../middleware/validateSchema.middleware";
+import { authMiddleware } from "../middleware/auth";
+import { validateSchema } from "../middleware/validateSchema";
 import { BusinessFormSchema } from "../schema/business";
 
 import type { BusinessForm } from "../schema/business";

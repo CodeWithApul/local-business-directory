@@ -2,8 +2,8 @@ import bcrypt from "bcrypt";
 import { Router } from "express";
 
 import { PrismaClient } from "../generated/prisma/client";
-import { authMiddleware } from "../middleware/auth.middleware";
-import { validateSchema } from "../middleware/validateSchema.middleware";
+import { authMiddleware } from "../middleware/auth";
+import { validateSchema } from "../middleware/validateSchema";
 import { LoginSchema, UserSchema } from "../schema/user";
 import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
 import sendEmail from "../utils/emailService";
