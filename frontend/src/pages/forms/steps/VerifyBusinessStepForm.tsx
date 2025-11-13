@@ -1,13 +1,14 @@
+import React, { useEffect, useState } from "react";
+
 import {
   Box,
-  TextField,
-  Stack,
-  FormHelperText,
   Button,
-  Typography,
+  FormHelperText,
   Link,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
 
 function VerifyBusinessForm({
   onSubmit,
@@ -18,34 +19,31 @@ function VerifyBusinessForm({
 }) {
   const [otp, setOtp] = useState<string>("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(60);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const isButtonDisabled = secondsRemaining > 0;
 
   useEffect(() => {
-    if (isButtonDisabled) {
-      const interval = setInterval(() => {
-        setSecondsRemaining((prevSeconds) => prevSeconds - 1);
-      }, 1000);
+    if (!isButtonDisabled) return;
 
-      // When the countdown reaches 0, enable the button and clear the interval
-      if (secondsRemaining === 0) {
-        setIsButtonDisabled(false);
-        clearInterval(interval);
-      }
+    const interval = setInterval(() => {
+      setSecondsRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-      return () => clearInterval(interval);
-    }
-  }, [secondsRemaining, isButtonDisabled]);
+    return () => clearInterval(interval);
+  }, [isButtonDisabled]);
 
   const onSubmitVerification = (e: React.FormEvent) => {
     e.preventDefault();
-    const isOTP = !otp;
-    if (isOTP) {
-      setError(isOTP);
-    } else {
-      onSubmit(otp, password);
-    }
+    if (!otp) setError(true);
+
+    onSubmit(otp, password);
   };
   return (
     <Box
