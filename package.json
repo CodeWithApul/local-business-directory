@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start:frontend": "npm --prefix frontend run dev",
-    "start:backend": "npm --prefix backend run dev",
+    "start:frontend": "npm --prefix frontend run install-and-run",
+    "start:backend": "npm --prefix backend run install-and-run",
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
   "devDependencies": {
