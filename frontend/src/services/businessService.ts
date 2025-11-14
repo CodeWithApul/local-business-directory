@@ -18,19 +18,26 @@ export async function addBusiness(data: BusinessFormValues) {
   });
 }
 
-export async function sendLoginReq(data: LoginFormValues) {
-  return await fetch(`${BASE_API_URL}/users/login`, {
+export async function sendLoginRequest(data: LoginFormValues) {
+  const res = await fetch(`${BASE_API_URL}/users/login`, {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...data }),
   });
+  if (!res.ok) {
+    return false;
+  }
+  const { accessToken } = await res.json();
+
+  localStorage.setItem("accessToken", accessToken);
+  return true;
 }
 
 export async function sendOTP(
   email: string,
   phoneNumber: string,
-  userId: string,
+  userId: string
 ) {
   return await fetch(`${BASE_API_URL}/users/generate-otp`, {
     method: "POST",

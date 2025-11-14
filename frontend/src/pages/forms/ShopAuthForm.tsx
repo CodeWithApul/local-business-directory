@@ -1,12 +1,15 @@
-import { Button, TextField, Box, Stack, Typography } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { LoginFormSchema } from "../../Schema/authRelatedSchema";
-import type { LoginFormValues } from "../../types/LoginTypes";
-import { sendLoginReq } from "../../services/businessService";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+
+import { LoginFormSchema } from "../../schema/LoginFormSchema";
+import { sendLoginRequest } from "../../services/businessService";
+
+import type { LoginFormValues } from "../../schema/LoginFormSchema";
 
 function ShopAuthForm() {
   const [isSubmitting, setisSubmitting] = useState(false);
@@ -24,13 +27,9 @@ function ShopAuthForm() {
     setisSubmitting(true);
 
     try {
-      const res = await sendLoginReq(data);
-      const resData = await res.json();
-      if (!res.ok) {
-        toast.error(`Error: ${resData.error}`);
-        return;
-      }
-      localStorage.setItem("accessToken", resData.accessToken);
+      const error = await sendLoginRequest(data);
+      if (error) return toast.error(`Error: Invalid credentials.`);
+
       toast.success(`Login Successfully.`);
       navigate("/shop");
     } catch (err) {

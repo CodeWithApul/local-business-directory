@@ -15,7 +15,7 @@ export const LoginFormSchema = yup.object().shape({
         const phoneRegex = /^[+]?[0-9]{10,15}$/;
 
         return emailRegex.test(value) || phoneRegex.test(value);
-      },
+      }
     ),
 
   password: yup
@@ -28,6 +28,8 @@ export const LoginFormSchema = yup.object().shape({
     .matches(/[0-9]/, "Password must contain at least one number")
     .matches(
       /[^A-Za-z0-9]/,
-      "Password must contain at least one special character",
+      "Password must contain at least one special character"
     ),
 });
+
+export type LoginFormValues = yup.InferType<typeof LoginFormSchema>;
