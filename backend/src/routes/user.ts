@@ -121,7 +121,8 @@ router.post("/login", validateSchema(LoginSchema), async (req, res) => {
     return res.status(400).json({ error: "Invalid password" });
   }
   const { accessToken, refreshToken } = generateToken(user.id.toString());
-  res.cookie("refreshToken", refreshToken, { httpOnly: true });
+  setSecureCookie(res, refreshToken);
+
   res.json({ accessToken });
 });
 
