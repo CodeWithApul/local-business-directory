@@ -25,13 +25,29 @@ const steps: { key: FormStep; label: string }[] = [
 
 function AddBusinessPage() {
   const [step, setStep] = useState<FormStep>(FormStep.InitialDetails);
-  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState({
+    userId: "",
+    email: "",
+    phoneNumber: "",
+  });
 
   useScrollToTop(step); // Scroll to Top when step changes
 
+  // Reusable function to send OTP
+  const handleSendOTP = async (
+    email: string,
+    phoneNumber: string,
+    userId: string
+  ) => {
+    const res = await sendOTP(email, phoneNumber, userId);
+    if (res.ok) {
+      toast.success(`We have sent an OTP to ${email} and ${phoneNumber}`);
+      return true;
+    }
+    toast.error("Failed to send OTP, try again later.");
+    return false;
+  };
   const onSubmitBusinessForm = async (data: BusinessFormValues) => {
-    console.log(data);
-
     const res = await addBusiness(data);
     const { userId, error } = await res.json();
 
@@ -39,12 +55,12 @@ function AddBusinessPage() {
       return toast.error(`Something went wrong ${error}`);
     }
 
-    const otpRes = await sendOTP(data.email, data.phoneNumber, userId); // Trigger OTP send
-
-    if (!otpRes.ok) {
+    const otpSent = await handleSendOTP(data.email, data.phoneNumber, userId);
+    if (!otpSent) {
       return toast.error("Failed to send OTP, try again later.");
     }
-    setUserId(userId);
+
+    setUser({ email: data.email, phoneNumber: data.phoneNumber, userId });
     setStep(FormStep.OTPVerification);
 
     toast.success(
@@ -53,10 +69,10 @@ function AddBusinessPage() {
   };
 
   const onSubmitOTPForm = async (otp: string, password: string) => {
-    if (!userId) {
+    if (!user.userId) {
       return toast.error("User ID is missing. Please restart the process.");
     }
-    const res = await verifyOTP(userId, otp, password);
+    const res = await verifyOTP(user.userId, otp, password);
 
     if (!res.ok) {
       return toast.error("Invalid OTP");
@@ -82,7 +98,12 @@ function AddBusinessPage() {
         />
       )}
       {step === FormStep.OTPVerification && (
-        <VerifyBusinessForm onSubmit={onSubmitOTPForm} />
+        <VerifyBusinessForm
+          onSubmit={onSubmitOTPForm}
+          sendOtpAgain={() =>
+            handleSendOTP(user.email, user.phoneNumber, user.userId)
+          }
+        />
       )}
       {step === FormStep.Success && <SuccessBusinessForm />}
     </Box>
