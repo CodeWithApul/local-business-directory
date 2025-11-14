@@ -3,10 +3,10 @@ import * as yup from "yup";
 export const LoginFormSchema = yup.object().shape({
   username: yup
     .string()
-    .required("Username is required")
+    .required("Please enter either your email or mobile number.")
     .test(
       "email-or-phone",
-      "Invalid email format or mobile number must be valid and contain 10–15 digits (with optional '+')",
+      "Invalid email or mobile number must be valid and contain 10–15 digits (with optional '+')",
       (value) => {
         if (!value) return false;
 

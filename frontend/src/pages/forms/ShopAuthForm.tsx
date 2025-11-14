@@ -55,8 +55,8 @@ function ShopAuthForm() {
       </Typography>
       <Stack spacing={2}>
         <TextField
-          type="email"
-          label="Email ID"
+          type="text"
+          label="Email ID / Mobile Number"
           autoComplete="email"
           required
           fullWidth
