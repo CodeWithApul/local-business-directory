@@ -22,6 +22,13 @@ export const generateToken = (userId: string) => {
   return { accessToken, refreshToken };
 };
 
-export const verifyToken = (token: string) => jwt.verify(token, JWT_SECRET);
-export const verifyRefreshToken = (token: string) =>
-  jwt.verify(token, JWT_REFRESH_SECRET);
+export const verifyToken = (token: string) => {
+  const { jwt_secret } = fetchSecrets();
+
+  return jwt.verify(token, jwt_secret);
+};
+export const verifyRefreshToken = (token: string) => {
+  const { jwt_refresh_secret } = fetchSecrets();
+
+  return jwt.verify(token, jwt_refresh_secret);
+};
