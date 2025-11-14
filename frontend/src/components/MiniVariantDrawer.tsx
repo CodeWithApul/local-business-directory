@@ -339,7 +339,9 @@ export default function MiniDrawer({
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-        <Typography sx={{ marginBottom: 2 }}>{children}</Typography>
+        <Typography component="div" sx={{ marginBottom: 2 }}>
+          {children}
+        </Typography>
       </Box>
     </Box>
   );

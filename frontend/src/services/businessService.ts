@@ -1,5 +1,6 @@
 import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
+import type { LoginFormValues } from "../types/LoginTypes";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -17,10 +18,19 @@ export async function addBusiness(data: BusinessFormValues) {
   });
 }
 
+export async function sendLoginReq(data: LoginFormValues) {
+  return await fetch(`${BASE_API_URL}/users/login`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...data }),
+  });
+}
+
 export async function sendOTP(
   email: string,
   phoneNumber: string,
-  userId: string
+  userId: string,
 ) {
   return await fetch(`${BASE_API_URL}/users/generate-otp`, {
     method: "POST",
