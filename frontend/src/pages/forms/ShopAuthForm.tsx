@@ -29,8 +29,10 @@ function ShopAuthForm() {
       const isLoggedIn = await sendLoginRequest(data);
       if (!isLoggedIn) return toast.error(`Error: Invalid credentials.`);
 
-      toast.success(`Login Successfully.`);
-      navigate("/shop");
+      toast.success(`Logged In Successfully!`, { autoClose: 3000 });
+      setTimeout(() => {
+        navigate("/shop");
+      }, 3000);
     } catch (err) {
       toast.error("Something went wrong, try again later.");
       console.error(err);
