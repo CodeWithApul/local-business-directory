@@ -23,12 +23,11 @@ function ShopAuthForm() {
   const navigate = useNavigate();
 
   const onAuthSubmit = async (data: LoginFormValues) => {
-    console.log(data);
     setisSubmitting(true);
 
     try {
-      const error = await sendLoginRequest(data);
-      if (error) return toast.error(`Error: Invalid credentials.`);
+      const isLoggedIn = await sendLoginRequest(data);
+      if (!isLoggedIn) return toast.error(`Error: Invalid credentials.`);
 
       toast.success(`Login Successfully.`);
       navigate("/shop");
