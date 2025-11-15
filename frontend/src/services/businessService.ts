@@ -64,4 +64,23 @@ function toFormData(data: FormEntity): FormData {
   return formData;
 }
 
+export async function getMatchedRecords({
+  latitude,
+  longitude,
+  radiusKm,
+  categoryId,
+}: {
+  latitude: number;
+  longitude: number;
+  radiusKm: number;
+  categoryId: string;
+}) {
+  const res = await fetch(`${BASE_API_URL}/business/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ latitude, longitude, radiusKm, categoryId }),
+  });
+  return await res.json();
+}
+
 export type FormEntity = BusinessFormValues | CategoryFormValues;
