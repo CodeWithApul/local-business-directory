@@ -233,7 +233,7 @@ router.post(
 
 router.post("/search", async (req: Request, res: Response) => {
   try {
-    const { latitude, longitude, radiusKm, categoryId } = req.body;
+    const { latitude, longitude, radiusKm, categoryId, keyword } = req.body;
     const bbox = getBoundingBox(latitude, longitude, radiusKm);
 
     const where: any = {
@@ -252,6 +252,12 @@ router.post("/search", async (req: Request, res: Response) => {
     // Only add categoryId if provided
     if (categoryId !== undefined && categoryId !== "") {
       where.categoryId = parseInt(categoryId);
+    }
+    // Only add keyword if provided
+    if (keyword !== undefined && keyword !== "") {
+      where.businessName = { contains: keyword, mode: "insensitive" };
+      where.description = { contains: keyword, mode: "insensitive" };
+      where.category = { name: { contains: keyword, mode: "insensitive" } };
     }
     const businesses = await prisma.business.findMany({
       where,

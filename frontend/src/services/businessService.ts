@@ -69,16 +69,24 @@ export async function getMatchedRecords({
   longitude,
   radiusKm,
   categoryId,
+  keyword,
 }: {
   latitude: number;
   longitude: number;
   radiusKm: number;
-  categoryId: string;
+  categoryId?: string;
+  keyword?: string;
 }) {
   const res = await fetch(`${BASE_API_URL}/business/search`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ latitude, longitude, radiusKm, categoryId }),
+    body: JSON.stringify({
+      latitude,
+      longitude,
+      radiusKm,
+      categoryId,
+      keyword,
+    }),
   });
   return await res.json();
 }
