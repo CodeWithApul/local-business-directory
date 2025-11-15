@@ -1,7 +1,8 @@
 import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
 import fetchWithAuth from "../utils/fetchWithAuth";
-import type { LoginFormValues } from "../types/LoginTypes";
+
+import type { LoginFormValues } from "../schema/LoginFormSchema";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
