@@ -1,5 +1,6 @@
 import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
+import fetchWithAuth from "../utils/fetchWithAuth";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -65,12 +66,9 @@ function toFormData(data: FormEntity): FormData {
 }
 
 export async function getBookingsByBusinessId() {
-  const res = await fetch(`${BASE_API_URL}/business/bookings`, {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/bookings`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    },
+    headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
     throw new Error("Failed to fetch bookings");

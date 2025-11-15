@@ -216,13 +216,15 @@ router.get(
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const businessId = req.user?.businessId;
-      if (!businessId) {
-        return res.status(400).json({ error: "Business ID is required" });
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(400).json({ error: "USER ID is required" });
       }
       const bookings = await prisma.businessBooking.findMany({
         where: {
-          businessId: parseInt(businessId),
+          business: {
+            ownerId: parseInt(userId),
+          },
         },
         orderBy: { bookingEndTime: "desc" },
       });
