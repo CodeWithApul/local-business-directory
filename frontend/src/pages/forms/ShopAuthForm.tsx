@@ -1,21 +1,18 @@
-import { Button, TextField, Box, Stack, Typography } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { type InferType } from "yup";
-// import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const LoginFormSchema = yup.object({
-  email: yup.string().required("Please fill email id.").email(),
-  password: yup.string().required("Please fill password.").min(6),
-});
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+
+import { LoginFormSchema } from "../../schema/LoginFormSchema";
+import { sendLoginRequest } from "../../services/businessService";
+
+import type { LoginFormValues } from "../../schema/LoginFormSchema";
 
 function ShopAuthForm() {
   const [isSubmitting, setisSubmitting] = useState(false);
-
-  type LoginFormValues = InferType<typeof LoginFormSchema>;
 
   const {
     register,
@@ -26,27 +23,22 @@ function ShopAuthForm() {
   const navigate = useNavigate();
 
   const onAuthSubmit = async (data: LoginFormValues) => {
-    console.log(data);
     setisSubmitting(true);
-    // Logic to submit auth details to backend to verify
-    // Show Successful LoggedIn message or Incorrect Credentials
 
-    // try {
-    //   const res = await fetch("/auth/login", {
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(data),
-    //     method: "POST",
-    //   });
+    try {
+      const isLoggedIn = await sendLoginRequest(data);
+      if (!isLoggedIn) return toast.error(`Error: Invalid credentials.`);
 
-    //   if (!res.ok) throw new Error("Auth failed.");
-
-    //   const result = await res.json();
-    //   console.log(result);
-    navigate("/shop");
-    // } catch (error: unknown) {
-    //   if (error instanceof Error) toast.error(`Error:  ${error.message}`);
-    //   setisSubmitting(false);
-    // }
+      toast.success(`Logged In Successfully!`, { autoClose: 3000 });
+      setTimeout(() => {
+        navigate("/shop");
+      }, 3000);
+    } catch (err) {
+      toast.error("Something went wrong, try again later.");
+      console.error(err);
+    } finally {
+      setisSubmitting(false);
+    }
   };
 
   return (
@@ -57,21 +49,21 @@ function ShopAuthForm() {
       sx={{ maxWidth: 600, margin: "auto", mt: 2, padding: 2 }}
     >
       <Typography
-        variant="h6"
+        component="div"
         sx={{ textAlign: "center", padding: 4, fontWeight: 700 }}
       >
         Login to Shop
       </Typography>
       <Stack spacing={2}>
         <TextField
-          type="email"
-          label="Email ID"
+          type="text"
+          label="Email ID / Mobile Number"
           autoComplete="email"
           required
           fullWidth
-          {...register("email")}
-          error={!!errors.email}
-          helperText={errors.email?.message}
+          {...register("username")}
+          error={!!errors.username}
+          helperText={errors.username?.message}
         />
         <TextField
           type="password"
