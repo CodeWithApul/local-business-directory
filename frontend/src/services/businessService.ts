@@ -64,4 +64,18 @@ function toFormData(data: FormEntity): FormData {
   return formData;
 }
 
+export async function getBookingsByBusinessId() {
+  const res = await fetch(`${BASE_API_URL}/business/bookings`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch bookings");
+  }
+  return res.json();
+}
+
 export type FormEntity = BusinessFormValues | CategoryFormValues;
