@@ -71,7 +71,7 @@ router.post("/generate-otp", async (req: Request, res: Response) => {
   try {
     const otp = digitOnlyOTP(6);
     await prisma.user.update({
-      where: { id: parseInt(userId) },
+      where: { id: parseInt(userId), email, phoneNumber },
       data: { verificationToken: otp },
     });
     // Send OTP via email
