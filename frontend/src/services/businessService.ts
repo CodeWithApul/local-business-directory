@@ -94,4 +94,31 @@ export async function getBookingsByBusinessId() {
   return res.json();
 }
 
+export async function getMatchedRecords({
+  latitude,
+  longitude,
+  radiusKm,
+  categoryId,
+  keyword,
+}: {
+  latitude: number;
+  longitude: number;
+  radiusKm: number;
+  categoryId?: string;
+  keyword?: string;
+}) {
+  const res = await fetch(`${BASE_API_URL}/business/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      latitude,
+      longitude,
+      radiusKm,
+      categoryId,
+      keyword,
+    }),
+  });
+  return await res.json();
+}
+
 export type FormEntity = BusinessFormValues | CategoryFormValues;

@@ -7,11 +7,11 @@ import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth";
 import { validateSchema } from "../middleware/validateSchema";
 import { BusinessFormSchema } from "../schema/business";
+import { getBoundingBox, isWithinRadius } from "../utils/geoService";
 
 import type { BusinessForm } from "../schema/business";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
-
 const router = Router();
 const prisma = new PrismaClient();
 
@@ -236,4 +236,66 @@ router.get(
   }
 );
 
+router.post("/search", async (req: Request, res: Response) => {
+  try {
+    const { latitude, longitude, radiusKm, categoryId, keyword } = req.body;
+    if (
+      latitude === undefined ||
+      longitude === undefined ||
+      radiusKm === undefined
+    ) {
+      return res
+        .status(400)
+        .json({ error: "latitude, longitude, and radiusKm are required" });
+    }
+    const bbox = getBoundingBox(latitude, longitude, radiusKm);
+
+    const where: any = {
+      status: "active",
+      address: {
+        lat: {
+          gte: bbox.minLat,
+          lte: bbox.maxLat,
+        },
+        lon: {
+          gte: bbox.minLon,
+          lte: bbox.maxLon,
+        },
+      },
+    };
+    // Only add categoryId if provided
+    if (categoryId !== undefined && categoryId !== "") {
+      where.categoryId = parseInt(categoryId);
+    }
+    // Only add keyword if provided
+    if (keyword !== undefined && keyword !== "") {
+      where.businessName = { contains: keyword, mode: "insensitive" };
+      where.description = { contains: keyword, mode: "insensitive" };
+      where.category = { name: { contains: keyword, mode: "insensitive" } };
+    }
+    const businesses = await prisma.business.findMany({
+      where,
+      include: {
+        category: true,
+        address: true,
+      },
+    });
+
+    // Filter businesses within the radius (more precise, if performance allows)
+    const filteredBusinesses = businesses.filter((business) => {
+      const addr = business.address;
+      return isWithinRadius(
+        latitude,
+        longitude,
+        addr.lat!,
+        addr.lon!,
+        radiusKm
+      );
+    });
+    res.status(200).json(filteredBusinesses);
+  } catch (error) {
+    console.error("Error searching businesses:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 export default router;
