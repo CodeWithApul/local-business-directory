@@ -66,8 +66,8 @@ const upload = multer({
 
 router.post(
   "/create",
-  validateSchema(BusinessFormSchema),
   upload.single("logo"),
+  validateSchema(BusinessFormSchema),
   async (req, res) => {
     try {
       console.dir(req.body, { depth: null, color: true });
@@ -143,11 +143,11 @@ router.post(
 router.post(
   "/update",
   authMiddleware,
-  validateSchema(BusinessFormSchema),
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "media", maxCount: 10 },
   ]),
+  validateSchema(BusinessFormSchema),
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const {

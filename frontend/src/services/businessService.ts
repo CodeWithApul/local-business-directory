@@ -1,5 +1,6 @@
 import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
+import type { LoginFormValues } from "../types/LoginTypes";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -15,6 +16,22 @@ export async function addBusiness(data: BusinessFormValues) {
     method: "POST",
     body: formData,
   });
+}
+
+export async function sendLoginRequest(data: LoginFormValues) {
+  const res = await fetch(`${BASE_API_URL}/users/login`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...data }),
+  });
+  if (!res.ok) {
+    return false;
+  }
+  const { accessToken } = await res.json();
+
+  localStorage.setItem("accessToken", accessToken);
+  return true;
 }
 
 export async function sendOTP(
