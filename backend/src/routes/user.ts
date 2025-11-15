@@ -89,13 +89,13 @@ router.post("/verify-otp", async (req, res) => {
   const { userId, otp, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const user = await prisma.user.findUnique({
-    where: { id: userId, verificationToken: otp },
+    where: { id: parseInt(userId), verificationToken: otp },
   });
   if (!user) {
     return res.status(400).json({ error: "Invalid OTP" });
   }
   await prisma.user.update({
-    where: { id: userId },
+    where: { id: parseInt(userId) },
     data: {
       verificationToken: null,
       status: "verified",
