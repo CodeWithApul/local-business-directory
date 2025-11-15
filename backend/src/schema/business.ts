@@ -1,9 +1,9 @@
 import { z } from "zod/v4";
 
 export const BusinessFormSchema = z.object({
-  businessId: z.string().optional(),
+  businessId: z.coerce.number().optional(),
   businessName: z.string(),
-  category: z.string(),
+  category: z.coerce.number(),
   ownerName: z.string(),
   email: z.email().optional(),
   phoneNumber: z
