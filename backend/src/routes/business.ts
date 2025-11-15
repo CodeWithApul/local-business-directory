@@ -234,6 +234,15 @@ router.post(
 router.post("/search", async (req: Request, res: Response) => {
   try {
     const { latitude, longitude, radiusKm, categoryId, keyword } = req.body;
+    if (
+      latitude === undefined ||
+      longitude === undefined ||
+      radiusKm === undefined
+    ) {
+      return res
+        .status(400)
+        .json({ error: "latitude, longitude, and radiusKm are required" });
+    }
     const bbox = getBoundingBox(latitude, longitude, radiusKm);
 
     const where: any = {
@@ -278,7 +287,7 @@ router.post("/search", async (req: Request, res: Response) => {
         radiusKm
       );
     });
-    res.json(filteredBusinesses);
+    res.status(200).json(filteredBusinesses);
   } catch (error) {
     console.error("Error searching businesses:", error);
     res.status(500).json({ error: "Internal server error" });
