@@ -1,12 +1,15 @@
-import { Button, TextField, Box, Stack, Typography } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { LoginFormSchema } from "../../Schema/authRelatedSchema";
-import type { LoginFormValues } from "../../types/LoginTypes";
-import { sendLoginReq } from "../../services/businessService";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+
+import { LoginFormSchema } from "../../schema/LoginFormSchema";
+import { sendLoginRequest } from "../../services/businessService";
+
+import type { LoginFormValues } from "../../schema/LoginFormSchema";
 
 function ShopAuthForm() {
   const [isSubmitting, setisSubmitting] = useState(false);
@@ -20,19 +23,16 @@ function ShopAuthForm() {
   const navigate = useNavigate();
 
   const onAuthSubmit = async (data: LoginFormValues) => {
-    console.log(data);
     setisSubmitting(true);
 
     try {
-      const res = await sendLoginReq(data);
-      const resData = await res.json();
-      if (!res.ok) {
-        toast.error(`Error: ${resData.error}`);
-        return;
-      }
-      localStorage.setItem("accessToken", resData.accessToken);
-      toast.success(`Login Successfully.`);
-      navigate("/shop");
+      const isLoggedIn = await sendLoginRequest(data);
+      if (!isLoggedIn) return toast.error(`Error: Invalid credentials.`);
+
+      toast.success(`Logged In Successfully!`, { autoClose: 3000 });
+      setTimeout(() => {
+        navigate("/shop");
+      }, 3000);
     } catch (err) {
       toast.error("Something went wrong, try again later.");
       console.error(err);
@@ -56,8 +56,8 @@ function ShopAuthForm() {
       </Typography>
       <Stack spacing={2}>
         <TextField
-          type="email"
-          label="Email ID"
+          type="text"
+          label="Email ID / Mobile Number"
           autoComplete="email"
           required
           fullWidth
