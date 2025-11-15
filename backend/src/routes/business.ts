@@ -211,4 +211,27 @@ router.post(
   }
 );
 
+router.get(
+  "/bookings",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const businessId = req.user?.businessId;
+      if (!businessId) {
+        return res.status(400).json({ error: "Business ID is required" });
+      }
+      const bookings = await prisma.businessBooking.findMany({
+        where: {
+          businessId: parseInt(businessId),
+        },
+        orderBy: { bookingEndTime: "desc" },
+      });
+      return res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 export default router;
