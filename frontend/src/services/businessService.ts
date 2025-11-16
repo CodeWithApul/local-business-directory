@@ -1,6 +1,8 @@
 import type { CategoryFormValues } from "../pages/forms/admin/CategoryForm";
 import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
-import type { LoginFormValues } from "../types/LoginTypes";
+import fetchWithAuth from "../utils/fetchWithAuth";
+
+import type { LoginFormValues } from "../schema/LoginFormSchema";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -79,6 +81,17 @@ function toFormData(data: FormEntity): FormData {
     formData.append(key, value ?? "");
   }
   return formData;
+}
+
+export async function getBookingsByBusinessId() {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/bookings`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch bookings");
+  }
+  return res.json();
 }
 
 export async function getMatchedRecords({

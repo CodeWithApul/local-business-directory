@@ -1,9 +1,9 @@
 import { z } from "zod/v4";
 
 export const UserSchema = z.object({
-  id: z.string().min(1),
+  id: z.coerce.number().min(1),
   username: z.string().min(3).max(50), // name of user
-  email: z.string().email().optional(),
+  email: z.email().optional(),
   phoneNumber: z
     .string()
     .trim()
