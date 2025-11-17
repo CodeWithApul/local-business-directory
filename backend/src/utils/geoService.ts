@@ -118,3 +118,107 @@ export const destinationPoint = (
     );
   return { lat: toDegrees(destLatRad), lon: toDegrees(destLonRad) };
 };
+
+const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org";
+
+export interface LocationResult {
+  place_id: string;
+  display_name: string;
+  lat: string;
+  lon: string;
+  address: {
+    city?: string;
+    state?: string;
+    country?: string;
+    [key: string]: string | undefined;
+  };
+}
+
+export type Location = {
+  lat: number;
+  lng: number;
+  city?: string;
+  source: "auto" | "manual";
+};
+
+/**
+ * Search for location suggestions (autocomplete).
+ */
+export async function searchLocation(
+  query: string,
+  limit: number = 5
+): Promise<Location[]> {
+  const url = new URL(`${NOMINATIM_BASE_URL}/search`);
+  url.searchParams.set("q", query);
+  url.searchParams.set("format", "json");
+  // url.searchParams.set("addressdetails", "1"); // Optional: include address details
+  url.searchParams.set("layer", "address");
+  url.searchParams.set("countrycodes", "in");
+  url.searchParams.set("limit", limit.toString());
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      "User-Agent": "digital-bazaar-app/1.0 (dev@gmail.com)",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Nominatim search failed: ${response.statusText}`);
+  }
+
+  const locations = await response.json();
+  const seen = new Set<string | undefined>();
+  return locations
+    .map((loc: LocationResult) => ({
+      lat: parseFloat(loc.lat),
+      lng: parseFloat(loc.lon),
+      city:
+        loc.display_name ||
+        loc.address.city ||
+        loc.address.town ||
+        loc.address.village ||
+        "",
+      source: "manual",
+    }))
+    .filter((loc: Location) => {
+      if (seen.has(loc.city)) return false;
+      seen.add(loc.city);
+      return true;
+    });
+}
+
+/**
+ * Reverse geocode: get address from lat/lon.
+ */
+export async function reverseLocation(
+  lat: number,
+  lon: number
+): Promise<Location> {
+  const url = new URL(`${NOMINATIM_BASE_URL}/reverse`);
+  url.searchParams.set("lat", lat.toString());
+  url.searchParams.set("lon", lon.toString());
+  url.searchParams.set("format", "json");
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      "User-Agent": "digital-bazaar-app/1.0 (@example.com)",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Nominatim reverse failed: ${response.statusText}`);
+  }
+
+  const location = await response.json();
+  return {
+    lat,
+    lng: lon,
+    city:
+      location.display_name ||
+      location.address.city ||
+      location.address.town ||
+      location.address.village ||
+      "",
+    source: "manual",
+  };
+}

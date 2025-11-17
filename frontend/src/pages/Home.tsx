@@ -1,60 +1,72 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { useDebouncedCallback } from 'use-debounce';
 
-import {
-  Autocomplete,
-  Button,
-  Container,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { toast } from "react-toastify";
+import { Autocomplete, Button, Container, Grid, TextField, Typography } from '@mui/material';
 
-import BusinessCard from "../components/BusinessCard";
-import HeroSection from "../components/HeroSection";
-import {
-  dummyBusiness,
-  dummyLocations,
-  type IBusiness,
-} from "../data/dummyData";
-import SearchBar from "../components/SearchBar";
-import { useUserLocation, type Location } from "../hooks/useUserLocation";
+import BusinessCard from '../components/BusinessCard';
+import HeroSection from '../components/HeroSection';
+import SearchBar from '../components/SearchBar';
+import { dummyBusiness } from '../data/dummyData';
+import { useUserLocation } from '../hooks/useUserLocation';
+import { getMatchedRecords } from '../services/businessService';
+import { getCategories } from '../services/categoryService';
+import { getAutocompleteSuggestions } from '../services/locationService';
 
-// Step 1: Extract unique categories
-const uniqueCategories = Array.from(
-  new Set(dummyBusiness.map((b) => b.category))
-);
-
-// Step 2: Sort alphabetically
-const sortedCategories = uniqueCategories.sort((a, b) => a.localeCompare(b));
-
-// Step 3: Add "All" at the beginning
-const searchCategories = ["All", ...sortedCategories];
-
+import type { Category } from "../services/categoryService";
+import type { IBusiness } from "../data/dummyData";
+import type { Location } from "../hooks/useUserLocation";
 function Home() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTermCategory, setSearchTermCategory] = useState("All");
+  const [listofCategories, setListOfCategories] = useState<Category[]>([]);
+  const [searchTermCategory, setSearchTermCategory] = useState<Category | null>(
+    {
+      id: 0,
+      name: "All",
+    }
+  );
+  const [searchedLocations, setSearchedLocations] = useState<Location[]>([]);
   const [filteredBusiness, setFilteredBusiness] =
     useState<IBusiness[]>(dummyBusiness);
 
   const { location, detectLocation, updateLocation } = useUserLocation();
-  // console.log(location);
+  useEffect(() => {
+    (async () => {
+      const categories = await getCategories();
+      setListOfCategories(categories);
+    })();
+  }, []);
   const [loading, setLoading] = useState(false);
+  const debounced = useDebouncedCallback(async (value) => {
+    if (value.length < 3) return;
+    const res: Location[] = await getAutocompleteSuggestions(value);
+    setSearchedLocations(res);
+  }, 1000);
 
   const handleSearchChange = (term: string) => setSearchTerm(term);
-  const handleCategoryChange = (category: string) =>
+  const handleCategoryChange = (categoryId: number) => {
+    const category = listofCategories.find((c) => c.id === categoryId) || null;
     setSearchTermCategory(category);
-  const handleSearchClick = () => {
+  };
+  const handleSearchClick = async () => {
     const filteredBusiness = dummyBusiness.filter((b) => {
       const matchesCategory =
-        searchTermCategory === "All" || b.category == searchTermCategory;
+        searchTermCategory?.name === "All" ||
+        b.category == searchTermCategory?.name;
       const matchesKeyword = b.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-
       return matchesCategory && matchesKeyword;
     });
-    setFilteredBusiness(filteredBusiness);
+    const business = await getMatchedRecords({
+      latitude: location?.lat,
+      longitude: location?.lng,
+      radiusKm: 20,
+      categoryId:
+        searchTermCategory?.id === 0 ? undefined : searchTermCategory?.id,
+      keyword: searchTerm,
+    });
+    setFilteredBusiness(business.length ? business : filteredBusiness);
   };
   useEffect(() => {
     if (location?.source === "auto") {
@@ -64,10 +76,16 @@ function Home() {
   }, [location]);
 
   //   <FeaturedBusinesses />
-  const dummyCity = dummyLocations.map((c) => c.city);
+  const defaultCityList = [
+    ...(location?.city ? [location.city] : []), // Include current city if not already in the list
+    ...(searchedLocations.map((c) => c.city) || []).filter(
+      (city) => city?.toLowerCase() !== location?.city?.toLowerCase()
+    ), // Exclude current city
+    ,
+  ];
 
   const getLocationDetails = (name: string): Location | undefined =>
-    dummyLocations.find(
+    searchedLocations.find(
       (loc) => loc?.city?.toLowerCase() === name.toLowerCase()
     );
 
@@ -89,16 +107,19 @@ function Home() {
           📍 Use My Location
         </Button>
         <Autocomplete
-          options={dummyCity}
+          options={defaultCityList}
           value={location?.city || ""}
           onChange={(_e, newCity) => {
-            // console.log(e, newCity);
             const newLocation = getLocationDetails(newCity);
             if (newLocation) updateLocation(newLocation);
             else detectLocation();
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Choose your area" />
+            <TextField
+              {...params}
+              label="Choose your area"
+              onChange={(e) => debounced(e.target.value)}
+            />
           )}
           disableClearable
         />
@@ -107,7 +128,7 @@ function Home() {
           onCategoryChange={handleCategoryChange}
           keyword={searchTerm}
           onKeywordChange={handleSearchChange}
-          categories={searchCategories}
+          categories={listofCategories}
           onSearch={handleSearchClick}
         />
         <Grid container rowSpacing={2} columnSpacing={2}>
