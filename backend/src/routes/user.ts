@@ -126,7 +126,7 @@ router.post("/login", validateSchema(LoginSchema), async (req, res) => {
   res.json({ accessToken });
 });
 
-router.post("refresh-token", async (req, res) => {
+router.post("/refresh-token", async (req, res) => {
   const token = req.cookies.refreshToken;
 
   if (!token) {

@@ -34,6 +34,7 @@ model Business {
   address     Address         @relation(fields: [addressId], references: [id])
   category    Category        @relation(fields: [categoryId], references: [id])
   owner       User            @relation(fields: [ownerId], references: [id])
+  bookings    BusinessBooking[]
   medias      BusinessMedia[]
   Review      Review[]
 }
@@ -82,6 +83,17 @@ model Review {
   rating     Int
   comment    String?
   businessId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+model BusinessBooking {
+  id         Int      @id @default(autoincrement())
+  businessId Int
+  bookingStartTime DateTime
+  bookingEndTime DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   status     String   @default("active")

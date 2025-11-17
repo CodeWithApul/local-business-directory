@@ -68,22 +68,9 @@ router.post(
   "/create",
   upload.single("logo"),
   validateSchema(BusinessFormSchema),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     try {
-      console.dir(req.body, { depth: null, color: true });
-      const {
-        businessName,
-        description,
-        category,
-        street,
-        city,
-        state,
-        country,
-        postalCode,
-        phoneNumber,
-        email,
-        ownerName,
-      }: BusinessForm = req.body;
+      const business: BusinessForm = req.body;
 
       if (!req.file) {
         return res
@@ -101,30 +88,33 @@ router.post(
       // create owner if not exists (skipped for brevity)
       // check email uniqueness (skipped for brevity)
 
-      const business = await prisma.business.create({
+      const newBusiness = await prisma.business.create({
         data: {
-          name: businessName,
-          description,
-          category: { connect: { id: parseInt(category) } },
+          name: business.businessName,
+          description: business.description,
+          category: { connect: { id: business.category } },
           address: {
             create: {
-              street,
-              city: city || "",
-              state: state || "",
-              postalCode: postalCode || "",
-              country: country || "",
+              street: business.street,
+              city: business.city,
+              state: business.state || "",
+              postalCode: business.postalCode || "",
+              country: business.country || "",
             },
           },
-          phoneNumber,
-          email: email ?? "",
+          phoneNumber: business.phoneNumber,
+          email: business.email ?? "",
           logoUrl: req.file.path, // In real app, use uploaded URL
           owner: {
             connectOrCreate: {
-              where: { email, phoneNumber }, // Check if the owner exists by email and mobile number
+              where: {
+                email: business.email,
+                phoneNumber: business.phoneNumber,
+              }, // Check if the owner exists by email and mobile number
               create: {
-                username: ownerName,
-                email: email ?? "",
-                phoneNumber,
+                username: business.ownerName,
+                email: business.email ?? "",
+                phoneNumber: business.phoneNumber,
                 password: "defaultPassword", // Generate a secure password in a real app
               },
             },
@@ -132,7 +122,7 @@ router.post(
           status: "active",
         },
       });
-      res.status(201).json({ userId: business.ownerId });
+      res.status(201).json({ userId: newBusiness.ownerId });
     } catch (error) {
       console.error("Error creating business:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -150,20 +140,7 @@ router.post(
   validateSchema(BusinessFormSchema),
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const {
-        businessId, // Assuming you pass the business ID to update
-        businessName,
-        description,
-        category,
-        street,
-        city,
-        state,
-        country,
-        postalCode,
-        phoneNumber,
-        email,
-        ownerName,
-      }: BusinessForm = req.body;
+      const business = req.body as BusinessForm;
 
       // Extract files from the request
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -171,36 +148,39 @@ router.post(
       const mediaFiles = files?.media || []; // Array of media files
 
       // Validate the business ID
-      if (!businessId) {
+      if (!business.businessId) {
         return res.status(400).json({ error: "Business ID is required" });
       }
 
       // Update the business
       const updatedBusiness = await prisma.business.update({
-        where: { id: parseInt(businessId), ownerId: req.user?.id },
+        where: { id: business.businessId, ownerId: req.user?.id },
         data: {
-          name: businessName,
-          description,
-          category: { connect: { id: parseInt(category) } },
+          name: business.businessName,
+          description: business.description,
+          category: { connect: { id: business.category } },
           address: {
             update: {
-              street,
-              city: city || "",
-              state: state || "",
-              postalCode: postalCode || "",
-              country: country || "",
+              street: business.street,
+              city: business.city,
+              state: business.state,
+              postalCode: business.postalCode,
+              country: business.country,
             },
           },
-          phoneNumber,
-          email,
+          phoneNumber: business.phoneNumber,
+          email: business.email,
           logoUrl: logoFile ? logoFile.path : undefined, // Update logo if provided
           owner: {
             connectOrCreate: {
-              where: { email, phoneNumber },
+              where: {
+                email: business.email,
+                phoneNumber: business.phoneNumber,
+              },
               create: {
-                username: ownerName,
-                email: email ?? "",
-                phoneNumber,
+                username: business.ownerName,
+                email: business.email ?? "",
+                phoneNumber: business.phoneNumber,
                 password: "defaultPassword", // Generate a secure password in a real app
               },
             },
@@ -226,6 +206,31 @@ router.post(
       res.status(200).json(updatedBusiness);
     } catch (error) {
       console.error("Error updating business:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+router.get(
+  "/bookings",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(400).json({ error: "USER ID is required" });
+      }
+      const bookings = await prisma.businessBooking.findMany({
+        where: {
+          business: {
+            ownerId: parseInt(userId),
+          },
+        },
+        orderBy: { bookingEndTime: "desc" },
+      });
+      return res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }
