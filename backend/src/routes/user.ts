@@ -15,6 +15,7 @@ import type { User, Login } from "../schema/user";
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
+import { VerifyOtpReqSchema, type VerifyOtpReq } from "../schema/business";
 const router = Router();
 const prisma = new PrismaClient();
 const saltRounds = 10;
@@ -25,7 +26,7 @@ router.get(
   async (_req: AuthenticatedRequest, res: Response) => {
     const users = await prisma.user.findMany();
     res.json(users);
-  }
+  },
 );
 
 router.post(
@@ -43,7 +44,7 @@ router.post(
       },
     });
     res.json(user);
-  }
+  },
 );
 
 router.post(
@@ -63,16 +64,20 @@ router.post(
       },
     });
     res.json(updatedUser);
-  }
+  },
 );
 
 router.post("/generate-otp", async (req: Request, res: Response) => {
   const { email, phoneNumber, userId } = req.body;
   try {
     const otp = digitOnlyOTP(6);
+    const fifteenMinutesLater = new Date(new Date().getTime() + 15 * 60 * 1000);
     await prisma.user.update({
       where: { id: parseInt(userId), email, phoneNumber },
-      data: { verificationToken: otp },
+      data: {
+        verificationToken: otp,
+        otpExpiredAt: fifteenMinutesLater,
+      },
     });
     // Send OTP via email
     await sendEmail(email, otp);
@@ -85,26 +90,47 @@ router.post("/generate-otp", async (req: Request, res: Response) => {
   res.json({ message: `OTP sent to ${email}, ${phoneNumber}` });
 });
 
-router.post("/verify-otp", async (req, res) => {
-  const { userId, otp, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(userId), verificationToken: otp },
-  });
-  if (!user) {
-    return res.status(400).json({ error: "Invalid OTP" });
-  }
-  await prisma.user.update({
-    where: { id: parseInt(userId) },
-    data: {
-      verificationToken: null,
-      status: "verified",
-      password: hashedPassword,
-    },
-  });
+router.post(
+  "/verify-otp",
+  validateSchema(VerifyOtpReqSchema),
+  async (req, res) => {
+    const { userId, otp, password }: VerifyOtpReq = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const user = await prisma.user.findUnique({
+      select: {
+        otpExpiredAt: true,
+      },
+      where: { id: userId, verificationToken: otp },
+    });
 
-  res.json({ message: `OTP verified successfully!` });
-});
+    if (!user) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    if (!user.otpExpiredAt) {
+      return res
+        .status(501)
+        .json({ error: "Something went wrong, try again later." });
+    }
+
+    if (user.otpExpiredAt > new Date()) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          verificationToken: null,
+          status: "verified",
+          password: hashedPassword,
+        },
+      });
+
+      return res.status(200).json({ message: `OTP verified successfully!` });
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Your OTP has expired. Please request a new one." });
+    }
+  },
+);
 
 router.post("/login", validateSchema(LoginSchema), async (req, res) => {
   const { username, password }: Login = req.body;
