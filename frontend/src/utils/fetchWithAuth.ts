@@ -1,5 +1,7 @@
 import { getAccessToken, setAccessToken } from "./tokenHelper";
 
+const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
+
 // main fetch wrapper
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const accessToken = getAccessToken();
@@ -15,7 +17,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   // if unauthorized, try refresh
   if (res.status === 401) {
-    const refreshRes = await fetch("/api/users/refresh-token", {
+    const refreshRes = await fetch(`${BASE_API_URL}/users/refresh-token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // ensures cookies are sent,

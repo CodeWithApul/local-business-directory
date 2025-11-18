@@ -12,6 +12,7 @@ import ShopDashboard from "./pages/ShopDashboard";
 import theme from "./theme/index";
 import { LoginTypes } from "./types/LoginTypes";
 import ScrollToTop from "./utils/ScrollToTop";
+import PublicRoute from "./components/wrapper/PublicRoute";
 
 // import ShopBookings from "./pages/ShopBookings";
 
@@ -23,19 +24,29 @@ export default function App() {
       <AppLayout>
         <Routes>
           <Route path="/" element={<Home />} />
+
           <Route
             path="/add-business"
-            element={<AddBusinessPage key={locationKey} />}
+            element={
+              <PublicRoute>
+                <AddBusinessPage key={locationKey} />
+              </PublicRoute>
+            }
           />
+
           <Route
             path="/shop/login"
-            element={<Login key={locationKey} type={LoginTypes.SHOP_LOGIN} />}
+            element={
+              <PublicRoute>
+                <Login key={locationKey} type={LoginTypes.SHOP_LOGIN} />
+              </PublicRoute>
+            }
           />
+          <Route path="/shop" element={<ShopDashboard />} />
           <Route
             path="/business/:id"
             element={<BusinessDetailPage key={locationKey} />}
           />
-          <Route path="/shop" element={<ShopDashboard />} />
           <Route path="/shop/bookings" element={<ShopBookings />} />
         </Routes>
       </AppLayout>
