@@ -1,25 +1,21 @@
+import ClearIcon from '@mui/icons-material/Clear';
+import SearchIcon from '@mui/icons-material/Search';
 // components/SearchBar.tsx
 import {
-  Box,
-  TextField,
-  MenuItem,
-  Button,
-  Stack,
-  InputAdornment,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
-import ClearIcon from "@mui/icons-material/Clear";
-import SearchIcon from "@mui/icons-material/Search";
+    Box, Button, IconButton, InputAdornment, MenuItem, Stack, TextField, Tooltip
+} from '@mui/material';
+
+import type { Category } from "../services/categoryService";
+
 const ITEM_HEIGHT = 40;
 const MAX_ITEMS_VISIBLE = 5;
 
 export interface ISearchBar {
-  category: string;
-  onCategoryChange: (value: string) => void;
+  category: Category | null;
+  onCategoryChange: (value: number) => void;
   keyword: string;
   onKeywordChange: (value: string) => void;
-  categories: string[];
+  categories: Category[];
   onSearch: () => void;
 }
 const SearchBar = ({
@@ -59,10 +55,10 @@ const SearchBar = ({
         <TextField
           label="Category"
           select
-          defaultValue="All"
+          defaultValue="0"
           sx={{ minWidth: 180 }}
-          onChange={(e) => onCategoryChange(e.target.value)}
-          value={category}
+          onChange={(e) => onCategoryChange(Number(e.target.value))}
+          value={category?.id}
           SelectProps={{
             MenuProps: {
               PaperProps: {
@@ -75,8 +71,8 @@ const SearchBar = ({
           fullWidth
         >
           {categories.map((cat) => (
-            <MenuItem key={cat} value={cat}>
-              {cat}
+            <MenuItem key={cat.id} value={cat.id}>
+              {cat.name}
             </MenuItem>
           ))}
         </TextField>

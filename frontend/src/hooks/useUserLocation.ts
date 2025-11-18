@@ -1,6 +1,8 @@
 // hooks/useUserLocation.ts
-import { useEffect, useState } from "react";
-import { fetchCityFromCoords } from "../utils/geoUtils";
+import { useEffect, useState } from 'react';
+
+import { fetchCityFromCoords } from '../utils/geoUtils';
+
 // import { dummyLocations } from "../data/dummyData";
 
 export type Location = {
@@ -11,7 +13,7 @@ export type Location = {
 };
 
 export const useUserLocation = () => {
-  const [location, setLocation] = useState<Location | null>(null);
+  const [location, setLocation] = useState<Location>();
   // FIXME: Memorize it to avoid re-request API for same co-ordinates
   const detectLocation = () => {
     if (!navigator.geolocation) return;

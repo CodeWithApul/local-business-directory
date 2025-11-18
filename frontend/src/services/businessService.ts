@@ -101,12 +101,15 @@ export async function getMatchedRecords({
   categoryId,
   keyword,
 }: {
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   radiusKm: number;
-  categoryId?: string;
+  categoryId?: number;
   keyword?: string;
 }) {
+  if (!latitude || !longitude) {
+    throw new Error(`Latitude/Longitude undefined`);
+  }
   const res = await fetch(`${BASE_API_URL}/business/search`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
