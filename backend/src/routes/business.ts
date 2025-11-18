@@ -269,7 +269,7 @@ router.post("/search", async (req: Request, res: Response) => {
     }
     // Only add keyword if provided
     if (keyword !== undefined && keyword !== "") {
-      where.businessName = { contains: keyword, mode: "insensitive" };
+      where.name = { contains: keyword, mode: "insensitive" };
       where.description = { contains: keyword, mode: "insensitive" };
       where.category = { name: { contains: keyword, mode: "insensitive" } };
     }
