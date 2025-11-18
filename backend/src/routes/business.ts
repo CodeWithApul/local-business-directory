@@ -236,6 +236,14 @@ router.get(
   }
 );
 
+router.get(
+  "/auth/check",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    res.status(200).json({ ok: true });
+  }
+);
+
 router.post("/search", async (req: Request, res: Response) => {
   try {
     const { latitude, longitude, radiusKm, categoryId, keyword } = req.body;
