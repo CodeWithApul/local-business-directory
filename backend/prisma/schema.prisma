@@ -99,3 +99,17 @@ model BusinessBooking {
   status     String   @default("active")
   business   Business @relation(fields: [businessId], references: [id])
 }
+
+model Location {
+  id              Int @id   @default(autoincrement())
+  displayName     String
+  village         String?
+  block           String?
+  city            String?
+  district        String?
+  lat             Float?
+  lon             Float?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  status          String     @default("active")
+}
