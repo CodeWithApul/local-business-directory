@@ -6,11 +6,10 @@ import { toast } from "react-toastify";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 
+import { useAuth } from "../../context/AuthContext";
 import { LoginFormSchema } from "../../schema/LoginFormSchema";
-import { sendLoginRequest } from "../../services/businessService";
 
 import type { LoginFormValues } from "../../schema/LoginFormSchema";
-
 function ShopAuthForm() {
   const [isSubmitting, setisSubmitting] = useState(false);
 
@@ -21,20 +20,19 @@ function ShopAuthForm() {
   } = useForm<LoginFormValues>({ resolver: yupResolver(LoginFormSchema) });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const onAuthSubmit = async (data: LoginFormValues) => {
     setisSubmitting(true);
 
     try {
-      const isLoggedIn = await sendLoginRequest(data);
-      if (!isLoggedIn) return toast.error(`Error: Invalid credentials.`);
-
+      await login(data);
       toast.success(`Logged In Successfully!`, { autoClose: 3000 });
       setTimeout(() => {
         navigate("/shop");
       }, 3000);
     } catch (err) {
-      toast.error("Something went wrong, try again later.");
+      toast.error(`Error: Invalid credentials.`);
       console.error(err);
     } finally {
       setisSubmitting(false);

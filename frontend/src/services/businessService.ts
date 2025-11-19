@@ -20,7 +20,7 @@ export async function addBusiness(data: BusinessFormValues) {
   });
 }
 
-export async function sendLoginRequest(data: LoginFormValues) {
+export async function sendLoginRequest(data: LoginFormValues): Promise<string> {
   const res = await fetch(`${BASE_API_URL}/users/login`, {
     method: "POST",
     credentials: "include",
@@ -28,12 +28,20 @@ export async function sendLoginRequest(data: LoginFormValues) {
     body: JSON.stringify({ ...data }),
   });
   if (!res.ok) {
-    return false;
+    throw new Error("Invalid credentials");
   }
   const { accessToken } = await res.json();
+  return accessToken;
+}
 
-  localStorage.setItem("accessToken", accessToken);
-  return true;
+export async function sendLogoutRequest() {
+  const res = await fetch(`${BASE_API_URL}/users/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Unable to Logout!");
+  }
 }
 
 export async function sendOTP(
