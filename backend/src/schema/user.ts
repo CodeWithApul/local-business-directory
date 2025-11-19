@@ -1,5 +1,18 @@
 import { z } from "zod/v4";
 
+const passwordSchema = z
+  .string()
+  .trim()
+  .min(8, { message: "Password must be at least 8 characters long" })
+  .max(16, { message: "Password must not exceed 16 characters" })
+  .regex(/[A-Z]/, {
+    message: "Password must contain at least one uppercase letter",
+  })
+  .regex(/[0-9]/, { message: "Password must contain at least one number" })
+  .regex(/[^A-Za-z0-9]/, {
+    message: "Password must contain at least one special character",
+  });
+
 export const UserSchema = z.object({
   id: z.coerce.number().min(1),
   username: z.string().min(3).max(50), // name of user
@@ -11,18 +24,7 @@ export const UserSchema = z.object({
       /^[+]?[0-9]{10,15}$/,
       "Phone number must be valid and contain 10-15 digits (with optional '+')"
     ),
-  password: z
-    .string()
-    .trim()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .max(16, { message: "Password must not exceed 16 characters" })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" })
-    .regex(/[^A-Za-z0-9]/, {
-      message: "Password must contain at least one special character",
-    }),
+  password: passwordSchema,
 });
 
 export type User = z.infer<typeof UserSchema>;
@@ -38,18 +40,18 @@ export const LoginSchema = z.object({
         "Mobile number must be valid and contain 10-15 digits (with optional '+')"
       ),
   ]),
-  password: z
+  password: passwordSchema,
+});
+
+export const VerifyOTPRequestSchema = z.object({
+  userId: z.coerce.number("User id required"),
+  otp: z
     .string()
     .trim()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .max(16, { message: "Password must not exceed 16 characters" })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" })
-    .regex(/[^A-Za-z0-9]/, {
-      message: "Password must contain at least one special character",
-    }),
+    .regex(/^\d{6}$/, "OTP must be a 6-digit number"),
+  password: passwordSchema,
 });
+
+export type VerifyOTPRequest = z.infer<typeof VerifyOTPRequestSchema>;
 
 export type Login = z.infer<typeof LoginSchema>;

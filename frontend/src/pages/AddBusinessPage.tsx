@@ -37,7 +37,7 @@ function AddBusinessPage() {
   const handleSendOTP = async (
     email: string,
     phoneNumber: string,
-    userId: string
+    userId: string,
   ) => {
     const res = await sendOTP(email, phoneNumber, userId);
     if (res.ok) {
@@ -64,7 +64,7 @@ function AddBusinessPage() {
     setStep(FormStep.OTPVerification);
 
     toast.success(
-      `We have send an OTP to ${data.email} and ${data.phoneNumber}`
+      `We have send an OTP to ${data.email} and ${data.phoneNumber}`,
     );
   };
 
@@ -73,9 +73,9 @@ function AddBusinessPage() {
       return toast.error("User ID is missing. Please restart the process.");
     }
     const res = await verifyOTP(user.userId, otp, password);
-
+    const data = await res.json();
     if (!res.ok) {
-      return toast.error("Invalid OTP");
+      return toast.error(`${data.error}`);
     }
     setStep(FormStep.Success);
     toast.success("You account has been created.");
