@@ -43,7 +43,7 @@ export const LoginSchema = z.object({
   password: passwordSchema,
 });
 
-export const VerifyOtpReqSchema = z.object({
+export const VerifyOTPRequestSchema = z.object({
   userId: z.coerce.number("User id required"),
   otp: z
     .string()
@@ -52,6 +52,6 @@ export const VerifyOtpReqSchema = z.object({
   password: passwordSchema,
 });
 
-export type VerifyOtpReq = z.infer<typeof VerifyOtpReqSchema>;
+export type VerifyOTPRequest = z.infer<typeof VerifyOTPRequestSchema>;
 
 export type Login = z.infer<typeof LoginSchema>;

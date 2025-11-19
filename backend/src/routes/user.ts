@@ -4,13 +4,17 @@ import { Router } from "express";
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth";
 import { validateSchema } from "../middleware/validateSchema";
-import { LoginSchema, UserSchema, VerifyOtpReqSchema } from "../schema/user";
+import {
+  LoginSchema,
+  UserSchema,
+  VerifyOTPRequestSchema,
+} from "../schema/user";
 import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
 import sendEmail from "../utils/emailService";
 import { generateToken, verifyRefreshToken } from "../utils/jwt";
 import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
 
-import type { User, Login, VerifyOtpReq } from "../schema/user";
+import type { User, Login, VerifyOTPRequest } from "../schema/user";
 
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
@@ -92,9 +96,9 @@ router.post("/generate-otp", async (req: Request, res: Response) => {
 
 router.post(
   "/verify-otp",
-  validateSchema(VerifyOtpReqSchema),
+  validateSchema(VerifyOTPRequestSchema),
   async (req, res) => {
-    const { userId, otp, password }: VerifyOtpReq = req.body;
+    const { userId, otp, password }: VerifyOTPRequest = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const user = await prisma.user.findUnique({
       select: {
