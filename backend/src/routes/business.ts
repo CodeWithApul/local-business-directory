@@ -127,7 +127,32 @@ router.post(
       console.error("Error creating business:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
+);
+
+router.post(
+  "/get-details",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(400).json({ error: "USER ID is required" });
+      }
+
+      const businessDetails = await prisma.business.findFirst({
+        where: {
+          id: parseInt(userId),
+          status: "verified",
+        },
+      });
+
+      return res.status(200).json(businessDetails);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
 );
 
 router.post(
