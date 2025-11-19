@@ -14,7 +14,7 @@ export default function PublicRoute({ children }: Props) {
     (async () => {
       try {
         const res = await fetchWithAuth(
-          `${import.meta.env.VITE_BACKEND_URL}/api}/business/auth/check`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/business/auth/check`,
           {
             method: "GET",
             credentials: "include",
