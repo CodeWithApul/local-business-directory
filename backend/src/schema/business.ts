@@ -10,7 +10,7 @@ export const BusinessFormSchema = z.object({
     .string()
     .regex(
       /^[+]?[0-9]{10,15}$/,
-      "Phone number must be valid and contain 10-15 digits (with optional '+')",
+      "Phone number must be valid and contain 10-15 digits (with optional '+')"
     ),
   state: z.string(),
   street: z.string().min(3),
@@ -23,23 +23,3 @@ export const BusinessFormSchema = z.object({
   description: z.string(),
 });
 export type BusinessForm = z.infer<typeof BusinessFormSchema>;
-
-export const VerifyOtpReqSchema = z.object({
-  userId: z.coerce.number("User id required"),
-  otp: z
-    .string()
-    .trim()
-    .regex(/^\d{6}$/, "OTP must be a 6-digit number"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/\d/, "Password must contain at least one digit")
-    .regex(
-      /[@$!%*?&#]/,
-      "Password must contain at least one special character",
-    ),
-});
-
-export type VerifyOtpReq = z.infer<typeof VerifyOtpReqSchema>;

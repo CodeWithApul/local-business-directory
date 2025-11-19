@@ -4,21 +4,21 @@ import { Router } from "express";
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth";
 import { validateSchema } from "../middleware/validateSchema";
-import { LoginSchema, UserSchema } from "../schema/user";
+import { LoginSchema, UserSchema, VerifyOtpReqSchema } from "../schema/user";
 import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
 import sendEmail from "../utils/emailService";
 import { generateToken, verifyRefreshToken } from "../utils/jwt";
 import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
 
-import type { User, Login } from "../schema/user";
+import type { User, Login, VerifyOtpReq } from "../schema/user";
 
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
-import { VerifyOtpReqSchema, type VerifyOtpReq } from "../schema/business";
+
 const router = Router();
 const prisma = new PrismaClient();
-const saltRounds = 10;
+const saltRounds = 2; // FIXME: Higher environments should have more saltRounds
 
 router.get(
   "/",
@@ -26,7 +26,7 @@ router.get(
   async (_req: AuthenticatedRequest, res: Response) => {
     const users = await prisma.user.findMany();
     res.json(users);
-  },
+  }
 );
 
 router.post(
@@ -44,7 +44,7 @@ router.post(
       },
     });
     res.json(user);
-  },
+  }
 );
 
 router.post(
@@ -64,7 +64,7 @@ router.post(
       },
     });
     res.json(updatedUser);
-  },
+  }
 );
 
 router.post("/generate-otp", async (req: Request, res: Response) => {
@@ -100,36 +100,28 @@ router.post(
       select: {
         otpExpiredAt: true,
       },
-      where: { id: userId, verificationToken: otp },
+      where: {
+        id: userId,
+        verificationToken: otp,
+        otpExpiredAt: { gt: new Date() },
+      },
     });
 
     if (!user) {
-      return res.status(400).json({ error: "Invalid OTP" });
+      return res.status(400).json({ error: "Invalid / Expired OTP" });
     }
 
-    if (!user.otpExpiredAt) {
-      return res
-        .status(501)
-        .json({ error: "Something went wrong, try again later." });
-    }
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        verificationToken: null,
+        status: "verified",
+        password: hashedPassword,
+      },
+    });
 
-    if (user.otpExpiredAt > new Date()) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          verificationToken: null,
-          status: "verified",
-          password: hashedPassword,
-        },
-      });
-
-      return res.status(200).json({ message: `OTP verified successfully!` });
-    } else {
-      return res
-        .status(400)
-        .json({ error: "Your OTP has expired. Please request a new one." });
-    }
-  },
+    return res.status(200).json({ message: `OTP verified successfully!` });
+  }
 );
 
 router.post("/login", validateSchema(LoginSchema), async (req, res) => {
