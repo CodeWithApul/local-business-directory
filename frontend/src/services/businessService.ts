@@ -3,6 +3,7 @@ import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
 import fetchWithAuth from "../utils/fetchWithAuth";
 
 import type { LoginFormValues } from "../schema/LoginFormSchema";
+import type { BusinessBooking } from "../schema/BusinessBookingSchema";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -91,15 +92,57 @@ function toFormData(data: FormEntity): FormData {
   return formData;
 }
 
-export async function getBookingsByBusinessId() {
+export async function getBookings() {
   const res = await fetchWithAuth(`${BASE_API_URL}/business/bookings`, {
-    method: "GET",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
     throw new Error("Failed to fetch bookings");
   }
   return res.json();
+}
+
+export async function deleteBookingByBookingId(bookingId: string) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/delete-booking`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: bookingId,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch bookings");
+  }
+  return res.json();
+}
+
+export async function createBooking(businessBooking: BusinessBooking) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/create-booking`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...businessBooking,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Unable to create booking");
+  }
+  return await res.json();
+}
+
+export async function updateBooking(businessBooking: BusinessBooking) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/update-booking`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...businessBooking,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Unable to create booking");
+  }
+  return await res.json();
 }
 
 export async function getMatchedRecords({

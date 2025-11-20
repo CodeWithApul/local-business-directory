@@ -6,7 +6,7 @@ import path from "path";
 import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth";
 import { validateSchema } from "../middleware/validateSchema";
-import { BusinessFormSchema } from "../schema/business";
+import { BusinessBookingSchema, BusinessFormSchema } from "../schema/business";
 import { getBoundingBox, isWithinRadius } from "../utils/geoService";
 
 import type { BusinessForm } from "../schema/business";
@@ -211,14 +211,14 @@ router.post(
   }
 );
 
-router.get(
+router.post(
   "/bookings",
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        return res.status(400).json({ error: "USER ID is required" });
+        return res.status(400).json({ error: "Login Again!" });
       }
       const bookings = await prisma.businessBooking.findMany({
         where: {
@@ -231,6 +231,98 @@ router.get(
       return res.json(bookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+router.delete(
+  "/delete-bookings",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(400).json({ error: "Login Again!" });
+      }
+      const bookings = await prisma.businessBooking.delete({
+        where: {
+          id: req.body.id,
+          business: {
+            ownerId: parseInt(userId),
+          },
+        },
+      });
+      return res.json(bookings);
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+router.post(
+  "/create-booking",
+  authMiddleware,
+  validateSchema(BusinessBookingSchema),
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ error: "Login Again!" });
+      }
+      // Fetch the businessId associated with the userId
+      const business = await prisma.business.findFirst({
+        where: { ownerId: parseInt(userId) },
+      });
+
+      if (!business) {
+        return res
+          .status(404)
+          .json({ error: "No business found for this user" });
+      }
+      const { bookingStartTime, bookingEndTime, status } = req.body;
+
+      const businessBooking = await prisma.businessBooking.create({
+        data: {
+          businessId: business.id,
+          bookingStartTime: new Date(bookingStartTime),
+          bookingEndTime: new Date(bookingEndTime),
+          status,
+        },
+      });
+      res.status(201).json(businessBooking);
+    } catch (error) {
+      console.error("Error creating business booking:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+router.post(
+  "/update-booking",
+  authMiddleware,
+  validateSchema(BusinessBookingSchema),
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ error: "Login Again!" });
+      }
+
+      const { id, bookingStartTime, bookingEndTime, status } = req.body;
+
+      const updatedBooking = await prisma.businessBooking.update({
+        where: { id },
+        data: {
+          bookingStartTime: new Date(bookingStartTime),
+          bookingEndTime: new Date(bookingEndTime),
+          status,
+        },
+      });
+
+      res.status(200).json(updatedBooking);
+    } catch (error) {
+      console.error("Error updating business booking:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }

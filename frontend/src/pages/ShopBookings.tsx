@@ -20,9 +20,9 @@ import { green, orange } from "@mui/material/colors";
 import Paper from "@mui/material/Paper";
 
 import RecordTable from "../components/RecordTable";
+import { deleteBookingByBusinessId } from "../services/businessService";
 
 import type { GridColDef } from "@mui/x-data-grid";
-
 interface Booking {
   id: string;
   startDate: string;
@@ -116,19 +116,34 @@ const ShopBookings = () => {
       flex: 1,
       sortable: false,
       renderCell: (params) => (
-        <button
-          style={{
-            backgroundColor: "#1976d2",
-            color: "white",
-            border: "none",
-            padding: "6px 12px",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-          onClick={() => handleViewClick(params.row.id)}
-        >
-          View
-        </button>
+        <>
+          <button
+            style={{
+              backgroundColor: "#1976d2",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={() => handleViewClick(params.row.id)}
+          >
+            Update
+          </button>{" "}
+          <button
+            style={{
+              backgroundColor: "#1976d2",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={() => handleDeleteClick(params.row.id)}
+          >
+            Delete
+          </button>
+        </>
       ),
     },
   ];
@@ -139,6 +154,20 @@ const ShopBookings = () => {
     setActiveRecordId(id);
     setLoading(true);
     handleOpen();
+  };
+
+  const handleDeleteClick = async (id: string) => {
+    // alert(`Delete details for booking ID: ${id}`);
+    setActiveRecordId(id);
+    try {
+      const c = confirm("Are you sure to delete this booking?");
+      if (c) {
+        setLoading(true);
+        await deleteBookingByBusinessId(id);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
   const [open, setOpen] = useState(false);
   const [activeRecordId, setActiveRecordId] = useState<string | null>(null);

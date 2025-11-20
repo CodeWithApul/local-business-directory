@@ -4,6 +4,6 @@ import { useAuth } from "../../context/AuthContext";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/shop/login" replace />;
   return children;
 }
