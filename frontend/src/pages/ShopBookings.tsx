@@ -1,9 +1,7 @@
-import { type GridColDef } from "@mui/x-data-grid";
-import Paper from "@mui/material/Paper";
-import RecordTable from "../components/RecordTable";
+import { useState } from "react";
+
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import { green, orange } from "@mui/material/colors";
 import {
   Box,
   Button,
@@ -18,7 +16,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { green, orange } from "@mui/material/colors";
+import Paper from "@mui/material/Paper";
+
+import RecordTable from "../components/RecordTable";
+
+import type { GridColDef } from "@mui/x-data-grid";
 
 interface Booking {
   id: string;
@@ -160,67 +163,73 @@ const ShopBookings = () => {
     handleClose();
   };
   return (
-    <Paper elevation={6}>
-      <RecordTable title="Your Bookings" rows={sampleRows} columns={columns} />
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Update Your Booking</DialogTitle>
+    <Box sx={{ margin: "auto", padding: 2 }}>
+      <Paper elevation={6}>
+        <RecordTable
+          title="Your Bookings"
+          rows={sampleRows}
+          columns={columns}
+        />
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Update Your Booking</DialogTitle>
 
-        <DialogContent>
-          <DialogContentText>Enter Your Booking Details</DialogContentText>
-          {loading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: 100,
-                width: 400,
-                mt: 2,
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              autoComplete="off"
-              id="subscription-form"
-            >
-              <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="from_date"
-                name="from_date"
-                label="From Date & Time"
-                type="datetime-local"
-                fullWidth
-                variant="standard"
-                slotProps={{ inputLabel: { shrink: true } }}
-              />
-              <TextField
-                required
-                margin="dense"
-                id="to_date"
-                name="to_date"
-                label="To Date & Time"
-                type="datetime-local"
-                fullWidth
-                variant="standard"
-                slotProps={{ inputLabel: { shrink: true } }}
-              />
-              <FormControlLabel control={<Checkbox />} label="I'm Booked" />
-            </form>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit" form="subscription-form">
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Paper>
+          <DialogContent>
+            <DialogContentText>Enter Your Booking Details</DialogContentText>
+            {loading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  minHeight: 100,
+                  width: 400,
+                  mt: 2,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                autoComplete="off"
+                id="subscription-form"
+              >
+                <TextField
+                  autoFocus
+                  required
+                  margin="dense"
+                  id="from_date"
+                  name="from_date"
+                  label="From Date & Time"
+                  type="datetime-local"
+                  fullWidth
+                  variant="standard"
+                  slotProps={{ inputLabel: { shrink: true } }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="to_date"
+                  name="to_date"
+                  label="To Date & Time"
+                  type="datetime-local"
+                  fullWidth
+                  variant="standard"
+                  slotProps={{ inputLabel: { shrink: true } }}
+                />
+                <FormControlLabel control={<Checkbox />} label="I'm Booked" />
+              </form>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit" form="subscription-form">
+              Update
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Paper>
+    </Box>
   );
 };
 

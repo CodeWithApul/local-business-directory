@@ -8,6 +8,7 @@ import AddBusinessPage from "./pages/AddBusinessPage";
 import BusinessDetailPage from "./pages/BusinessDetailPage";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Logout from "./pages/Logout";
 import ShopBookings from "./pages/ShopBookings";
 import ShopDashboard from "./pages/ShopDashboard";
 import theme from "./theme/index";
@@ -52,8 +53,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/shop" element={<ShopDashboard />} />
-          <Route path="/shop/bookings" element={<ShopBookings />} />
+          <Route path="/shop/logout" element={<Logout />} />
         </Routes>
       </AppLayout>
     </ThemeProvider>
