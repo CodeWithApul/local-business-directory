@@ -2,11 +2,8 @@ import * as yup from "yup";
 
 export const BusinessBookingSchema = yup
   .object({
-    id: yup.number().typeError("Booking ID must be a number").optional(), // Optional for create, required for update
-    businessId: yup
-      .number()
-      .typeError("Business ID must be a number")
-      .optional(), // Optional for update
+    id: yup.string().default(""),
+    businessId: yup.string().default(""),
     bookingStartTime: yup
       .string()
       .required("Booking start time is required")
@@ -27,13 +24,8 @@ export const BusinessBookingSchema = yup
           return value ? !isNaN(Date.parse(value)) : false;
         }
       ),
-    status: yup
-      .string()
-      .required("Status is required")
-      .oneOf(
-        ["confirmed", "pending", "cancelled"],
-        "Status must be one of: confirmed, pending, cancelled"
-      ),
+    // status: yup.boolean().required("Status is required"),
+    // // .oneOf([true], "You must confirm booking status"),
   })
   .test(
     "start-before-end",
@@ -48,3 +40,5 @@ export const BusinessBookingSchema = yup
       return start && end ? start < end : true;
     }
   );
+
+export type BusinessBookingValues = yup.InferType<typeof BusinessBookingSchema>;

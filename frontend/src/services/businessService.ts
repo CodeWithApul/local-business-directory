@@ -3,7 +3,7 @@ import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
 import fetchWithAuth from "../utils/fetchWithAuth";
 
 import type { LoginFormValues } from "../schema/LoginFormSchema";
-import type { BusinessBooking } from "../schema/BusinessBookingSchema";
+import type { BusinessBookingValues } from "../schema/BusinessBookingSchema";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -103,7 +103,19 @@ export async function getBookings() {
   return res.json();
 }
 
-export async function deleteBookingByBookingId(bookingId: string) {
+export async function getBookingById(id: number) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/booking-by-id`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch booking for ID ${id}`);
+  }
+  return res.json();
+}
+
+export async function deleteBookingByBookingId(bookingId: number) {
   const res = await fetchWithAuth(`${BASE_API_URL}/business/delete-booking`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
@@ -117,7 +129,7 @@ export async function deleteBookingByBookingId(bookingId: string) {
   return res.json();
 }
 
-export async function createBooking(businessBooking: BusinessBooking) {
+export async function createBooking(businessBooking: BusinessBookingValues) {
   const res = await fetchWithAuth(`${BASE_API_URL}/business/create-booking`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -131,7 +143,7 @@ export async function createBooking(businessBooking: BusinessBooking) {
   return await res.json();
 }
 
-export async function updateBooking(businessBooking: BusinessBooking) {
+export async function updateBooking(businessBooking: BusinessBookingValues) {
   const res = await fetchWithAuth(`${BASE_API_URL}/business/update-booking`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -173,6 +185,13 @@ export async function getMatchedRecords({
     }),
   });
   return await res.json();
+}
+
+export function toDatetimeLocalString(isoString: string) {
+  const date = new Date(isoString);
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().slice(0, 16); // "yyyy-MM-ddThh:mm"
 }
 
 export type FormEntity = BusinessFormValues | CategoryFormValues;

@@ -37,10 +37,9 @@ export const BusinessBookingSchema = z.object({
     .refine((value) => !isNaN(Date.parse(value)), {
       message: "Booking end time must be a valid ISO date string",
     }),
-  status: z
-    .string("Status is required")
-    .refine((value) => ["confirmed", "pending", "cancelled"].includes(value), {
-      message: "Status must be one of: confirmed, pending, cancelled",
-    }),
+  // status: z.coerce.boolean("Status is required"),
+  // .refine((value) => ["booked", "pending", "cancelled"].includes(value), {
+  //   message: "Status must be one of: booked, pending, cancelled",
+  // }),
 });
 export type BusinessBooking = z.infer<typeof BusinessBookingSchema>;

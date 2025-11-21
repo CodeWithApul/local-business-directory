@@ -236,8 +236,30 @@ router.post(
   }
 );
 
+router.post(
+  "/booking-by-id",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      const booking = await prisma.businessBooking.findFirst({
+        where: {
+          id: parseInt(req.body.id),
+          business: {
+            ownerId: parseInt(userId),
+          },
+        },
+      });
+      return res.status(200).json(booking);
+    } catch (error) {
+      console.error("Error fetching booking with ID:" + req.body.id, error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 router.delete(
-  "/delete-bookings",
+  "/delete-booking",
   authMiddleware,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -247,7 +269,7 @@ router.delete(
       }
       const bookings = await prisma.businessBooking.delete({
         where: {
-          id: req.body.id,
+          id: parseInt(req.body.id),
           business: {
             ownerId: parseInt(userId),
           },
@@ -267,7 +289,7 @@ router.post(
   validateSchema(BusinessBookingSchema),
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
       if (!userId) {
         return res.status(400).json({ error: "Login Again!" });
       }
@@ -281,14 +303,14 @@ router.post(
           .status(404)
           .json({ error: "No business found for this user" });
       }
-      const { bookingStartTime, bookingEndTime, status } = req.body;
+      const { bookingStartTime, bookingEndTime } = req.body;
 
       const businessBooking = await prisma.businessBooking.create({
         data: {
           businessId: business.id,
           bookingStartTime: new Date(bookingStartTime),
           bookingEndTime: new Date(bookingEndTime),
-          status,
+          status: "booked",
         },
       });
       res.status(201).json(businessBooking);
@@ -304,7 +326,7 @@ router.post(
   validateSchema(BusinessBookingSchema),
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
       if (!userId) {
         return res.status(400).json({ error: "Login Again!" });
       }
