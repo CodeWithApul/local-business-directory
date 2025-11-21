@@ -54,6 +54,7 @@ const ShopBookings = () => {
     defaultValues: booking || {
       bookingStartTime: "",
       bookingEndTime: "",
+      description: "",
     },
     resolver: yupResolver(BusinessBookingSchema),
   });
@@ -124,7 +125,7 @@ const ShopBookings = () => {
             startIcon={<EditIcon />}
             variant="contained"
           >
-            Update
+            Edit
           </Button>
           <Button
             sx={{
@@ -208,6 +209,7 @@ const ShopBookings = () => {
       booking || {
         bookingStartTime: "",
         bookingEndTime: "",
+        description: "",
       }
     );
     setOpen(true);
@@ -314,6 +316,17 @@ const ShopBookings = () => {
                     {...register("bookingEndTime")}
                     error={!!errors.bookingEndTime}
                     helperText={errors.bookingEndTime?.message}
+                  />
+                  <TextField
+                    label="Enter a few details about your booking (optional)"
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    fullWidth
+                    multiline
+                    rows={3}
+                    variant="filled"
+                    {...register("description")}
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
                   />
                   {/* <FormControl error={!!errors.status}>
                     <FormControlLabel

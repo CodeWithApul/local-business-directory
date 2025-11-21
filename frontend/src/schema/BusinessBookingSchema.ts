@@ -24,6 +24,7 @@ export const BusinessBookingSchema = yup
           return value ? !isNaN(Date.parse(value)) : false;
         }
       ),
+    description: yup.string().default(""),
     // status: yup.boolean().required("Status is required"),
     // // .oneOf([true], "You must confirm booking status"),
   })

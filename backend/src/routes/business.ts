@@ -303,13 +303,14 @@ router.post(
           .status(404)
           .json({ error: "No business found for this user" });
       }
-      const { bookingStartTime, bookingEndTime } = req.body;
+      const { bookingStartTime, bookingEndTime, description } = req.body;
 
       const businessBooking = await prisma.businessBooking.create({
         data: {
           businessId: business.id,
           bookingStartTime: new Date(bookingStartTime),
           bookingEndTime: new Date(bookingEndTime),
+          description,
           status: "booked",
         },
       });
@@ -331,14 +332,14 @@ router.post(
         return res.status(400).json({ error: "Login Again!" });
       }
 
-      const { id, bookingStartTime, bookingEndTime, status } = req.body;
+      const { id, bookingStartTime, bookingEndTime, description } = req.body;
 
       const updatedBooking = await prisma.businessBooking.update({
         where: { id },
         data: {
           bookingStartTime: new Date(bookingStartTime),
           bookingEndTime: new Date(bookingEndTime),
-          status,
+          description,
         },
       });
 

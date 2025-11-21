@@ -95,6 +95,7 @@ model BusinessBooking {
   businessId Int
   bookingStartTime DateTime
   bookingEndTime DateTime
+  description String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   status     String   @default("active")
