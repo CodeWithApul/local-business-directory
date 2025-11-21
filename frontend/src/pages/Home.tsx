@@ -1,17 +1,24 @@
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import { useDebouncedCallback } from 'use-debounce';
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useDebouncedCallback } from "use-debounce";
 
-import { Autocomplete, Button, Container, Grid, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Button,
+  Container,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 
-import BusinessCard from '../components/BusinessCard';
-import HeroSection from '../components/HeroSection';
-import SearchBar from '../components/SearchBar';
-import { dummyBusiness } from '../data/dummyData';
-import { useUserLocation } from '../hooks/useUserLocation';
-import { getMatchedRecords } from '../services/businessService';
-import { getCategories } from '../services/categoryService';
-import { getAutocompleteSuggestions } from '../services/locationService';
+import BusinessCard from "../components/BusinessCard";
+import HeroSection from "../components/HeroSection";
+import SearchBar from "../components/SearchBar";
+import { dummyBusiness } from "../data/dummyData";
+import { useUserLocation } from "../hooks/useUserLocation";
+import { getMatchedRecords } from "../services/businessService";
+import { getCategories } from "../services/categoryService";
+import { getAutocompleteSuggestions } from "../services/locationService";
 
 import type { Category } from "../services/categoryService";
 import type { IBusiness } from "../data/dummyData";
@@ -70,33 +77,33 @@ function Home() {
   };
   useEffect(() => {
     if (location?.source === "auto") {
-      toast.success(`Location auto-detected: ${location.city}`);
+      toast.success(`Location auto-detected: ${location.displayName}`);
     }
     setLoading(false);
   }, [location]);
 
   //   <FeaturedBusinesses />
   const defaultCityList = [
-    ...(location?.city ? [location.city] : []), // Include current city if not already in the list
-    ...(searchedLocations.map((c) => c.city) || []).filter(
-      (city) => city?.toLowerCase() !== location?.city?.toLowerCase()
+    ...(location?.displayName ? [location.displayName] : []), // Include current city if not already in the list
+    ...(searchedLocations.map((c) => c.displayName) || []).filter(
+      (city) => city?.toLowerCase() !== location?.displayName?.toLowerCase()
     ), // Exclude current city
-    ,
   ];
 
   const getLocationDetails = (name: string): Location | undefined =>
     searchedLocations.find(
-      (loc) => loc?.city?.toLowerCase() === name.toLowerCase()
+      (loc) => loc?.displayName?.toLowerCase() === name.toLowerCase()
     );
 
   return (
     <>
-      <HeroSection city={location?.city} />
+      <HeroSection city={location?.displayName} />
       <Container>
         <Typography variant="h4" sx={{ my: 1 }} gutterBottom>
           Local Business Directory
         </Typography>
-        “Showing results for {location?.city} (auto-detected). Want to change?”
+        “Showing results for {location?.displayName} (auto-detected). Want to
+        change?”
         <Button
           onClick={() => {
             detectLocation();
@@ -108,7 +115,7 @@ function Home() {
         </Button>
         <Autocomplete
           options={defaultCityList}
-          value={location?.city || ""}
+          value={location?.displayName || ""}
           onChange={(_e, newCity) => {
             const newLocation = getLocationDetails(newCity);
             if (newLocation) updateLocation(newLocation);
