@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
-import { useBusinessDetails } from "../hooks/useBusinessDetails";
-import BusinessProfile from "./sub-components/BusinessProfile";
-import ImageGallery from "./sub-components/ImageGallery";
-import ContactDetails from "./sub-components/ContactDetails";
-import MapSection from "./sub-components/MapSection";
+
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+
+import { useBusinessDetails } from "../hooks/useBusinessDetails";
+import BusinessProfile from "./sub-components/BusinessProfile";
+import ContactDetails from "./sub-components/ContactDetails";
+import ImageGallery from "./sub-components/ImageGallery";
+import MapSection from "./sub-components/MapSection";
 
 {
   /* <Container>
@@ -49,9 +51,10 @@ function BusinessDetailPage() {
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <ContactDetails
-              phone={business.phone}
-              email={business?.email}
-              address={business.address}
+              // phone={business.phone}
+              // email={business?.email}
+              // address={business.address}
+              businessId={business.id}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>

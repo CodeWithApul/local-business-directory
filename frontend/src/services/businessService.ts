@@ -7,6 +7,13 @@ import type { BusinessBookingValues } from "../schema/BusinessBookingSchema";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
+export async function getBusinessById(id: string) {
+  const res = await fetch(BASE_API_URL + "/business/" + id, { method: "GET" });
+  if (!res.ok) throw Error(`Unable to find business details`);
+
+  return await res.json();
+}
+
 export async function getBusinesses() {
   const res = await fetch(BASE_API_URL + "/business", { method: "GET" });
   return res.json();

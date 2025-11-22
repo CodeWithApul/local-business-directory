@@ -1,26 +1,30 @@
-import { useEffect, useState } from "react";
-import { dummyBusiness, type IBusiness } from "../data/dummyData";
+import { useCallback, useEffect, useState } from "react";
+
+import { dummyBusiness } from "../data/dummyData";
+
+// import { getBusinessById } from "../services/businessService";
+
+import type { IBusiness } from "../data/dummyData";
 
 export const useBusinessDetails = (id: string) => {
-  // fetch record from DB
   const [business, setBusiness] = useState<IBusiness | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
+  const refetchBusiness = useCallback(async () => {
     try {
-      const businessMatch = dummyBusiness.find((e) => e.id === id);
-      setBusiness(businessMatch ?? null);
+      // let b = await getBusinessById(id);
+      const b = dummyBusiness.find((e) => e.id === id); // unless we have a few business to test, keep it
+
+      setBusiness(b ?? null);
     } catch (error) {
       setError(error as Error);
     } finally {
       setLoading(false);
     }
   }, [id]);
-  //   useEffect(() => {
-  //     fetch(`/api/business/${businessId}`)
-  //       .then(res => res.json())
-  //       .then(setBusiness);
-  //   }, [businessId]);
-  return { business, loading, error };
+  useEffect(() => {
+    refetchBusiness();
+  }, [refetchBusiness]);
+
+  return { business, loading, error, refetchBusiness };
 };

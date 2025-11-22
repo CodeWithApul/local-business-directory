@@ -1,4 +1,4 @@
-import { type Location } from "../hooks/useUserLocation";
+import type { Location } from "../hooks/useUserLocation";
 
 export interface IBusiness {
   id: string;
@@ -144,155 +144,155 @@ export const dummyBusiness: IBusiness[] = [
 
 export const dummyLocations: Location[] = [
   {
-    city: "Indianapolis",
+    displayName: "Indianapolis",
     lat: 39.7684,
     lng: -86.1581,
     source: "manual",
   },
   {
-    city: "Chicago",
+    displayName: "Chicago",
     lat: 41.8781,
     lng: -87.6298,
     source: "manual",
   },
   {
-    city: "New York",
+    displayName: "New York",
     lat: 40.7128,
     lng: -74.006,
     source: "manual",
   },
-  {
-    city: "Los Angeles",
-    lat: 34.0522,
-    lng: -118.2437,
-    source: "manual",
-  },
-  {
-    city: "San Francisco",
-    lat: 37.7749,
-    lng: -122.4194,
-    source: "manual",
-  },
-  {
-    city: "Austin",
-    lat: 30.2672,
-    lng: -97.7431,
-    source: "manual",
-  },
-  {
-    city: "Seattle",
-    lat: 47.6062,
-    lng: -122.3321,
-    source: "manual",
-  },
-  {
-    city: "Denver",
-    lat: 39.7392,
-    lng: -104.9903,
-    source: "manual",
-  },
-  {
-    city: "Boston",
-    lat: 42.3601,
-    lng: -71.0589,
-    source: "manual",
-  },
-  {
-    city: "Atlanta",
-    lat: 33.749,
-    lng: -84.388,
-    source: "manual",
-  },
-  {
-    city: "Miami",
-    lat: 25.7617,
-    lng: -80.1918,
-    source: "manual",
-  },
-  {
-    city: "Phoenix",
-    lat: 33.4484,
-    lng: -112.074,
-    source: "manual",
-  },
-  {
-    city: "Dallas",
-    lat: 32.7767,
-    lng: -96.797,
-    source: "manual",
-  },
-  {
-    city: "Houston",
-    lat: 29.7604,
-    lng: -95.3698,
-    source: "manual",
-  },
-  {
-    city: "Minneapolis",
-    lat: 44.9778,
-    lng: -93.265,
-    source: "manual",
-  },
-  {
-    city: "Portland",
-    lat: 45.5051,
-    lng: -122.675,
-    source: "manual",
-  },
-  {
-    city: "San Diego",
-    lat: 32.7157,
-    lng: -117.1611,
-    source: "manual",
-  },
-  {
-    city: "Las Vegas",
-    lat: 36.1699,
-    lng: -115.1398,
-    source: "manual",
-  },
-  {
-    city: "Orlando",
-    lat: 28.5383,
-    lng: -81.3792,
-    source: "manual",
-  },
-  {
-    city: "Detroit",
-    lat: 42.3314,
-    lng: -83.0458,
-    source: "manual",
-  },
-  {
-    city: "Columbus",
-    lat: 39.9612,
-    lng: -82.9988,
-    source: "manual",
-  },
-  {
-    city: "Charlotte",
-    lat: 35.2271,
-    lng: -80.8431,
-    source: "manual",
-  },
-  {
-    city: "Nashville",
-    lat: 36.1627,
-    lng: -86.7816,
-    source: "manual",
-  },
-  {
-    city: "Toronto",
-    lat: 43.651,
-    lng: -79.347,
-    source: "manual",
-  },
-  {
-    city: "London",
-    lat: 51.5074,
-    lng: -0.1278,
-    source: "manual",
-  },
+  // {
+  //   city: "Los Angeles",
+  //   lat: 34.0522,
+  //   lng: -118.2437,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "San Francisco",
+  //   lat: 37.7749,
+  //   lng: -122.4194,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Austin",
+  //   lat: 30.2672,
+  //   lng: -97.7431,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Seattle",
+  //   lat: 47.6062,
+  //   lng: -122.3321,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Denver",
+  //   lat: 39.7392,
+  //   lng: -104.9903,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Boston",
+  //   lat: 42.3601,
+  //   lng: -71.0589,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Atlanta",
+  //   lat: 33.749,
+  //   lng: -84.388,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Miami",
+  //   lat: 25.7617,
+  //   lng: -80.1918,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Phoenix",
+  //   lat: 33.4484,
+  //   lng: -112.074,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Dallas",
+  //   lat: 32.7767,
+  //   lng: -96.797,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Houston",
+  //   lat: 29.7604,
+  //   lng: -95.3698,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Minneapolis",
+  //   lat: 44.9778,
+  //   lng: -93.265,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Portland",
+  //   lat: 45.5051,
+  //   lng: -122.675,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "San Diego",
+  //   lat: 32.7157,
+  //   lng: -117.1611,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Las Vegas",
+  //   lat: 36.1699,
+  //   lng: -115.1398,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Orlando",
+  //   lat: 28.5383,
+  //   lng: -81.3792,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Detroit",
+  //   lat: 42.3314,
+  //   lng: -83.0458,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Columbus",
+  //   lat: 39.9612,
+  //   lng: -82.9988,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Charlotte",
+  //   lat: 35.2271,
+  //   lng: -80.8431,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Nashville",
+  //   lat: 36.1627,
+  //   lng: -86.7816,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "Toronto",
+  //   lat: 43.651,
+  //   lng: -79.347,
+  //   source: "manual",
+  // },
+  // {
+  //   city: "London",
+  //   lat: 51.5074,
+  //   lng: -0.1278,
+  //   source: "manual",
+  // },
 ];
 
 // State > District > Block > Village/Area
