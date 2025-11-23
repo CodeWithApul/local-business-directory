@@ -1,6 +1,10 @@
+import "react-toastify/dist/ReactToastify.css";
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
+import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -14,9 +18,9 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
+import { useAuth } from "../context/AuthContext";
+
 // import "../styles/toastOverride.css";
 
 const drawerWidth = 240;
@@ -26,9 +30,17 @@ const navItems = [
   { name: "Shop Login", url: "/shop/login" },
 ];
 
+const protectedNavItems = [
+  { name: "Home", url: "/" },
+  { name: "Update Business", url: "/shop" },
+  { name: "Shop Booking", url: "/shop/bookings" },
+  { name: "Logout", url: "/shop/logout" },
+];
+
 export default function DrawerAppBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const { token } = useAuth();
+  console.log("token ", token);
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
@@ -46,7 +58,7 @@ export default function DrawerAppBar() {
       /> */}
       <Divider />
       <List>
-        {navItems.map((item) => (
+        {(!token ? navItems : protectedNavItems).map((item) => (
           <ListItem key={item.name} disablePadding>
             <ListItemButton
               sx={{ textAlign: "center" }}
@@ -97,10 +109,10 @@ export default function DrawerAppBar() {
               </Link>
             </Typography>
             <Box sx={{ display: { xs: "none", sm: "block" } }}>
-              {navItems.map((item) => (
+              {(!token ? navItems : protectedNavItems).map((item) => (
                 <Button
                   key={item.name}
-                  sx={{ color: "#fff" }}
+                  sx={{ color: "#fff", cursor: "pointer" }}
                   component={Link}
                   to={item.url}
                 >

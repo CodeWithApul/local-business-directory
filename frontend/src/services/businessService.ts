@@ -3,6 +3,7 @@ import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
 import fetchWithAuth from "../utils/fetchWithAuth";
 
 import type { LoginFormValues } from "../schema/LoginFormSchema";
+import type { BusinessBookingValues } from "../schema/BusinessBookingSchema";
 
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
@@ -20,7 +21,7 @@ export async function addBusiness(data: BusinessFormValues) {
   });
 }
 
-export async function sendLoginRequest(data: LoginFormValues) {
+export async function sendLoginRequest(data: LoginFormValues): Promise<string> {
   const res = await fetch(`${BASE_API_URL}/users/login`, {
     method: "POST",
     credentials: "include",
@@ -28,12 +29,20 @@ export async function sendLoginRequest(data: LoginFormValues) {
     body: JSON.stringify({ ...data }),
   });
   if (!res.ok) {
-    return false;
+    throw new Error("Invalid credentials");
   }
   const { accessToken } = await res.json();
+  return accessToken;
+}
 
-  localStorage.setItem("accessToken", accessToken);
-  return true;
+export async function sendLogoutRequest() {
+  const res = await fetch(`${BASE_API_URL}/users/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Unable to Logout!");
+  }
 }
 
 export async function sendOTP(
@@ -83,15 +92,69 @@ function toFormData(data: FormEntity): FormData {
   return formData;
 }
 
-export async function getBookingsByBusinessId() {
+export async function getBookings() {
   const res = await fetchWithAuth(`${BASE_API_URL}/business/bookings`, {
-    method: "GET",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
     throw new Error("Failed to fetch bookings");
   }
   return res.json();
+}
+
+export async function getBookingById(id: number) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/booking-by-id`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch booking for ID ${id}`);
+  }
+  return res.json();
+}
+
+export async function deleteBookingByBookingId(bookingId: number) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/delete-booking`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: bookingId,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch bookings");
+  }
+  return res.json();
+}
+
+export async function createBooking(businessBooking: BusinessBookingValues) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/create-booking`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...businessBooking,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Unable to create booking");
+  }
+  return await res.json();
+}
+
+export async function updateBooking(businessBooking: BusinessBookingValues) {
+  const res = await fetchWithAuth(`${BASE_API_URL}/business/update-booking`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...businessBooking,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error("Unable to create booking");
+  }
+  return await res.json();
 }
 
 export async function getMatchedRecords({
@@ -122,6 +185,13 @@ export async function getMatchedRecords({
     }),
   });
   return await res.json();
+}
+
+export function toDatetimeLocalString(isoString: string) {
+  const date = new Date(isoString);
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().slice(0, 16); // "yyyy-MM-ddThh:mm"
 }
 
 export type FormEntity = BusinessFormValues | CategoryFormValues;
