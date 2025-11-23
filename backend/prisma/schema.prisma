@@ -113,6 +113,8 @@ model Location {
   pinCode         String?
   lat             Float?
   lon             Float?
+  source          String?
+  apiDisplayName  String?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   status          String     @default("active")
