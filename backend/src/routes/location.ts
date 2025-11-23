@@ -1,7 +1,7 @@
 // src/routes/location.ts
-import { Router } from 'express';
+import { Router } from "express";
 
-import { reverseLocation, searchLocation } from '../utils/geoService';
+import { reverseLocation, searchLocationDB } from "../utils/geoService";
 
 import type { Request, Response } from "express";
 
@@ -14,7 +14,8 @@ router.get("/autocomplete", async (req: Request, res: Response) => {
   }
 
   try {
-    const results = await searchLocation(q);
+    // const results = await searchLocation(q);
+    const results = await searchLocationDB(q);
     res.status(200).json(results);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

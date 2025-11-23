@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 
-const passwordSchema = z
+const passwordSchemaValidation = z
   .string()
   .trim()
   .min(8, { message: "Password must be at least 8 characters long" })
@@ -13,18 +13,20 @@ const passwordSchema = z
     message: "Password must contain at least one special character",
   });
 
+const mobileSchemaValidation = z
+  .string()
+  .trim()
+  .regex(
+    /^[+]?[0-9]{10,15}$/,
+    "Mobile number must be valid and contain 10-15 digits (with optional '+')"
+  );
+
 export const UserSchema = z.object({
   id: z.coerce.number().min(1),
   username: z.string().min(3).max(50), // name of user
   email: z.email().optional(),
-  phoneNumber: z
-    .string()
-    .trim()
-    .regex(
-      /^[+]?[0-9]{10,15}$/,
-      "Phone number must be valid and contain 10-15 digits (with optional '+')"
-    ),
-  password: passwordSchema,
+  phoneNumber: mobileSchemaValidation,
+  password: passwordSchemaValidation,
 });
 
 export type User = z.infer<typeof UserSchema>;
@@ -40,7 +42,7 @@ export const LoginSchema = z.object({
         "Mobile number must be valid and contain 10-15 digits (with optional '+')"
       ),
   ]),
-  password: passwordSchema,
+  password: passwordSchemaValidation,
 });
 
 export const VerifyOTPRequestSchema = z.object({
@@ -49,9 +51,19 @@ export const VerifyOTPRequestSchema = z.object({
     .string()
     .trim()
     .regex(/^\d{6}$/, "OTP must be a 6-digit number"),
-  password: passwordSchema,
+  password: passwordSchemaValidation,
 });
 
 export type VerifyOTPRequest = z.infer<typeof VerifyOTPRequestSchema>;
 
 export type Login = z.infer<typeof LoginSchema>;
+
+const mobileSchema = z.object({
+  mobile: mobileSchemaValidation,
+});
+
+const passwordSchema = z.object({
+  password: passwordSchemaValidation,
+});
+
+export { mobileSchema, passwordSchema };

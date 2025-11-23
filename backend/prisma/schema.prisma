@@ -37,6 +37,7 @@ model Business {
   bookings    BusinessBooking[]
   medias      BusinessMedia[]
   Review      Review[]
+  views       VisitorBusinessView[]
 }
 
 model BusinessMedia {
@@ -107,11 +108,34 @@ model Location {
   displayName     String
   village         String?
   block           String?
-  city            String?
   district        String?
+  state           String?
+  pinCode         String?
   lat             Float?
   lon             Float?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   status          String     @default("active")
+}
+
+model Visitor {
+  id            Int @id @default(autoincrement())
+  mobile        String
+  otp           String?
+  otpExpiredAt  DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  status        String     @default("active")
+  views         VisitorBusinessView[]
+}
+
+model VisitorBusinessView {
+  id            Int @id @default(autoincrement())
+  visitorId     Int
+  visitor       Visitor @relation(fields: [visitorId], references: [id])
+  businessId    Int
+  business      Business @relation(fields: [businessId], references: [id])
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  status        String     @default("active")
 }

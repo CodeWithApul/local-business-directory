@@ -166,9 +166,7 @@ router.post("/refresh-token", async (req, res) => {
 
 router.post("/logout", async (req: Request, res: Response) => {
   clearSecureCookie(res);
-  res.sendStatus(200);
-
-  res.json({ message: "Logged out successfully" });
+  res.status(200).json({ message: "Logged out successfully" });
 });
 
 router.get("/:id", async (req, res) => {
