@@ -37,7 +37,7 @@ export default function BusinessForm({
     formState: { errors },
   } = useForm<BusinessFormValues>({
     defaultValues: initialValues,
-    resolver: yupResolver(BusinessFormSchema),
+    resolver: yupResolver(BusinessFormSchema) as any,
   });
   const logoFile = watch("logo");
 
@@ -54,6 +54,10 @@ export default function BusinessForm({
   /* Preview Image ------*/
   // const logoFile = watch("logo");
   useEffect(() => {
+    if (typeof logoFile === "string") {
+      setImagePreview(logoFile);
+      return;
+    }
     const logo = logoFile?.[0];
     console.log("logoFile changed:", logo, typeof logo);
     if (logoFile?.[0]) {
@@ -105,11 +109,23 @@ export default function BusinessForm({
           select
           value={watch("category") || initialValues?.category || ""}
         >
-          {categories.map((c, index) => (
-            <MenuItem key={index} value={c.id}>
-              {c.name}
+          {initialValues?.category && (
+            <MenuItem value={initialValues?.category}>
+              {
+                categories.filter(
+                  (c) => c.id === parseInt(initialValues.category ?? "0"),
+                )[0]?.name
+              }
             </MenuItem>
-          ))}
+          )}
+
+          {categories
+            .filter((c) => c.id !== parseInt(initialValues?.category ?? "0"))
+            .map((category, index) => (
+              <MenuItem key={index} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
         </TextField>
         <TextField
           label="Owner Name"
@@ -125,6 +141,7 @@ export default function BusinessForm({
           variant="outlined"
           fullWidth
           {...register("email")}
+          disabled={mode === "edit" ? true : false}
           error={!!errors.email}
           helperText={errors.email?.message}
         />
@@ -135,6 +152,7 @@ export default function BusinessForm({
           fullWidth
           {...register("phoneNumber")}
           error={!!errors.phoneNumber}
+          disabled={mode === "edit" ? true : false}
           helperText={errors.phoneNumber?.message}
           // FIXME: Check for Uniqueness
         />
@@ -178,6 +196,8 @@ export default function BusinessForm({
           helperText={errors.country?.message}
           // FIXME: Check for Uniqueness
         />
+        <input {...register("businessId")} type="hidden" />
+
         <TextField
           label="Postal Code"
           variant="outlined"
@@ -197,6 +217,7 @@ export default function BusinessForm({
           error={!!errors.description}
           helperText={errors.description?.message}
         />
+        <input {...register("logoUrl")} hidden />
         <Button variant="outlined" component="label">
           Choose your Logo *
           <input type="file" hidden accept="image/*" {...register("logo")} />
@@ -232,7 +253,9 @@ export default function BusinessForm({
               />
             </Button>
             {errors.media && (
-              <FormHelperText error>{errors.media.message}</FormHelperText>
+              <FormHelperText error>
+                {errors.media?.message?.toString()}
+              </FormHelperText>
             )}
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               {previewMedia &&
@@ -257,7 +280,7 @@ export default function BusinessForm({
                       controls
                       sx={{ width: 200, height: 200 }}
                     />
-                  )
+                  ),
                 )}
             </Box>
           </>

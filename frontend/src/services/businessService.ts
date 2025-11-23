@@ -21,6 +21,14 @@ export async function addBusiness(data: BusinessFormValues) {
   });
 }
 
+export async function updateBusiness(data: BusinessFormValues) {
+  const formData = toFormDataBusiness(data);
+  console.log("form Data", formData);
+  return await fetchWithAuth(`${BASE_API_URL}/business/update`, {
+    method: "POST",
+    body: formData,
+  });
+}
 export async function sendLoginRequest(data: LoginFormValues): Promise<string> {
   const res = await fetch(`${BASE_API_URL}/users/login`, {
     method: "POST",
@@ -67,7 +75,9 @@ export async function verifyOTP(userId: string, otp: string, password: string) {
 
 function toFormDataBusiness(data: BusinessFormValues): FormData {
   return toFormData({
-    logo: data.logo[0],
+    logo: data?.logo?.[0] ?? "",
+    logoUrl: data.logoUrl,
+    businessId: data.businessId,
     businessName: data.businessName,
     ownerName: data.ownerName,
     street: data.street,

@@ -34,7 +34,7 @@ router.get(["/", "/list"], async (_req: Request, res: Response) => {
 
 const storage = multer.diskStorage({
   destination: function (_req: Request, _file: Express.Multer.File, cb) {
-    cb(null, "./tmp/uploads");
+    cb(null, "./public/tmp/uploads");
   },
   filename: function (_req: Request, file: Express.Multer.File, cb) {
     //cb(null, "temp-" + Date.now() + path.extname(file.originalname));
@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
@@ -104,7 +104,7 @@ router.post(
           },
           phoneNumber: business.phoneNumber,
           email: business.email ?? "",
-          logoUrl: req.file.path, // In real app, use uploaded URL
+          logoUrl: req.file.path.split("/").slice(1, 3).join(), // In real app, use uploaded URL
           owner: {
             connectOrCreate: {
               where: {
@@ -130,10 +130,10 @@ router.post(
   },
 );
 
-router.post(
+router.get(
   "/get-details",
   authMiddleware,
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: AuthenticatedRequest, res: Response, next) => {
     try {
       const userId = req.user?.userId;
       if (!userId) {
@@ -142,12 +142,59 @@ router.post(
 
       const businessDetails = await prisma.business.findFirst({
         where: {
-          id: parseInt(userId),
-          status: "verified",
+          ownerId: parseInt(userId),
+          owner: { status: "verified" },
+        },
+        select: {
+          name: true,
+          id: true,
+          category: {
+            select: {
+              id: true,
+            },
+          },
+          owner: {
+            select: {
+              username: true,
+            },
+          },
+          email: true,
+          phoneNumber: true,
+          address: {
+            select: {
+              street: true,
+              city: true,
+              state: true,
+              country: true,
+              postalCode: true,
+            },
+          },
+          description: true,
+          logoUrl: true,
+          medias: { select: { url: true } },
         },
       });
 
-      return res.status(200).json(businessDetails);
+      console.dir(businessDetails, { depth: null, color: true });
+
+      if (!businessDetails) {
+        return res
+          .status(400)
+          .json({ error: "Buisness with the provided user id not found." });
+      }
+
+      const reqData = {
+        businessId: businessDetails.id,
+        businessName: businessDetails.name,
+        category: businessDetails.category.id,
+        ownerName: businessDetails.owner.username,
+        email: businessDetails.email,
+        ...businessDetails.address,
+        description: businessDetails.description,
+        phoneNumber: businessDetails.phoneNumber,
+        logo: `${req.protocol}://${req.get("host")}/${businessDetails.logoUrl?.replace("public", "")}`,
+      };
+      return res.status(200).json(reqData);
     } catch (error) {
       console.error("Error fetching bookings:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -165,8 +212,8 @@ router.post(
   validateSchema(BusinessFormSchema),
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const business = req.body as BusinessForm;
-
+      const business = req.body;
+      console.dir(business, { depth: null, color: true });
       // Extract files from the request
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const logoFile = files?.logo?.[0]; // Single logo file
@@ -197,17 +244,10 @@ router.post(
           email: business.email,
           logoUrl: logoFile ? logoFile.path : undefined, // Update logo if provided
           owner: {
-            connectOrCreate: {
-              where: {
-                email: business.email,
-                phoneNumber: business.phoneNumber,
-              },
-              create: {
-                username: business.ownerName,
-                email: business.email ?? "",
-                phoneNumber: business.phoneNumber,
-                password: "defaultPassword", // Generate a secure password in a real app
-              },
+            update: {
+              username: business.ownerName,
+              email: business.email ?? "",
+              phoneNumber: business.phoneNumber,
             },
           },
           status: "active",
@@ -233,7 +273,7 @@ router.post(
       console.error("Error updating business:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 router.post(
@@ -258,7 +298,7 @@ router.post(
       console.error("Error fetching bookings:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 router.post(
@@ -280,7 +320,7 @@ router.post(
       console.error("Error fetching booking with ID:" + req.body.id, error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 router.delete(
@@ -305,7 +345,7 @@ router.delete(
       console.error("Error deleting booking:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 router.post(
@@ -344,7 +384,7 @@ router.post(
       console.error("Error creating business booking:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 router.post(
   "/update-booking",
@@ -373,7 +413,7 @@ router.post(
       console.error("Error updating business booking:", error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 );
 
 router.post("/search", async (req: Request, res: Response) => {
@@ -429,7 +469,7 @@ router.post("/search", async (req: Request, res: Response) => {
         longitude,
         addr.lat!,
         addr.lon!,
-        radiusKm
+        radiusKm,
       );
     });
     res.status(200).json(filteredBusinesses);

@@ -10,7 +10,7 @@ export const BusinessFormSchema = yup.object({
     .required("Phone Number is required!")
     .matches(
       /^[+]?[0-9]{10,15}$/,
-      "Phone number must be valid and contain 10-15 digits (with optional '+')"
+      "Phone number must be valid and contain 10-15 digits (with optional '+')",
     ),
   state: yup.string().required("State Name is required!").default(null),
   street: yup.string().required("Street Name is required!").default(null),
@@ -23,27 +23,33 @@ export const BusinessFormSchema = yup.object({
     .required("Enter your postal code")
     .matches(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
   description: yup.string().optional().default(null),
+  // logoUrl: yup.string().nullable().optional(),
+  businessId: yup.string().nullable().optional(),
   logo: yup
     .mixed<File>()
-    .required()
-    .test("required", "Logo is mandatory!", (value) => {
-      return value != null;
-    })
-    .test(
-      "fileType",
-      "Only JPG/PNG allowed!",
-      (value) =>
-        value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type)
-    ),
+    .optional()
+    .nullable()
+    .test("fileType", "Only JPG/PNG allowed!", (value) => {
+      console.log("value", value);
+      if (value && typeof value == "string") return true;
+      if (!value?.[0]) {
+        return true;
+      } else {
+        return (
+          value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type)
+        );
+      }
+    }),
+
+  // mediaUrls: yup.array().of(yup.string()).nullable().optional(),
   media: yup
     .mixed<File[]>()
-    .nullable()
     .default(null)
     .test("fileType", "Only images and Videos allowed!", (value) =>
       value
         ? Array.from(value).every((file) =>
-            ["image/", "video/"].some((type) => file.type.startsWith(type))
+            ["image/", "video/"].some((type) => file.type.startsWith(type)),
           )
-        : true
+        : true,
     ),
 });
