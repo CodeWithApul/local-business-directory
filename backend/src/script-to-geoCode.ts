@@ -5,6 +5,8 @@ import { PrismaClient } from "./generated/prisma/client";
 dotenv.config();
 
 const prisma = new PrismaClient();
+const userAgent =
+  process.env.USER_AGENT || "MyAppOnCloud<myapponcloud@gmail.com>";
 
 // Function to pick best result (node preferred, relation fallback)
 function pickBestResult(results: any) {
@@ -56,7 +58,7 @@ async function geocode(address: any) {
     const res = await fetch(url, {
       // cache: "force-cache",
       headers: {
-        "User-Agent": "DigitalBazar<manugindy@gmail.com>",
+        "User-Agent": userAgent,
       },
     });
     if (!res.ok) return null;
