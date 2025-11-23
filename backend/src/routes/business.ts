@@ -7,7 +7,7 @@ import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth";
 import { validateSchema } from "../middleware/validateSchema";
 import { BusinessBookingSchema, BusinessFormSchema } from "../schema/business";
-import { getBoundingBox, isWithinRadius } from "../utils/geoService";
+import { geocode, getBoundingBox, isWithinRadius } from "../utils/geoService";
 
 import type { BusinessForm } from "../schema/business";
 import type { AuthenticatedRequest } from "../types/auth";
@@ -88,6 +88,12 @@ router.post(
       // create owner if not exists (skipped for brevity)
       // check email uniqueness (skipped for brevity)
 
+      // GeoCode address to get lat/lon
+      const addressString = `${business.street}, ${business.city}, ${
+        business.state
+      }, ${business.country || "India"}`;
+      const r = await geocode(addressString);
+
       const newBusiness = await prisma.business.create({
         data: {
           name: business.businessName,
@@ -100,6 +106,8 @@ router.post(
               state: business.state || "",
               postalCode: business.postalCode || "",
               country: business.country || "",
+              lat: r?.lat,
+              lon: r?.lon,
             },
           },
           phoneNumber: business.phoneNumber,
