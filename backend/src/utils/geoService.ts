@@ -1,3 +1,5 @@
+import { PrismaClient } from "../generated/prisma/client";
+
 export const calculateDistance = (
   lat1: number,
   lon1: number,
@@ -134,7 +136,7 @@ export interface LocationResult {
   };
 }
 
-export type Location = {
+type Location = {
   lat: number;
   lng: number;
   city?: string;
@@ -221,4 +223,38 @@ export async function reverseLocation(
       "",
     source: "manual",
   };
+}
+const prisma = new PrismaClient();
+
+type DisplayLocation = {
+  lat: string;
+  lon: string;
+  displayName: string;
+  village?: string;
+  block?: string;
+  district?: string;
+  state?: string;
+};
+export async function searchLocationDB(
+  keyword: string,
+  limit: number = 10
+): Promise<DisplayLocation[]> {
+  const results: DisplayLocation[] = await prisma.$queryRaw`
+  SELECT *
+  FROM "Location"
+  WHERE village ILIKE ${"%" + keyword + "%"}
+     OR block ILIKE ${"%" + keyword + "%"}
+     OR district ILIKE ${"%" + keyword + "%"}
+     OR state ILIKE ${"%" + keyword + "%"}
+  ORDER BY
+    CASE
+      WHEN village ILIKE ${"%" + keyword + "%"} THEN 1
+      WHEN block ILIKE ${"%" + keyword + "%"} THEN 2
+      WHEN district ILIKE ${"%" + keyword + "%"} THEN 3
+      WHEN state ILIKE ${"%" + keyword + "%"} THEN 4
+      ELSE 5
+    END
+  LIMIT ${limit};
+`;
+  return results;
 }

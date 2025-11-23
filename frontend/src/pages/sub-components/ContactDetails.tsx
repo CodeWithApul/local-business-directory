@@ -1,58 +1,92 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
+import { toast } from "react-toastify";
+
+import { Lock } from "@mui/icons-material";
 import {
+  Box,
+  Button,
   Card,
   CardContent,
   Divider,
   Stack,
-  Typography,
-  Button,
-  Box,
   TextField,
+  Typography,
 } from "@mui/material";
-import { Lock } from "@mui/icons-material";
+
 import ContactRow from "../../components/ContactRow";
+import {
+  sendOTPToVisitor,
+  verifyOTPToVisitor,
+} from "../../services/visitorService";
 import { ContactType } from "../../types/ContactTypes";
 
-interface ContactDetailsProps {
+interface BusinessContact {
+  name: string;
   phone: string;
-  email?: string;
-  address: string;
+  email: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  pinCode: string;
+  lat: number;
+  lon: number;
+}
+
+interface ContactDetailsProps {
+  // phone: string;
+  // email?: string;
+  // address: string;
+  businessId: string;
 }
 
 const ContactDetails: React.FC<ContactDetailsProps> = ({
-  phone,
-  email,
-  address,
+  // phone,
+  // email,
+  // address,
+  businessId,
 }) => {
   const [showContact, setShowContact] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [mobile, setMobile] = useState("");
+  const [visitorId, setVisitorId] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [businessContact, setBusinessContact] =
+    useState<BusinessContact | null>(null);
 
   const handleRevealClick = () => {
     // Simulate verification process
     // setVerified(true);
     setShowOtpForm(true);
   };
-  const sendOtp = () => {
+  const sendOtp = async () => {
     // Simulate sending OTP
     console.log(`Sending OTP to ${mobile}`);
-    setOtpSent(true);
+    try {
+      const id = await sendOTPToVisitor(mobile);
+      setVisitorId(id);
+      setOtpSent(true);
+    } catch (error) {
+      console.error(error);
+      toast.error(`OTP couldn't be sent! Try again later.`);
+    }
   };
 
   const verifyOtp = async (otp: string) => {
-    // const res = await fetch("/api/verify-otp", {
-    //   method: "POST",
-    //   body: JSON.stringify({ mobile, otp }),
-    // });
-
-    // const data = await res.json();
-    // if (data.success) setShowContact(true);
     console.log(`Verifying OTP ${otp} for mobile ${mobile}`);
-    setShowContact(true);
-    setShowOtpForm(false);
-    setOtpSent(false);
-    setMobile("");
+
+    try {
+      const b = await verifyOTPToVisitor(visitorId, mobile, otp, businessId);
+
+      setBusinessContact(b);
+      setShowContact(true);
+      setShowOtpForm(false);
+      setOtpSent(false);
+      setMobile("");
+    } catch {
+      console.error(`Unable to verify OTP sent to mobile ${mobile}`);
+      toast.error(`Unable to verify OTP! Try again later.`);
+    }
   };
 
   if (otpSent) return <OTPInput length={6} onComplete={verifyOtp} />;
@@ -94,19 +128,19 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
           <Divider sx={{ my: 1 }} />
           <Stack spacing={2} sx={{ pt: 1 }}>
             <ContactRow
-              href={`tel:${phone}`}
-              label={phone}
+              href={`tel:${businessContact?.phone}`}
+              label={businessContact?.phone || ""}
               type={ContactType.Phone}
             />
             <ContactRow
-              href={`mailto:${email}`}
-              label={email ?? ""}
+              href={`mailto:${businessContact?.email}`}
+              label={businessContact?.email || ""}
               type={ContactType.Email}
             />
             <ContactRow
-              aria-label={`Directions to ${address}`}
-              href={``}
-              label={address}
+              aria-label={`Directions to ${businessContact?.name}`}
+              href={`https://www.google.com/maps?q=${businessContact?.lat},${businessContact?.lon}`}
+              label={`${businessContact?.name}, ${businessContact?.street},${businessContact?.city},${businessContact?.state},${businessContact?.country} ${businessContact?.pinCode},  `}
               type={ContactType.Map}
               target="_blank"
               rel="noopener"

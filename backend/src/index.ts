@@ -8,6 +8,7 @@ import businessRoutes from "./routes/business";
 import categoryRoutes from "./routes/category";
 import locationRoutes from "./routes/location";
 import userRoutes from "./routes/user";
+import visitorRoutes from "./routes/visitor";
 
 dotenv.config();
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/business", businessRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/visitor", visitorRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
