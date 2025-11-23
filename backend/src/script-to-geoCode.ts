@@ -41,7 +41,7 @@ function pickBestResult(results: any) {
       lat,
       lon,
       source: "relation",
-      api_display_name: node.display_name,
+      api_display_name: relation.display_name,
     };
   }
 
@@ -50,7 +50,7 @@ function pickBestResult(results: any) {
 
 // Function to query Nominatim
 async function geocode(address: any) {
-  await new Promise((r) => setTimeout(r, 2000)); // pause between batches
+  await new Promise((r) => setTimeout(r, 1000)); // pause between batches
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
     address
   )}&countrycodes=in&addressdetails=1`;
@@ -64,7 +64,8 @@ async function geocode(address: any) {
     if (!res.ok) return null;
     const data = await res.json();
     return pickBestResult(data);
-  } catch {
+  } catch (error) {
+    console.error(`💔${error}`);
     return null;
   }
 }
@@ -72,10 +73,12 @@ async function geocode(address: any) {
 async function processBatch(limit: number = 100) {
   const locations = await prisma.location.findMany({
     where: {
-      lat: null,
-      lon: null,
+      // lat: null,
+      // lon: null,
+      apiDisplayName: null,
     },
     take: limit,
+    orderBy: { block: "desc" },
   });
 
   for (const location of locations) {
@@ -129,7 +132,9 @@ async function processBatch(limit: number = 100) {
           },
         });
       } else {
-        console.log(`No match found for "${address} - ${location.id}"`);
+        console.log(
+          `❌ No match found for ${userAgent} "${addressWithNoVillage} - ${location.id}"❌`
+        );
       }
     }
   }
@@ -138,12 +143,12 @@ async function processBatch(limit: number = 100) {
 (async () => {
   // keep running until all records are processed
   while (true) {
-    await processBatch(100);
+    await processBatch(10);
     const remaining = await prisma.location.count({
       where: { lat: null, lon: null },
     });
     if (remaining === 0) break;
-    console.log(`${remaining} addresses left...`);
+    console.log(`⏭️${remaining} addresses left⏭️`);
   }
-  console.log("Geocoding complete!");
+  console.log("😍 Geocoding complete! 😍");
 })();
