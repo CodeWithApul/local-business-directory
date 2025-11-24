@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 import { Router } from "express";
 
 import { PrismaClient } from "../generated/prisma/client";
@@ -19,6 +20,8 @@ import type { User, Login, VerifyOTPRequest } from "../schema/user";
 import type { JwtPayload } from "jsonwebtoken";
 import type { AuthenticatedRequest } from "../types/auth";
 import type { Request, Response } from "express";
+
+dotenv.config();
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -86,7 +89,11 @@ router.post("/generate-otp", async (req: Request, res: Response) => {
     // Send OTP via email
     await sendEmail(email, otp);
     // Send OTP via SMS
-    await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
+    if (
+      process.env.ENABLE_SMS_SERVICE &&
+      process.env.ENABLE_SMS_SERVICE === "true"
+    )
+      await sendOTPViaSMS(phoneNumber, otp); // this will fail as twilio works only with verified numbers in trial account, ignore for now
   } catch (error) {
     console.error("Error generating or sending OTP:", error);
     return res.status(500).json({ error: "Failed to generate or send OTP" });

@@ -5,6 +5,7 @@
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
   "devDependencies": {
+    "@types/nodemailer": "^7.0.4",
     "concurrently": "^8.2.2"
   }
 }
