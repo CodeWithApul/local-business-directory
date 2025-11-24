@@ -258,3 +258,68 @@ export async function searchLocationDB(
 `;
   return results;
 }
+
+const userAgent =
+  process.env.USER_AGENT || "MyAppOnCloud<myapponcloud@gmail.com>";
+
+// Function to pick best result (node preferred, relation fallback)
+function pickBestResult(results: any) {
+  const node = results.find(
+    (r: any) =>
+      r.osm_type === "node" && ["village", "hamlet", "suburb"].includes(r.type)
+  );
+
+  if (node) {
+    return {
+      lat: parseFloat(node.lat),
+      lon: parseFloat(node.lon),
+      source: "node",
+      api_display_name: node.display_name,
+    };
+  }
+
+  const relation = results.find(
+    (r: any) => r.osm_type === "relation" && r.type === "administrative"
+  );
+  if (relation) {
+    const lat =
+      (parseFloat(relation.boundingbox[0]) +
+        parseFloat(relation.boundingbox[1])) /
+      2;
+    const lon =
+      (parseFloat(relation.boundingbox[2]) +
+        parseFloat(relation.boundingbox[3])) /
+      2;
+
+    return {
+      lat,
+      lon,
+      source: "relation",
+      api_display_name: relation.display_name,
+    };
+  }
+
+  return null;
+}
+
+// Function to query Nominatim
+export async function geocode(address: string) {
+  await new Promise((r) => setTimeout(r, 1000)); // pause between batches
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+    address
+  )}&countrycodes=in&addressdetails=1`;
+  try {
+    const res = await fetch(url, {
+      // cache: "force-cache",
+      headers: {
+        "User-Agent": userAgent,
+      },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return pickBestResult(data);
+  } catch (error) {
+    console.error(`💔${error}`);
+    return null;
+  }
+}
