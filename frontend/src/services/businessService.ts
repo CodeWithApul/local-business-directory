@@ -14,6 +14,15 @@ export async function getBusinessById(id: string) {
   return await res.json();
 }
 
+export async function getBusinessByAuth() {
+  const res = await fetchWithAuth(BASE_API_URL + "/business/get", {
+    method: "GET",
+  });
+  if (!res.ok) throw Error(`Unable to find business details`);
+
+  return await res.json();
+}
+
 export async function getBusinesses() {
   const res = await fetch(BASE_API_URL + "/business", { method: "GET" });
   return res.json();
@@ -23,6 +32,15 @@ export async function addBusiness(data: BusinessFormValues) {
   const formData = toFormDataBusiness(data);
 
   return await fetch(`${BASE_API_URL}/business/create`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function updateBusiness(data: BusinessFormValues) {
+  const formData = toFormDataBusiness(data);
+
+  return await fetchWithAuth(`${BASE_API_URL}/business/update`, {
     method: "POST",
     body: formData,
   });
@@ -74,7 +92,8 @@ export async function verifyOTP(userId: string, otp: string, password: string) {
 
 function toFormDataBusiness(data: BusinessFormValues): FormData {
   return toFormData({
-    logo: data.logo[0],
+    logo: data.logo[0] instanceof File ? data.logo[0] : data.logo,
+    businessId: data.businessId,
     businessName: data.businessName,
     ownerName: data.ownerName,
     street: data.street,
@@ -88,16 +107,21 @@ function toFormDataBusiness(data: BusinessFormValues): FormData {
     description: data.description,
     media: data.media,
   });
-  // data.media.forEach((file) => formData.append("media", file));
 }
 
 function toFormData(data: FormEntity): FormData {
   const formData = new FormData();
   for (const [key, value] of Object.entries(data)) {
-    formData.append(key, value ?? "");
+    if (Array.isArray(value)) {
+      value.forEach((v) => formData.append(key, v));
+    } else {
+      formData.append(key, value ?? "");
+    }
   }
   return formData;
 }
+
+export type FormEntity = BusinessFormValues | CategoryFormValues;
 
 export async function getBookings() {
   const res = await fetchWithAuth(`${BASE_API_URL}/business/bookings`, {
@@ -200,5 +224,3 @@ export function toDatetimeLocalString(isoString: string) {
   const localDate = new Date(date.getTime() - offset * 60 * 1000);
   return localDate.toISOString().slice(0, 16); // "yyyy-MM-ddThh:mm"
 }
-
-export type FormEntity = BusinessFormValues | CategoryFormValues;
