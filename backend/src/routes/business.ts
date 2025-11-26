@@ -7,7 +7,9 @@ import { PrismaClient } from "../generated/prisma/client";
 import { authMiddleware } from "../middleware/auth";
 import { validateSchema } from "../middleware/validateSchema";
 import { BusinessBookingSchema, BusinessFormSchema } from "../schema/business";
+import { generateAbsoluteMediaURL } from "../utils/basicUtil";
 import { getBoundingBox, isWithinRadius } from "../utils/geoService";
+import { paths } from "../utils/paths";
 
 import type { BusinessForm } from "../schema/business";
 import type { AuthenticatedRequest } from "../types/auth";
@@ -15,6 +17,7 @@ import type { Request, Response } from "express";
 const router = Router();
 const prisma = new PrismaClient();
 
+// list
 router.get(["/", "/list"], async (_req: Request, res: Response) => {
   try {
     const businesses = await prisma.business.findMany({
@@ -34,10 +37,9 @@ router.get(["/", "/list"], async (_req: Request, res: Response) => {
 
 const storage = multer.diskStorage({
   destination: function (_req: Request, _file: Express.Multer.File, cb) {
-    cb(null, "./tmp/uploads");
+    cb(null, paths.uploads);
   },
   filename: function (_req: Request, file: Express.Multer.File, cb) {
-    //cb(null, "temp-" + Date.now() + path.extname(file.originalname));
     const randomStr = crypto.randomBytes(12).toString("hex");
     const ext = path.extname(file.originalname);
     const newFilename = `${randomStr}${ext}`;
@@ -51,19 +53,95 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+  if (
+    file.mimetype.startsWith("image/") ||
+    file.mimetype.startsWith("video/")
+  ) {
     cb(null, true);
   } else {
-    cb(new Error("Only JPEG and PNG files are allowed"));
+    cb(new Error("Only image and video files are allowed"));
   }
 };
 
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB
 });
 
+// get business
+router.get(
+  "/get",
+  authMiddleware,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(400).json({ error: "Login Again!" });
+      }
+
+      const business = await prisma.business.findFirst({
+        where: {
+          ownerId: parseInt(userId),
+        },
+        select: {
+          name: true,
+          id: true,
+          email: true,
+          phoneNumber: true,
+          description: true,
+          logoUrl: true,
+          address: {
+            select: {
+              street: true,
+              city: true,
+              state: true,
+              country: true,
+              postalCode: true,
+            },
+          },
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          owner: {
+            select: {
+              username: true,
+            },
+          },
+          medias: { select: { url: true } },
+        },
+      });
+
+      if (!business) {
+        return res
+          .status(400)
+          .json({ error: "No Buisness found for loggedIn user!" });
+      }
+
+      const sanitizedResponseData = {
+        businessId: business.id,
+        businessName: business.name,
+        category: business.category.id,
+        ownerName: business.owner.username,
+        email: business.email,
+        ...business.address,
+        description: business.description,
+        phoneNumber: business.phoneNumber,
+        logo: generateAbsoluteMediaURL(req, business.logoUrl!),
+        media: business.medias.map((m) => generateAbsoluteMediaURL(req, m.url)),
+      };
+      res.status(200).json(sanitizedResponseData);
+    } catch (error) {
+      console.error("Error fetching business:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+// create
 router.post(
   "/create",
   upload.single("logo"),
@@ -104,7 +182,7 @@ router.post(
           },
           phoneNumber: business.phoneNumber,
           email: business.email ?? "",
-          logoUrl: req.file.path, // In real app, use uploaded URL
+          logoUrl: req.file.filename, // In real app, use uploaded URL
           owner: {
             connectOrCreate: {
               where: {
@@ -130,6 +208,7 @@ router.post(
   }
 );
 
+// update
 router.post(
   "/update",
   authMiddleware,
@@ -168,31 +247,19 @@ router.post(
               country: business.country,
             },
           },
-          phoneNumber: business.phoneNumber,
-          email: business.email,
-          logoUrl: logoFile ? logoFile.path : undefined, // Update logo if provided
+          ...(logoFile && { logoUrl: logoFile.filename }), // only include if logoFile exists
           owner: {
-            connectOrCreate: {
-              where: {
-                email: business.email,
-                phoneNumber: business.phoneNumber,
-              },
-              create: {
-                username: business.ownerName,
-                email: business.email ?? "",
-                phoneNumber: business.phoneNumber,
-                password: "defaultPassword", // Generate a secure password in a real app
-              },
+            update: {
+              username: business.ownerName,
             },
           },
-          status: "active",
         },
       });
-
+      console.log("mediaFiles", mediaFiles);
       // Handle media files
       if (mediaFiles.length > 0) {
         const mediaData = mediaFiles.map((file) => ({
-          url: file.path,
+          url: file.filename,
           type: file.mimetype.startsWith("image/") ? "image" : "video",
           businessId: updatedBusiness.id,
         }));
@@ -211,6 +278,7 @@ router.post(
   }
 );
 
+//////////// Booking routes
 router.post(
   "/bookings",
   authMiddleware,

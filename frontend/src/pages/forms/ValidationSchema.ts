@@ -1,6 +1,7 @@
 import * as yup from "yup";
 
 export const BusinessFormSchema = yup.object({
+  businessId: yup.string().optional().default(null),
   businessName: yup.string().required("Business Name is required!"),
   category: yup.string().required("Business Category is required!!"),
   ownerName: yup.string().required("Owner name is required!"),
@@ -24,26 +25,55 @@ export const BusinessFormSchema = yup.object({
     .matches(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
   description: yup.string().optional().default(null),
   logo: yup
-    .mixed<File>()
+    .mixed<File | string>()
     .required()
     .test("required", "Logo is mandatory!", (value) => {
-      return value != null;
+      const hasExistingLogo = typeof value === "string" && value.length > 0;
+      const hasNewFile = value?.[0] instanceof File;
+      return hasExistingLogo || hasNewFile;
     })
-    .test(
-      "fileType",
-      "Only JPG/PNG allowed!",
-      (value) =>
-        value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type)
-    ),
+    .test("fileType", "Only JPG/PNG allowed!", (value) => {
+      if (typeof value === "string") return true;
+      if (value?.[0] instanceof File) {
+        console.log(
+          value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type),
+          value?.[0]
+        );
+        return (
+          value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type)
+        );
+      }
+      return false;
+    })
+    .test("fileSize", "File size must be less than 1 MB", (value) => {
+      if (typeof value === "string") return true; // existing logo URL
+      if (value[0] instanceof File) {
+        return value[0].size <= 1 * 1024 * 1024; // 1 MB
+      }
+      return false;
+    }),
   media: yup
-    .mixed<File[]>()
+    .array()
+    .of(
+      yup
+        .mixed<File | string>()
+        .test("fileType", "Only images and videos allowed!", (value) => {
+          if (typeof value === "string") return true; // existing URL
+          if (value instanceof File) {
+            return (
+              value.type.startsWith("image/") || value.type.startsWith("video/")
+            );
+          }
+          return false;
+        })
+        .test("fileSize", "Each file must be less than 15 MB", (value) => {
+          if (typeof value === "string") return true;
+          if (value instanceof File) {
+            return value.size <= 15 * 1024 * 1024; // 15 MB
+          }
+          return false;
+        })
+    )
     .nullable()
-    .default(null)
-    .test("fileType", "Only images and Videos allowed!", (value) =>
-      value
-        ? Array.from(value).every((file) =>
-            ["image/", "video/"].some((type) => file.type.startsWith(type))
-          )
-        : true
-    ),
+    .default([]),
 });

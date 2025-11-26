@@ -1,19 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { dummyBusiness } from "../data/dummyData";
+import {
+  getBusinessByAuth,
+  getBusinessById,
+} from "../services/businessService";
 
 // import { getBusinessById } from "../services/businessService";
 
-import type { IBusiness } from "../data/dummyData";
-
-export const useBusinessDetails = (id: string) => {
-  const [business, setBusiness] = useState<IBusiness | null>(null);
+import type { BusinessFormValues } from "../pages/forms/steps/BusinessForm";
+export const useBusinessDetails = (id?: string) => {
+  const [business, setBusiness] = useState<BusinessFormValues>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const refetchBusiness = useCallback(async () => {
     try {
-      // let b = await getBusinessById(id);
-      const b = dummyBusiness.find((e) => e.id === id); // unless we have a few business to test, keep it
+      let b: BusinessFormValues;
+      if (id) b = await getBusinessById(id);
+      // b = dummyBusiness.find(
+      //   (e) => e.id === id
+      // ) as IBusiness; // unless we have a few business to test, keep it
+      else b = await getBusinessByAuth();
 
       setBusiness(b ?? null);
     } catch (error) {
@@ -26,5 +32,5 @@ export const useBusinessDetails = (id: string) => {
     refetchBusiness();
   }, [refetchBusiness]);
 
-  return { business, loading, error, refetchBusiness };
+  return { business, loading, error, refetchBusiness, setBusiness };
 };

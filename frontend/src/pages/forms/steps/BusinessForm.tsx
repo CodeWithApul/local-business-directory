@@ -33,7 +33,6 @@ export default function BusinessForm({
     register,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors },
   } = useForm<BusinessFormValues>({
     defaultValues: initialValues,
@@ -54,8 +53,10 @@ export default function BusinessForm({
   /* Preview Image ------*/
   // const logoFile = watch("logo");
   useEffect(() => {
-    const logo = logoFile?.[0];
-    console.log("logoFile changed:", logo, typeof logo);
+    if (typeof logoFile === "string") {
+      return setImagePreview(logoFile);
+    }
+    // const logo = logoFile?.[0];
     if (logoFile?.[0]) {
       // const filereader = new FileReader();
       // filereader.onloadend = () => setImagePreview(filereader.result as string);
@@ -66,25 +67,53 @@ export default function BusinessForm({
     }
   }, [logoFile]);
 
-  const [files, setFiles] = useState<File[]>([]);
   const [previewMedia, setPreviewMedia] = useState<string[]>([]);
 
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const media = Array.from(e.target.files || []);
-    setFiles(media);
-    setValue("media", media);
-    setPreviewMedia(media.map((m) => URL.createObjectURL(m)));
-  };
+  const mediaFiles = watch("media");
 
   useEffect(() => {
-    return () => {
-      previewMedia.forEach((oldMedia) => URL.revokeObjectURL(oldMedia));
-    };
-  }, [previewMedia]);
+    if (!mediaFiles) {
+      setPreviewMedia([]);
+      return;
+    }
+    const urls = mediaFiles.map((m) =>
+      typeof m === "string" ? m : URL.createObjectURL(m!)
+    );
 
+    setPreviewMedia(urls);
+
+    // cleanup blob URLs
+    return () => {
+      urls.forEach((url, i) => {
+        if (mediaFiles[i] instanceof File) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [mediaFiles]);
+
+  // const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const media = Array.from(e.target.files || []);
+  //   setFiles(media);
+  //   setValue("media", media);
+  //   setPreviewMedia(
+  //     media.map((m) => {
+  //       if (typeof m === "string") return m;
+  //       else return URL.createObjectURL(m);
+  //     })
+  //   );
+  // };
+
+  // useEffect(() => {
+  //   return () => {
+  //     previewMedia.forEach((oldMedia) => URL.revokeObjectURL(oldMedia));
+  //   };
+  // }, [previewMedia]);
+  // console.log(errors);
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
       <Stack spacing={2}>
+        <input type="hidden" {...register("businessId")} />
         <TextField
           label="Business Name"
           variant="outlined"
@@ -127,6 +156,7 @@ export default function BusinessForm({
           {...register("email")}
           error={!!errors.email}
           helperText={errors.email?.message}
+          disabled={mode == "edit"}
         />
         <TextField
           label="Phone Number"
@@ -136,7 +166,7 @@ export default function BusinessForm({
           {...register("phoneNumber")}
           error={!!errors.phoneNumber}
           helperText={errors.phoneNumber?.message}
-          // FIXME: Check for Uniqueness
+          disabled={mode == "edit"}
         />
         <TextField
           label="Street"
@@ -146,7 +176,6 @@ export default function BusinessForm({
           {...register("street")}
           error={!!errors.street}
           helperText={errors.street?.message}
-          // FIXME: Check for Uniqueness
         />
         <TextField
           label="City"
@@ -156,7 +185,6 @@ export default function BusinessForm({
           {...register("city")}
           error={!!errors.city}
           helperText={errors.city?.message}
-          // FIXME: Check for Uniqueness
         />
         <TextField
           label="State"
@@ -166,7 +194,6 @@ export default function BusinessForm({
           {...register("state")}
           error={!!errors.state}
           helperText={errors.state?.message}
-          // FIXME: Check for Uniqueness
         />
         <TextField
           label="Country"
@@ -176,7 +203,6 @@ export default function BusinessForm({
           {...register("country")}
           error={!!errors.country}
           helperText={errors.country?.message}
-          // FIXME: Check for Uniqueness
         />
         <TextField
           label="Postal Code"
@@ -186,7 +212,6 @@ export default function BusinessForm({
           {...register("postalCode")}
           error={!!errors.postalCode}
           helperText={errors.postalCode?.message}
-          // FIXME: Check for Uniqueness
         />
         <TextField
           label="Description"
@@ -228,16 +253,22 @@ export default function BusinessForm({
                 multiple
                 accept="image/*,video/*"
                 {...register("media")}
-                onChange={handleMediaChange}
+                // onChange={handleMediaChange}
               />
             </Button>
             {errors.media && (
-              <FormHelperText error>{errors.media.message}</FormHelperText>
+              <FormHelperText error>
+                {errors.media?.[0]?.message}
+              </FormHelperText>
             )}
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              {previewMedia &&
-                previewMedia.map((url, idx) =>
-                  files[idx].type.startsWith("image") ? (
+              {previewMedia.map((url, idx) => {
+                const file = mediaFiles?.[idx]; // from watch("media")
+
+                // Case 1: existing URL string from DB
+                if (typeof file === "string") {
+                  const isImage = file.match(/\.(jpe?g|png|gif|webp)$/i);
+                  return isImage ? (
                     <Box
                       component="img"
                       src={url}
@@ -247,7 +278,6 @@ export default function BusinessForm({
                         height: 200,
                         borderRadius: 2,
                         border: "1px solid #ccc",
-                        display: "flex",
                       }}
                     />
                   ) : (
@@ -257,8 +287,35 @@ export default function BusinessForm({
                       controls
                       sx={{ width: 200, height: 200 }}
                     />
-                  )
-                )}
+                  );
+                }
+
+                // Case 2: new File object
+                if (file instanceof File) {
+                  return file.type.startsWith("image/") ? (
+                    <Box
+                      component="img"
+                      src={url}
+                      alt={`preview-${idx}`}
+                      sx={{
+                        width: 200,
+                        height: 200,
+                        borderRadius: 2,
+                        border: "1px solid #ccc",
+                      }}
+                    />
+                  ) : (
+                    <Box
+                      component="video"
+                      src={url}
+                      controls
+                      sx={{ width: 200, height: 200 }}
+                    />
+                  );
+                }
+
+                return null;
+              })}
             </Box>
           </>
         )}
