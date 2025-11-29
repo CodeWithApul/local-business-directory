@@ -169,7 +169,15 @@ export default function BusinessForm({
           disabled={mode == "edit"}
         />
         <TextField
-          label="Street"
+          label="Landmark"
+          variant="outlined"
+          fullWidth
+          {...register("landmark")}
+          error={!!errors.landmark}
+          helperText={errors.landmark?.message}
+        />
+        <TextField
+          label="Village/Area"
           variant="outlined"
           required
           fullWidth
@@ -178,7 +186,7 @@ export default function BusinessForm({
           helperText={errors.street?.message}
         />
         <TextField
-          label="City"
+          label="Town/City/District"
           variant="outlined"
           required
           fullWidth
@@ -207,7 +215,6 @@ export default function BusinessForm({
         <TextField
           label="Postal Code"
           variant="outlined"
-          required
           fullWidth
           {...register("postalCode")}
           error={!!errors.postalCode}

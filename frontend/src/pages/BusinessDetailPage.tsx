@@ -41,30 +41,34 @@ function BusinessDetailPage() {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <BusinessProfile
-              id={business.id}
-              name={business.name}
+              id={business.businessId}
+              name={business.businessName}
               ownerName={business.ownerName}
-              category={business.category}
+              category={business.categoryName}
               logo={business.logo}
               description={business.description}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <ContactDetails
-              // phone={business.phone}
-              // email={business?.email}
-              // address={business.address}
-              businessId={business.id}
+              phone={business.phoneNumber}
+              email={business?.email}
+              address={`${business.street}, ${business.city}, ${
+                business.state
+              }, ${business.country ?? "India"}, ${business.pinCode ?? ""}`}
+              businessId={business.businessId ?? ""}
+              lat={business.lat}
+              lon={business.lon}
             />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 12 }}>
             <ImageGallery media={business.media} />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 12 }}>
             <MapSection
-              latitude={business.latitude}
-              longitude={business.longitude}
-              markerText={business.address}
+              latitude={business.lat}
+              longitude={business.lon}
+              markerText={`${business.street}, ${business.city}, ${business.state}, ${business.country}, ${business.pinCode}`}
             />
           </Grid>
         </Grid>

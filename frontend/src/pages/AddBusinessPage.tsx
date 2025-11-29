@@ -6,6 +6,7 @@ import { Box, Typography } from "@mui/material";
 import { HorizontalLinearAlternativeLabelStepper } from "../components/HorizontalLinearAlternativeLabelStepper";
 import useScrollToTop from "../hooks/useScrollToTop";
 import { addBusiness, sendOTP, verifyOTP } from "../services/businessService";
+import { geocodeAddress } from "../utils/geoUtils";
 import BusinessForm from "./forms/steps/BusinessForm";
 import SuccessBusinessForm from "./forms/steps/SuccessBusinessForm";
 import VerifyBusinessForm from "./forms/steps/VerifyBusinessStepForm";
@@ -37,7 +38,7 @@ function AddBusinessPage() {
   const handleSendOTP = async (
     email: string,
     phoneNumber: string,
-    userId: string,
+    userId: string
   ) => {
     const res = await sendOTP(email, phoneNumber, userId);
     if (res.ok) {
@@ -48,6 +49,16 @@ function AddBusinessPage() {
     return false;
   };
   const onSubmitBusinessForm = async (data: BusinessFormValues) => {
+    try {
+      const formattedAddress = `${data.street}, ${data.city}, ${data.state}, ${data.country}`;
+      const { lat, lon } = await geocodeAddress(formattedAddress);
+      data.lat = lat;
+      data.lon = lon;
+    } catch {
+      return toast.error(
+        "Unable to find your location, try after updating the address fields i.e. village, town"
+      );
+    }
     const res = await addBusiness(data);
     const { userId, error } = await res.json();
 
@@ -64,7 +75,7 @@ function AddBusinessPage() {
     setStep(FormStep.OTPVerification);
 
     toast.success(
-      `We have send an OTP to ${data.email} and ${data.phoneNumber}`,
+      `We have send an OTP to ${data.email} and ${data.phoneNumber}.`
     );
   };
 

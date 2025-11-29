@@ -1,7 +1,10 @@
-import { Box, Typography } from "@mui/material";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import type { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+
+import { Box, Typography } from "@mui/material";
+
+import type { LatLngTuple } from "leaflet";
 import type React from "react";
 
 interface MapSectionProps {
@@ -15,7 +18,7 @@ const MapComponent: React.FC<MapSectionProps> = ({
   longitude,
   markerText,
 }) => {
-  if (latitude === undefined || longitude === undefined) {
+  if (!latitude || !longitude) {
     return <p>Location not available.</p>;
   }
   const position: LatLngTuple = [latitude, longitude];

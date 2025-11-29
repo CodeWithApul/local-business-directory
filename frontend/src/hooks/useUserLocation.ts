@@ -1,7 +1,7 @@
 // hooks/useUserLocation.ts
 import { useEffect, useState } from "react";
 
-import { fetchCityFromCoords } from "../utils/geoUtils";
+import { fetchAddressFromCoords } from "../utils/geoUtils";
 
 // import { dummyLocations } from "../data/dummyData";
 
@@ -25,11 +25,11 @@ export const useUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-        const city = await fetchCityFromCoords(latitude, longitude);
+        const address = await fetchAddressFromCoords(latitude, longitude);
         setLocation({
           lat: latitude,
           lng: longitude,
-          displayName: city,
+          displayName: address,
           source: "auto",
         });
         // setLocation({ ...dummyLocations[1] });
@@ -41,7 +41,9 @@ export const useUserLocation = () => {
   const updateLocation = (location: Location) => {
     setLocation(location);
   };
-  useEffect(() => detectLocation(), []);
+  useEffect(() => {
+    if (!location) detectLocation();
+  }, [location]);
 
   return { location, detectLocation, updateLocation };
 };

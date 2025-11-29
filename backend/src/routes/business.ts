@@ -98,6 +98,8 @@ router.get(
               state: true,
               country: true,
               postalCode: true,
+              lat: true,
+              lon: true,
             },
           },
           category: {
@@ -141,6 +143,70 @@ router.get(
   }
 );
 
+router.get("/id/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const business = await prisma.business.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+      select: {
+        name: true,
+        id: true,
+        email: true,
+        phoneNumber: true,
+        description: true,
+        logoUrl: true,
+        address: {
+          select: {
+            street: true,
+            city: true,
+            state: true,
+            country: true,
+            postalCode: true,
+            lat: true,
+            lon: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        owner: {
+          select: {
+            username: true,
+          },
+        },
+        medias: { select: { url: true } },
+      },
+    });
+
+    if (!business) {
+      return res.status(400).json({ error: "No Buisness found!" });
+    }
+
+    const sanitizedResponseData = {
+      businessId: business.id,
+      businessName: business.name,
+      category: business.category.id,
+      categoryName: business.category.name,
+      ownerName: business.owner.username,
+      email: business.email,
+      ...business.address,
+      description: business.description,
+      phoneNumber: business.phoneNumber,
+      logo: generateAbsoluteMediaURL(req, business.logoUrl!),
+      media: business.medias.map((m) => generateAbsoluteMediaURL(req, m.url)),
+    };
+    res.status(200).json(sanitizedResponseData);
+  } catch (error) {
+    console.error("Error fetching business:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // create
 router.post(
   "/create",
@@ -173,11 +239,14 @@ router.post(
           category: { connect: { id: business.category } },
           address: {
             create: {
+              landmark: business.landmark,
               street: business.street,
               city: business.city,
               state: business.state || "",
               postalCode: business.postalCode || "",
               country: business.country || "",
+              lat: business.lat,
+              lon: business.lon,
             },
           },
           phoneNumber: business.phoneNumber,
@@ -240,11 +309,14 @@ router.post(
           category: { connect: { id: business.category } },
           address: {
             update: {
+              landmark: business.landmark,
               street: business.street,
               city: business.city,
               state: business.state,
               postalCode: business.postalCode,
               country: business.country,
+              lat: business.lat,
+              lon: business.lon,
             },
           },
           ...(logoFile && { logoUrl: logoFile.filename }), // only include if logoFile exists

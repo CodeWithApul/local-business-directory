@@ -34,19 +34,23 @@ interface BusinessContact {
 }
 
 interface ContactDetailsProps {
-  // phone: string;
-  // email?: string;
-  // address: string;
+  phone: string;
+  email?: string;
+  address: string;
   businessId: string;
+  lat: number;
+  lon: number;
 }
 
 const ContactDetails: React.FC<ContactDetailsProps> = ({
-  // phone,
-  // email,
-  // address,
+  phone,
+  email,
+  address,
   businessId,
+  lat,
+  lon,
 }) => {
-  const [showContact, setShowContact] = useState(false);
+  const [showContact, setShowContact] = useState(true);
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [mobile, setMobile] = useState("");
   const [visitorId, setVisitorId] = useState("");
@@ -128,19 +132,19 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
           <Divider sx={{ my: 1 }} />
           <Stack spacing={2} sx={{ pt: 1 }}>
             <ContactRow
-              href={`tel:${businessContact?.phone}`}
-              label={businessContact?.phone || ""}
+              href={`tel:${phone}`}
+              label={phone || ""}
               type={ContactType.Phone}
             />
             <ContactRow
-              href={`mailto:${businessContact?.email}`}
-              label={businessContact?.email || ""}
+              href={`mailto:${email}`}
+              label={email || ""}
               type={ContactType.Email}
             />
             <ContactRow
               aria-label={`Directions to ${businessContact?.name}`}
-              href={`https://www.google.com/maps?q=${businessContact?.lat},${businessContact?.lon}`}
-              label={`${businessContact?.name}, ${businessContact?.street},${businessContact?.city},${businessContact?.state},${businessContact?.country} ${businessContact?.pinCode},  `}
+              href={`https://www.google.com/maps?q=${lat},${lon}`}
+              label={address}
               type={ContactType.Map}
               target="_blank"
               rel="noopener"
