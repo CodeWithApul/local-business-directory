@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 
 import { useBusinessDetails } from "../hooks/useBusinessDetails";
 import { updateBusiness } from "../services/businessService";
+import { geocodeAddress } from "../utils/geoUtils";
 import BusinessForm from "./forms/steps/BusinessForm";
 
 import type { BusinessFormValues } from "./forms/steps/BusinessForm";
@@ -13,6 +14,16 @@ function ShopDashboard() {
   const { business, refetchBusiness, loading } = useBusinessDetails();
 
   const handleUpdateBusiness = async (data: BusinessFormValues) => {
+    try {
+      const formattedAddress = `${data.street}, ${data.city}, ${data.state}, ${data.country}`;
+      const { lat, lon } = await geocodeAddress(formattedAddress);
+      data.lat = lat;
+      data.lon = lon;
+    } catch {
+      return toast.error(
+        "Unable to find your location, try after updating the address fields i.e. village, town"
+      );
+    }
     try {
       const res = await updateBusiness(data);
       if (!res.ok) {

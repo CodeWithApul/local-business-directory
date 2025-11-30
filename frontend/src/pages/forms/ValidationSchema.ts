@@ -14,18 +14,27 @@ export const BusinessFormSchema = yup.object({
       "Phone number must be valid and contain 10-15 digits (with optional '+')"
     ),
   state: yup.string().required("State Name is required!").default(null),
-  street: yup.string().required("Street Name is required!").default(null),
-
-  city: yup.string().required("City Name is required!").default(null),
+  street: yup.string().required("Village/Area Name is required!").default(null),
+  landmark: yup.string().optional().default(null),
+  lat: yup.number().optional().default(0),
+  lon: yup.number().optional().default(0),
+  city: yup
+    .string()
+    .required("Town/City/District Name is required!")
+    .default(null),
   country: yup.string().required("Country Name is required").default(null),
   postalCode: yup
     .string()
     .trim()
-    .required("Enter your postal code")
-    .matches(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
+    .optional()
+    .default(null)
+    .test("invalid", "Postal code should be of 6 digits!", (value) => {
+      if (!value) return true;
+      else return /^\d{6}$/.test(value);
+    }),
   description: yup.string().optional().default(null),
   logo: yup
-    .mixed<File | string>()
+    .mixed<File[] | string>()
     .required()
     .test("required", "Logo is mandatory!", (value) => {
       const hasExistingLogo = typeof value === "string" && value.length > 0;
@@ -35,10 +44,6 @@ export const BusinessFormSchema = yup.object({
     .test("fileType", "Only JPG/PNG allowed!", (value) => {
       if (typeof value === "string") return true;
       if (value?.[0] instanceof File) {
-        console.log(
-          value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type),
-          value?.[0]
-        );
         return (
           value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type)
         );

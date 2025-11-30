@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { email } from "zod";
 
+// import { email } from "zod";
 import { PrismaClient } from "../generated/prisma/client";
 import { validateSchema } from "../middleware/validateSchema";
 import { mobileSchema } from "../schema/user";

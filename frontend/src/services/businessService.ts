@@ -8,7 +8,9 @@ import type { BusinessBookingValues } from "../schema/BusinessBookingSchema";
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export async function getBusinessById(id: string) {
-  const res = await fetch(BASE_API_URL + "/business/" + id, { method: "GET" });
+  const res = await fetch(BASE_API_URL + "/business/id/" + id, {
+    method: "GET",
+  });
   if (!res.ok) throw Error(`Unable to find business details`);
 
   return await res.json();
@@ -92,15 +94,18 @@ export async function verifyOTP(userId: string, otp: string, password: string) {
 
 function toFormDataBusiness(data: BusinessFormValues): FormData {
   return toFormData({
-    logo: data.logo[0] instanceof File ? data.logo[0] : data.logo,
+    logo: data.logo,
     businessId: data.businessId,
     businessName: data.businessName,
     ownerName: data.ownerName,
+    landmark: data.landmark,
     street: data.street,
     country: data.country,
     city: data.city,
     state: data.state,
     postalCode: data.postalCode,
+    lat: data.lat,
+    lon: data.lon,
     phoneNumber: data.phoneNumber,
     email: data.email,
     category: data.category,

@@ -12,15 +12,16 @@ export const BusinessFormSchema = z.object({
       /^[+]?[0-9]{10,15}$/,
       "Phone number must be valid and contain 10-15 digits (with optional '+')"
     ),
+  landmark: z.string().optional(),
   state: z.string(),
   street: z.string().min(3),
   city: z.string().min(3, "Enter a valid City"),
   country: z.string(),
-  postalCode: z
-    .string()
-    .trim()
-    .regex(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
+  postalCode: z.string().trim().optional(),
+  // .regex(/^(?:[A-Z0-9][A-Z0-9\s-]{2,10})$/i, "Enter a valid postal code"),
   description: z.string(),
+  lat: z.coerce.number().optional(),
+  lon: z.coerce.number().optional(),
 });
 export type BusinessForm = z.infer<typeof BusinessFormSchema>;
 

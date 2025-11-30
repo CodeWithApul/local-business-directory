@@ -1,13 +1,14 @@
+import { Person, Storefront } from "@mui/icons-material";
 import {
+  Box,
   Card,
   CardContent,
-  Typography,
   CardMedia,
-  Stack,
-  Box,
   Divider,
+  Stack,
+  Typography,
 } from "@mui/material";
-import { Person, Storefront } from "@mui/icons-material";
+
 import type { IBusiness } from "../../data/dummyData";
 
 //  <BusinessProfile />
@@ -63,7 +64,6 @@ function BusinessProfile(props: Partial<IBusiness>) {
           </Box>
           <Divider sx={{ my: 1 }} />
           <Typography variant="body1" sx={{ marginTop: 2 }}>
-            {description}
             {description}
           </Typography>
         </Stack>

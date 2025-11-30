@@ -1,13 +1,59 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { ImageGallery as Gallery } from "react-image-grid-gallery";
+
+import { Box, Typography } from "@mui/material";
 
 interface ImageGalleryProps {
   media?: string[];
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
+  const imagesWithSrcAndAlt = media?.map((m, i) => {
+    return {
+      id: i + 1,
+      src: m,
+      alt: "Media " + (i + 1),
+      caption: "Media " + (i + 1),
+    };
+  });
   return (
     <Box sx={{ pt: 2, pb: 2 }}>
       <Typography variant="h6">Image Gallery</Typography>
+      {imagesWithSrcAndAlt && (
+        <Gallery
+          imagesInfoArray={[...imagesWithSrcAndAlt, ...imagesWithSrcAndAlt]}
+          // customStyles={{
+          //   imageContainerStyle: {
+          //     width: "200px",
+          //     height: "150px",
+          //     objectFit: "cover",
+          //   },
+          // }}
+          // customStyles={{
+          //   galleryContainerStyle: {
+          //     padding: "10px",
+          //     borderRadius: "8px",
+          //     display: "flex",
+          //     justifyContent: "center",
+          //   },
+          // }}
+          customStyles={{
+            galleryContainerStyle: {
+              display: "flex",
+              flexWrap: "wrap", // ✅ wrap to next line
+              gap: "16px", // spacing between thumbs
+              justifyContent: "flex-start", // align left
+              paddingTop: "20px",
+            },
+            imageStyle: {
+              width: "200px",
+              height: "150px",
+              objectFit: "cover", // ✅ crops but keeps aspect ratio
+              borderRadius: "6px",
+            },
+          }}
+        />
+      )}
+      {/* 
       <Grid container spacing={2}>
         {media?.map((src, index) => (
           <Grid sx={{ xs: 6, md: 4 }} key={index}>
@@ -31,7 +77,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
             </Box>
           </Grid>
         ))}
-      </Grid>
+      </Grid> */}
     </Box>
   );
 };
