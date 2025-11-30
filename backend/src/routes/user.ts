@@ -2,23 +2,23 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import { Router } from "express";
 
-import { PrismaClient } from "../generated/prisma/client";
-import { authMiddleware } from "../middleware/auth";
-import { validateSchema } from "../middleware/validateSchema";
+import { PrismaClient } from "../generated/prisma/client.js";
+import { authMiddleware } from "../middleware/auth.js";
+import { validateSchema } from "../middleware/validateSchema.js";
 import {
   LoginSchema,
   UserSchema,
   VerifyOTPRequestSchema,
-} from "../schema/user";
-import { clearSecureCookie, setSecureCookie } from "../utils/cookie";
-import sendEmail from "../utils/emailService";
-import { generateToken, verifyRefreshToken } from "../utils/jwt";
-import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService";
+} from "../schema/user.js";
+import { clearSecureCookie, setSecureCookie } from "../utils/cookie.js";
+import sendEmail from "../utils/emailService.js";
+import { generateToken, verifyRefreshToken } from "../utils/jwt.js";
+import { digitOnlyOTP, sendOTPViaSMS } from "../utils/otpService.js";
 
-import type { User, Login, VerifyOTPRequest } from "../schema/user";
+import type { User, Login, VerifyOTPRequest } from "../schema/user.js";
 
 import type { JwtPayload } from "jsonwebtoken";
-import type { AuthenticatedRequest } from "../types/auth";
+import type { AuthenticatedRequest } from "../types/auth.js";
 import type { Request, Response } from "express";
 
 dotenv.config();

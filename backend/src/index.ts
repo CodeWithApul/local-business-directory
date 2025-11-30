@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 import express from "express";
 import multer from "multer";
 
-import businessRoutes from "./routes/business";
-import categoryRoutes from "./routes/category";
-import locationRoutes from "./routes/location";
-import userRoutes from "./routes/user";
-import visitorRoutes from "./routes/visitor";
-import { paths } from "./utils/paths";
+import businessRoutes from "./routes/business.js";
+import categoryRoutes from "./routes/category.js";
+import locationRoutes from "./routes/location.js";
+import userRoutes from "./routes/user.js";
+import visitorRoutes from "./routes/visitor.js";
+import { paths } from "./utils/paths.js";
 
 import type { Request, Response, NextFunction } from "express";
 

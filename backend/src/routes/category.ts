@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { PrismaClient } from "../generated/prisma/client";
-import { SortOrder } from "../generated/prisma/internal/prismaNamespace";
-import { validateSchema } from "../middleware/validateSchema";
-import { CategorySchema } from "../schema/category";
+import { PrismaClient } from "../generated/prisma/client.js";
+import { SortOrder } from "../generated/prisma/internal/prismaNamespace.js";
+import { validateSchema } from "../middleware/validateSchema.js";
+import { CategorySchema } from "../schema/category.js";
 
 import type { Request, Response } from "express";
 const router = Router();

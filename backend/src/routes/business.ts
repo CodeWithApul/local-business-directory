@@ -3,16 +3,19 @@ import { Router } from "express";
 import multer from "multer";
 import path from "path";
 
-import { PrismaClient } from "../generated/prisma/client";
-import { authMiddleware } from "../middleware/auth";
-import { validateSchema } from "../middleware/validateSchema";
-import { BusinessBookingSchema, BusinessFormSchema } from "../schema/business";
-import { generateAbsoluteMediaURL } from "../utils/basicUtil";
-import { getBoundingBox, isWithinRadius } from "../utils/geoService";
-import { paths } from "../utils/paths";
+import { PrismaClient } from "../generated/prisma/client.js";
+import { authMiddleware } from "../middleware/auth.js";
+import { validateSchema } from "../middleware/validateSchema.js";
+import {
+  BusinessBookingSchema,
+  BusinessFormSchema,
+} from "../schema/business.js";
+import { generateAbsoluteMediaURL } from "../utils/basicUtil.js";
+import { getBoundingBox, isWithinRadius } from "../utils/geoService.js";
+import { paths } from "../utils/paths.js";
 
-import type { BusinessForm } from "../schema/business";
-import type { AuthenticatedRequest } from "../types/auth";
+import type { BusinessForm } from "../schema/business.js";
+import type { AuthenticatedRequest } from "../types/auth.js";
 import type { Request, Response } from "express";
 const router = Router();
 const prisma = new PrismaClient();

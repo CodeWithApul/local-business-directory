@@ -1,8 +1,8 @@
 import type { Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt";
+import { verifyToken } from "../utils/jwt.js";
 
 import type { JwtPayload } from "jsonwebtoken";
-import type { AuthenticatedRequest } from "../types/auth";
+import type { AuthenticatedRequest } from "../types/auth.js";
 
 export const authMiddleware = (
   req: AuthenticatedRequest,

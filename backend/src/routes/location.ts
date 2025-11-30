@@ -1,7 +1,7 @@
 // src/routes/location.ts
 import { Router } from "express";
 
-import { reverseLocation, searchLocationDB } from "../utils/geoService";
+import { reverseLocation, searchLocationDB } from "../utils/geoService.js";
 
 import type { Request, Response } from "express";
 

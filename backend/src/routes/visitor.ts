@@ -1,10 +1,10 @@
 import { Router } from "express";
 
 // import { email } from "zod";
-import { PrismaClient } from "../generated/prisma/client";
-import { validateSchema } from "../middleware/validateSchema";
-import { mobileSchema } from "../schema/user";
-import { digitOnlyOTP } from "../utils/otpService";
+import { PrismaClient } from "../generated/prisma/client.js";
+import { validateSchema } from "../middleware/validateSchema.js";
+import { mobileSchema } from "../schema/user.js";
+import { digitOnlyOTP } from "../utils/otpService.js";
 
 import type { Request, Response } from "express";
 const router = Router();
