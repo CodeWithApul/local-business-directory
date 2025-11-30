@@ -11,11 +11,13 @@ import {
   TextField,
 } from "@mui/material";
 
-import categories from "../../../data/categories.json";
+import { getCategories } from "../../../services/categoryService.ts";
+// import categories from "../../../data/categories.json";
 import { BusinessFormSchema } from "../ValidationSchema.ts";
 
-import type { InferType } from "yup";
+import type { Category } from "../../../services/categoryService.ts";
 
+import type { InferType } from "yup";
 export type BusinessFormValues = InferType<typeof BusinessFormSchema>;
 
 interface BusinessFormProps {
@@ -53,18 +55,17 @@ export default function BusinessForm({
   /* Preview Image ------*/
   // const logoFile = watch("logo");
   useEffect(() => {
-    if (typeof logoFile === "string") {
-      return setImagePreview(logoFile);
-    }
-    // const logo = logoFile?.[0];
-    if (logoFile?.[0]) {
-      // const filereader = new FileReader();
-      // filereader.onloadend = () => setImagePreview(filereader.result as string);
-      // filereader.readAsDataURL(logoFile?.[0]);
-      setImagePreview(URL.createObjectURL(logoFile?.[0]));
-    } else {
-      setImagePreview(null);
-    }
+    if (!logoFile || !logoFile.length) return;
+    setImagePreview(null);
+    const logoURL =
+      typeof logoFile === "string"
+        ? logoFile
+        : URL.createObjectURL(logoFile?.[0]);
+    setImagePreview(logoURL);
+
+    // const filereader = new FileReader();
+    // filereader.onloadend = () => setImagePreview(filereader.result as string);
+    // filereader.readAsDataURL(logoFile?.[0]);
   }, [logoFile]);
 
   const [previewMedia, setPreviewMedia] = useState<string[]>([]);
@@ -110,6 +111,15 @@ export default function BusinessForm({
   //   };
   // }, [previewMedia]);
   // console.log(errors);
+  const [categories, setCategories] = useState<Category[]>([]);
+  useEffect(() => {
+    const a = async () => {
+      const categories = await getCategories();
+      console.log(categories);
+      setCategories(categories);
+    };
+    a();
+  }, []);
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
       <Stack spacing={2}>
@@ -134,7 +144,7 @@ export default function BusinessForm({
           select
           value={watch("category") || initialValues?.category || ""}
         >
-          {categories.map((c, index) => (
+          {categories?.map((c, index) => (
             <MenuItem key={index} value={c.id}>
               {c.name}
             </MenuItem>

@@ -34,7 +34,7 @@ export const BusinessFormSchema = yup.object({
     }),
   description: yup.string().optional().default(null),
   logo: yup
-    .mixed<File | string>()
+    .mixed<File[] | string>()
     .required()
     .test("required", "Logo is mandatory!", (value) => {
       const hasExistingLogo = typeof value === "string" && value.length > 0;
@@ -44,10 +44,6 @@ export const BusinessFormSchema = yup.object({
     .test("fileType", "Only JPG/PNG allowed!", (value) => {
       if (typeof value === "string") return true;
       if (value?.[0] instanceof File) {
-        console.log(
-          value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type),
-          value?.[0]
-        );
         return (
           value?.[0] && ["image/jpeg", "image/png"].includes(value?.[0].type)
         );

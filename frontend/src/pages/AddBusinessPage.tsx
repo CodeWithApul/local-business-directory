@@ -48,6 +48,7 @@ function AddBusinessPage() {
     toast.error("Failed to send OTP, try again later.");
     return false;
   };
+
   const onSubmitBusinessForm = async (data: BusinessFormValues) => {
     try {
       const formattedAddress = `${data.street}, ${data.city}, ${data.state}, ${data.country}`;
@@ -56,8 +57,16 @@ function AddBusinessPage() {
       data.lon = lon;
     } catch {
       return toast.error(
-        "Unable to find your location, try after updating the address fields i.e. village, town"
+        "Unable to find your location, try after updating the address fields i.e. village, town",
+        {
+          autoClose: false,
+          closeOnClick: true,
+          style: { width: "500px" }, // inline style override
+        }
       );
+    }
+    if (!data.lon || !data.lat) {
+      return toast.error(`Something went wrong in finding your location`);
     }
     const res = await addBusiness(data);
     const { userId, error } = await res.json();

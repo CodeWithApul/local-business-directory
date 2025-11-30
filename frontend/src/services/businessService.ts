@@ -94,7 +94,7 @@ export async function verifyOTP(userId: string, otp: string, password: string) {
 
 function toFormDataBusiness(data: BusinessFormValues): FormData {
   return toFormData({
-    logo: data.logo[0] instanceof File ? data.logo[0] : data.logo,
+    logo: data.logo,
     businessId: data.businessId,
     businessName: data.businessName,
     ownerName: data.ownerName,

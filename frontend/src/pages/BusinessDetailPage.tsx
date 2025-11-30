@@ -41,7 +41,7 @@ function BusinessDetailPage() {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <BusinessProfile
-              id={business.businessId}
+              // id={business.businessId}
               name={business.businessName}
               ownerName={business.ownerName}
               category={business.categoryName}
@@ -51,12 +51,13 @@ function BusinessDetailPage() {
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <ContactDetails
+              name={business.businessName}
               phone={business.phoneNumber}
               email={business?.email}
               address={`${business.street}, ${business.city}, ${
                 business.state
               }, ${business.country ?? "India"}, ${business.pinCode ?? ""}`}
-              businessId={business.businessId ?? ""}
+              // businessId={business.businessId ?? ""}
               lat={business.lat}
               lon={business.lon}
             />
