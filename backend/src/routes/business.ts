@@ -1,5 +1,7 @@
 import crypto from "crypto";
+import dotenv from "dotenv";
 import { Router } from "express";
+import ImageKit from "imagekit";
 import multer from "multer";
 import path from "path";
 
@@ -10,15 +12,14 @@ import {
   BusinessBookingSchema,
   BusinessFormSchema,
 } from "../schema/business.js";
-import { generateAbsoluteMediaURL } from "../utils/basicUtil.js";
 import { getBoundingBox, isWithinRadius } from "../utils/geoService.js";
-import { paths } from "../utils/paths.js";
 
 import type { BusinessForm } from "../schema/business.js";
 import type { AuthenticatedRequest } from "../types/auth.js";
 import type { Request, Response } from "express";
 const router = Router();
 const prisma = new PrismaClient();
+dotenv.config();
 
 // list
 router.get(["/", "/list"], async (_req: Request, res: Response) => {
@@ -38,18 +39,18 @@ router.get(["/", "/list"], async (_req: Request, res: Response) => {
   }
 });
 
-const storage = multer.diskStorage({
-  destination: function (_req: Request, _file: Express.Multer.File, cb) {
-    cb(null, paths.uploads);
-  },
-  filename: function (_req: Request, file: Express.Multer.File, cb) {
-    const randomStr = crypto.randomBytes(12).toString("hex");
-    const ext = path.extname(file.originalname);
-    const newFilename = `${randomStr}${ext}`;
-    const newPath = path.join("uploads", newFilename);
-    cb(null, newFilename);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (_req: Request, _file: Express.Multer.File, cb) {
+//     cb(null, paths.uploads);
+//   },
+//   filename: function (_req: Request, file: Express.Multer.File, cb) {
+//     const randomStr = crypto.randomBytes(12).toString("hex");
+//     const ext = path.extname(file.originalname);
+//     const newFilename = `${randomStr}${ext}`;
+//     const newPath = path.join("uploads", newFilename);
+//     cb(null, newFilename);
+//   },
+// });
 
 const fileFilter = (
   _req: Request,
@@ -67,11 +68,38 @@ const fileFilter = (
 };
 
 const upload = multer({
-  storage: storage,
+  // storage: storage,
+  storage: multer.memoryStorage(),
   fileFilter: fileFilter,
   limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB
 });
 
+router.post(
+  "/upload",
+  upload.single("file"),
+  async (req: Request, res: Response) => {
+    console.log("-----------");
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ error: "No file uploaded or invalid file type." });
+      }
+      const fileBuffer = req.file.buffer; // Multer gives you the file buffer
+      const fileName = req.file.originalname;
+
+      const response = await imagekit.upload({
+        file: fileBuffer, // can also be base64 or URL
+        fileName,
+      });
+
+      res.json({ url: response.url });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Upload failed" });
+    }
+  }
+);
 // get business
 router.get(
   "/get",
@@ -135,8 +163,8 @@ router.get(
         ...business.address,
         description: business.description,
         phoneNumber: business.phoneNumber,
-        logo: generateAbsoluteMediaURL(req, business.logoUrl!),
-        media: business.medias.map((m) => generateAbsoluteMediaURL(req, m.url)),
+        logo: business.logoUrl, //generateAbsoluteMediaURL(req, business.logoUrl!),
+        media: business.medias.map((m) => m.url), //generateAbsoluteMediaURL(req, m.url)
       };
       res.status(200).json(sanitizedResponseData);
     } catch (error) {
@@ -200,14 +228,20 @@ router.get("/id/:id", async (req: Request, res: Response) => {
       ...business.address,
       description: business.description,
       phoneNumber: business.phoneNumber,
-      logo: generateAbsoluteMediaURL(req, business.logoUrl!),
-      media: business.medias.map((m) => generateAbsoluteMediaURL(req, m.url)),
+      logo: business.logoUrl, //generateAbsoluteMediaURL(req, business.logoUrl!),
+      media: business.medias.map((m) => m.url), //generateAbsoluteMediaURL(req, m.url)
     };
     res.status(200).json(sanitizedResponseData);
   } catch (error) {
     console.error("Error fetching business:", error);
     res.status(500).json({ error: "Internal server error" });
   }
+});
+
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
+  urlEndpoint: process.env.IMAGEKIT_ENDPOINT || "", //"https://ik.imagekit.io/your_imagekit_id",
 });
 
 // create
@@ -224,10 +258,17 @@ router.post(
           .status(400)
           .json({ error: "No file uploaded or invalid file type." });
       }
+      const fileBuffer = req.file.buffer; // Multer gives you the file buffer
+      const randomStr = crypto.randomBytes(8).toString("hex");
+      const ext = path.extname(req.file.originalname);
+      const newFilename = `${randomStr}${ext}`;
+
+      const response = await imagekit.upload({
+        file: fileBuffer, // can also be base64 or URL
+        fileName: newFilename,
+      });
+      const imagekitURL = response.url;
       /*
-      // const randomStr = crypto.randomBytes(8).toString("hex");
-      // const ext = path.extname(req.file.originalname);
-      // const newFilename = `${randomStr}${ext}`;
       // const newPath = path.join("uploads", newFilename);
       // fs.renameSync(req.file.path, newPath);
     */
@@ -254,7 +295,7 @@ router.post(
           },
           phoneNumber: business.phoneNumber,
           email: business.email ?? "",
-          logoUrl: req.file.filename, // In real app, use uploaded URL
+          logoUrl: imagekitURL, //req.file.filename, // In real app, use uploaded URL
           owner: {
             connectOrCreate: {
               where: {
