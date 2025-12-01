@@ -1,13 +1,13 @@
-import { ImageGallery as Gallery } from "react-image-grid-gallery";
+import { ImageGallery } from "react-image-grid-gallery";
 
 import { Box, Typography } from "@mui/material";
 
-interface ImageGalleryProps {
-  media?: string[];
+interface CustomImageGalleryProps {
+  media: string[];
 }
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
-  const imagesWithSrcAndAlt = media?.map((m, i) => {
+const CustomImageGallery: React.FC<CustomImageGalleryProps> = ({ media }) => {
+  const imagesWithSrcAndAlt = media.map((m, i) => {
     return {
       id: i + 1,
       src: m,
@@ -15,12 +15,13 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
       caption: "Media " + (i + 1),
     };
   });
+  console.log(imagesWithSrcAndAlt);
   return (
     <Box sx={{ pt: 2, pb: 2 }}>
       <Typography variant="h6">Image Gallery</Typography>
-      {imagesWithSrcAndAlt !== undefined && !imagesWithSrcAndAlt.length && (
-        <Gallery
-          imagesInfoArray={[...imagesWithSrcAndAlt, ...imagesWithSrcAndAlt]}
+      {imagesWithSrcAndAlt.length > 0 && (
+        <ImageGallery
+          imagesInfoArray={[...imagesWithSrcAndAlt]}
           // customStyles={{
           //   imageContainerStyle: {
           //     width: "200px",
@@ -82,4 +83,4 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
   );
 };
 
-export default ImageGallery;
+export default CustomImageGallery;

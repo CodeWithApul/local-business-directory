@@ -6,7 +6,7 @@ import Grid from "@mui/material/Grid";
 import { useBusinessDetails } from "../hooks/useBusinessDetails";
 import BusinessProfile from "./sub-components/BusinessProfile";
 import ContactDetails from "./sub-components/ContactDetails";
-import ImageGallery from "./sub-components/ImageGallery";
+import CustomImageGallery from "./sub-components/CustomImageGallery";
 import MapSection from "./sub-components/MapSection";
 
 {
@@ -63,7 +63,7 @@ function BusinessDetailPage() {
             />
           </Grid>
           <Grid size={{ xs: 12, md: 12 }}>
-            <ImageGallery media={business.media} />
+            <CustomImageGallery media={business.media} />
           </Grid>
           <Grid size={{ xs: 12, md: 12 }}>
             <MapSection
