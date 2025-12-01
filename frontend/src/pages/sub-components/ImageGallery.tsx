@@ -18,7 +18,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ media }) => {
   return (
     <Box sx={{ pt: 2, pb: 2 }}>
       <Typography variant="h6">Image Gallery</Typography>
-      {imagesWithSrcAndAlt && (
+      {imagesWithSrcAndAlt !== undefined && !imagesWithSrcAndAlt.length && (
         <Gallery
           imagesInfoArray={[...imagesWithSrcAndAlt, ...imagesWithSrcAndAlt]}
           // customStyles={{
