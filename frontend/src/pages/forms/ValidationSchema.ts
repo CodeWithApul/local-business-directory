@@ -50,10 +50,10 @@ export const BusinessFormSchema = yup.object({
       }
       return false;
     })
-    .test("fileSize", "File size must be less than 1 MB", (value) => {
+    .test("fileSize", "File size must be less than 15 MB", (value) => {
       if (typeof value === "string") return true; // existing logo URL
       if (value[0] instanceof File) {
-        return value[0].size <= 1 * 1024 * 1024; // 1 MB
+        return value[0].size <= 15 * 1024 * 1024; // 1 MB
       }
       return false;
     }),

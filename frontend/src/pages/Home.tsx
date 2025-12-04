@@ -256,7 +256,7 @@ function Home() {
 
   return (
     <>
-      <HeroSection city={location?.displayName} />
+      <HeroSection city={location?.displayName.split("::")[0]} />
       <Container>
         <Typography variant="h4" sx={{ my: 1 }} gutterBottom>
           Local Business Directory
