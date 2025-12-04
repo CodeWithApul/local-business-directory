@@ -265,7 +265,7 @@ function Home() {
         change?”
         <Button
           onClick={() => {
-            detectLocation();
+            detectLocation(true);
             setLoading(!loading);
           }}
           disabled={loading}
