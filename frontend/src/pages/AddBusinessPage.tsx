@@ -72,7 +72,7 @@ function AddBusinessPage() {
     const { userId, error } = await res.json();
 
     if (!res.ok) {
-      return toast.error(`Something went wrong ${error}`);
+      return toast.error(error || `Something went wrong!`);
     }
 
     const otpSent = await handleSendOTP(data.email, data.phoneNumber, userId);

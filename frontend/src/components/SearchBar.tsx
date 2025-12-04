@@ -1,9 +1,16 @@
-import ClearIcon from '@mui/icons-material/Clear';
-import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from "@mui/icons-material/Clear";
+import SearchIcon from "@mui/icons-material/Search";
 // components/SearchBar.tsx
 import {
-    Box, Button, IconButton, InputAdornment, MenuItem, Stack, TextField, Tooltip
-} from '@mui/material';
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Stack,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 
 import type { Category } from "../services/categoryService";
 
@@ -55,7 +62,7 @@ const SearchBar = ({
         <TextField
           label="Category"
           select
-          defaultValue="0"
+          defaultValue=""
           sx={{ minWidth: 180 }}
           onChange={(e) => onCategoryChange(Number(e.target.value))}
           value={category?.id}

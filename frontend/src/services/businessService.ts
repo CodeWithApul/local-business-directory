@@ -119,6 +119,8 @@ function toFormData(data: FormEntity): FormData {
   for (const [key, value] of Object.entries(data)) {
     if (Array.isArray(value)) {
       value.forEach((v) => formData.append(key, v));
+    } else if (value instanceof FileList) {
+      Array.from(value).forEach((file) => formData.append(key, file));
     } else {
       formData.append(key, value ?? "");
     }

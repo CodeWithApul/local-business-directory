@@ -1,3 +1,4 @@
+import { error } from "console";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import { Router } from "express";
@@ -275,7 +276,17 @@ router.post(
       // upload logo and get URL (skipped for brevity)
       // create owner if not exists (skipped for brevity)
       // check email uniqueness (skipped for brevity)
-
+      const isUserExist = await prisma.user.findFirst({
+        select: {
+          id: true,
+        },
+        where: { email: business.email },
+      });
+      if (isUserExist) {
+        return res.status(500).json({
+          error: `❌Email already registered! please login to update your business.❌`,
+        });
+      }
       const newBusiness = await prisma.business.create({
         data: {
           name: business.businessName,
@@ -316,7 +327,7 @@ router.post(
       res.status(201).json({ userId: newBusiness.ownerId });
     } catch (error) {
       console.error("Error creating business:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Something went wrong!" });
     }
   }
 );

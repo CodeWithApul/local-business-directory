@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
 import { toast } from "react-toastify";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -20,6 +19,12 @@ import { useUserLocation } from "../hooks/useUserLocation";
 import { getMatchedRecords } from "../services/businessService";
 import { getCategories } from "../services/categoryService";
 
+const biharBounds: google.maps.LatLngBoundsLiteral = {
+  south: 24.2866,
+  west: 83.186,
+  north: 27.5206,
+  east: 88.1748,
+};
 // import { getAutocompleteSuggestions } from "../services/locationService";
 
 import type { Category } from "../services/categoryService";
@@ -76,22 +81,63 @@ function Home() {
 
   const [loading, setLoading] = useState(false);
 
+  // const [session, setSession] = useState(
+  //   new google.maps.places.AutocompleteSessionToken()
+  // );
+
   const debounced = useDebouncedCallback(async (v) => {
-    if (v)
-      if (v.length < 3) return;
-      else
-        getPlacePredictions({
-          input: v,
-          componentRestrictions: { country: "in" },
-        });
+    if (!v || v.length < 3) return;
+    const request: google.maps.places.SearchByTextRequest = {
+      textQuery: v,
+      fields: ["id", "displayName", "formattedAddress", "location"], // free tier
+      maxResultCount: 5,
+      includedType: "", // Restrict query to a specific type (leave blank for any).
+      useStrictTypeFiltering: false,
+      language: "en-US",
+      region: "in",
+      locationBias: biharBounds,
+    };
+    const { places } = await google.maps.places.Place.searchByText(request);
+    console.log(places.map((p) => p.formattedAddress));
+    setPredictions(places);
+    // getPlacePredictions({
+    //   input: v,
+    //   componentRestrictions: { country: "in" },
+    // });
+    // const { suggestions } =
+    //   await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(
+    //     {
+    //       input: v,
+    //       region: "in",
+    //       sessionToken: session,
+    //       locationBias: biharBounds,
+    //       // locationRestrction: biharBounds,
+    //     }
+    //   );
+    // setPredictions(suggestions);
+    // console.log(suggestions);
+    // .then({
+    //   predictions: google.maps.places.AutocompleteSuggestion[],
+    //   status: google.maps.places.PlacesServiceStatus}
+    //  => {
+    //   console.log(predictions, status);
+
+    //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+    //     console.log(predictions);
+    //     setPredictions(predictions);
+    //     // feed predictions into your MUI Autocomplete
+    //   }
+    // }
+    // );
 
     // const res: Location[] = await getAutocompleteSuggestions(value);
     // setSearchedLocations(res);
   }, 1000);
 
   const [inputValue, setInputValue] = useState("");
-  const [value, setValue] =
-    useState<google.maps.places.AutocompletePrediction>();
+  // const [value, setValue] =
+  //   useState<google.maps.places.AutocompleteSuggestion | null>(null);
+  const [value, setValue] = useState<google.maps.places.Place | null>(null);
 
   useEffect(() => {
     if (location?.source === "auto") {
@@ -101,10 +147,13 @@ function Home() {
     setLoading(false);
   }, [location]);
 
-  const { placePredictions, getPlacePredictions } = usePlacesService({
-    // apiKey: "", //"AIzaSyA6myHzS10YXdcazAFalmXvDkrYCp5cLc8",
-  });
-
+  // const { placePredictions, getPlacePredictions } = usePlacesService({});
+  // const [predictions, setPredictions] = useState<
+  //   google.maps.places.AutocompleteSuggestion[]
+  // >([]);
+  const [predictions, setPredictions] = useState<google.maps.places.Place[]>(
+    []
+  );
   // useEffect(() => {
   //   setSearchedLocations(
   //     placePredictions.map(
@@ -138,31 +187,58 @@ function Home() {
 
   const handleSelect = async (
     _e: React.SyntheticEvent,
-    placeValue: google.maps.places.AutocompletePrediction | null
+    placeValue: google.maps.places.Place | null
   ) => {
-    setValue(placeValue ?? undefined);
-    if (placeValue?.place_id) {
-      const place = new google.maps.places.Place({ id: placeValue.place_id });
-      try {
-        const details = await place.fetchFields({
-          fields: ["location", "displayName"],
-        });
-        if (details?.place.location) {
-          const displayName = details.place.displayName || "";
-          const lat = details.place.location?.lat() || 0;
-          const lng = details.place.location?.lng() || 0;
+    setValue(placeValue);
+    const formattedAddress = placeValue?.formattedAddress || "";
+    const displayName = placeValue?.displayName || "";
+    const lat = placeValue?.location?.lat() || 0;
+    const lng = placeValue?.location?.lng() || 0;
 
-          // console.log("Selected:", displayName);
-          // console.log("Lat:", lat);
-          // console.log("Lng:", lng);
-          updateLocation({ lat, lng, displayName, source: "manual" });
-        } else {
-          console.warn("Place has no location field available.");
-        }
-      } catch (err) {
-        console.error("Error fetching place details:", err);
-      }
-    }
+    // console.log("Selected:", displayName);
+    console.log("Selected Address:", formattedAddress);
+    console.log("Lat:", lat);
+    console.log("Lng:", lng);
+    setInputValue(formattedAddress);
+    updateLocation({
+      lat,
+      lng,
+      displayName: formattedAddress + "::" + displayName,
+      source: "manual",
+    });
+    // if (placeValue?.id) {
+    //   const place = new google.maps.places.Place({
+    //     id: placeValue.id,
+    //   });
+    //   try {
+    //     const details = await place.fetchFields({
+    //       fields: ["location", "formattedAddress"],
+    //     });
+    //     if (details?.place.location) {
+    //       // const displayName = details.place.displayName || "";
+    //       const formattedAddress = details.place.formattedAddress || "";
+    //       const lat = details.place.location?.lat() || 0;
+    //       const lng = details.place.location?.lng() || 0;
+
+    //       // console.log("Selected:", displayName);
+    //       console.log("Selected Address:", formattedAddress);
+    //       console.log("Lat:", lat);
+    //       console.log("Lng:", lng);
+    //       setInputValue(formattedAddress);
+    //       updateLocation({
+    //         lat,
+    //         lng,
+    //         displayName: formattedAddress,
+    //         source: "manual",
+    //       });
+    //       // setSession(new google.maps.places.AutocompleteSessionToken());
+    //     } else {
+    //       console.warn("Place has no location field available.");
+    //     }
+    //   } catch (err) {
+    //     console.error("Error fetching place details:", err);
+    //   }
+    // }
   };
 
   //   <FeaturedBusinesses />
@@ -198,13 +274,31 @@ function Home() {
         </Button>
         <Autocomplete
           // options={defaultCityList}
-          options={placePredictions ?? []}
-          getOptionLabel={(option) => option.description || ""}
-          value={value}
+          disabled={loading}
+          options={predictions}
+          getOptionLabel={
+            (option) => option?.formattedAddress || option?.displayName || "" //+
+            // " " +
+            // (option?.placePrediction?.secondaryText?.text ?? "") +
+            // " " +
+            // option?.placePrediction?.text.text
+          }
+          getOptionKey={(option) => option.id} // ensures uniqueness
+          renderOption={(props, option) => (
+            <li {...props} key={option.id}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span>{option.formattedAddress ?? ""}</span>
+
+                <span style={{ color: "grey", fontSize: "0.9em" }}>
+                  {option.displayName}
+                </span>
+              </div>
+            </li>
+          )}
+          value={null}
           inputValue={inputValue}
           onChange={handleSelect}
           onInputChange={(_e, newValue, reason) => {
-            console.log("onInputChange");
             setInputValue(newValue);
             if (reason === "input") debounced(newValue);
           }}
@@ -226,6 +320,7 @@ function Home() {
           // disableClearable
           clearOnBlur={false}
           selectOnFocus
+          filterOptions={(x) => x} // no client-side filtering
         />
         <SearchBar
           category={searchTermCategory}
@@ -236,8 +331,8 @@ function Home() {
           onSearch={handleSearchClick}
         />
         <Grid container rowSpacing={2} columnSpacing={2}>
-          {filteredBusiness.map((b) => (
-            <Grid key={b.id} size={{ xs: 12, sm: 6, md: 4 }}>
+          {filteredBusiness.map((b, index) => (
+            <Grid key={index} size={{ xs: 12, sm: 6, md: 4 }}>
               <BusinessCard
                 name={b.name}
                 category={b.category}
