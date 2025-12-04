@@ -137,7 +137,7 @@ function Home() {
   const [inputValue, setInputValue] = useState("");
   // const [value, setValue] =
   //   useState<google.maps.places.AutocompleteSuggestion | null>(null);
-  const [value, setValue] = useState<google.maps.places.Place | null>(null);
+  // const [value, setValue] = useState<google.maps.places.Place | null>(null);
 
   useEffect(() => {
     if (location?.source === "auto") {
@@ -189,7 +189,7 @@ function Home() {
     _e: React.SyntheticEvent,
     placeValue: google.maps.places.Place | null
   ) => {
-    setValue(placeValue);
+    // setValue(placeValue);
     const formattedAddress = placeValue?.formattedAddress || "";
     const displayName = placeValue?.displayName || "";
     const lat = placeValue?.location?.lat() || 0;
