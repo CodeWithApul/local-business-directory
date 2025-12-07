@@ -86,8 +86,14 @@ router.post("/generate-otp", async (req: Request, res: Response) => {
         otpExpiredAt: fifteenMinutesLater,
       },
     });
-    // Send OTP via email
-    await sendEmail(email, otp);
+    try {
+      // Send OTP via email
+      await sendEmail(email, otp);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(500).json({ error: error.message });
+      }
+    }
     // Send OTP via SMS
     if (
       process.env.ENABLE_SMS_SERVICE &&

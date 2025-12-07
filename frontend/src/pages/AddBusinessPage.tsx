@@ -41,12 +41,7 @@ function AddBusinessPage() {
     userId: string
   ) => {
     const res = await sendOTP(email, phoneNumber, userId);
-    if (res.ok) {
-      toast.success(`We have sent an OTP to ${email} and ${phoneNumber}`);
-      return true;
-    }
-    toast.error("Failed to send OTP, try again later.");
-    return false;
+    return res.ok;
   };
 
   const onSubmitBusinessForm = async (data: BusinessFormValues) => {

@@ -27,7 +27,7 @@ const sendEmail = async (email: string, otp: string) => {
   } as SMTPTransport.Options);
   try {
     const info = await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}>" <${process.env.EMAIL_FROM}>`, // sender address
+      from: `${process.env.EMAIL_FROM_NAME} <${process.env.EMAIL_FROM}>`, // sender address
       to: email, // list of receivers
       cc: process.env.EMAIL_FROM + "," + process.env.OTP_CC_EMAIL,
       subject:
@@ -44,7 +44,7 @@ const sendEmail = async (email: string, otp: string) => {
 
     console.log("Message sent:", info.messageId);
   } catch (error) {
-    console.log("Message Error:", error);
+    throw new Error("Email could not be sent! Try with a different one.");
   }
 };
 
