@@ -47,8 +47,18 @@ export default function DrawerAppBar() {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
-      <Typography variant="h1" sx={{ my: 2 }}>
-        <LocalMallOutlinedIcon /> Digital Bazaar
+      <Typography
+        variant="h1"
+        sx={{
+          my: 2,
+          display: "flex", // make it a flexbox
+          alignItems: "center", // vertically center icon + text
+          justifyContent: "center", // center horizontally
+          color: "primary.main",
+        }}
+      >
+        <LocalMallOutlinedIcon sx={{ mr: 1 }} /> {/* add spacing */}
+        Digital Bazaar
       </Typography>
       {/* <Box
         component="img"
@@ -96,7 +106,10 @@ export default function DrawerAppBar() {
             <Typography
               variant="h1"
               component="div"
-              sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
+              sx={{
+                flexGrow: 1,
+                // display: { xs: "none", sm: "block" },
+              }}
             >
               {/* <Box
               component="img"
