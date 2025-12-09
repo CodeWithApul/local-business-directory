@@ -4,7 +4,7 @@ export interface IBusiness {
   id: string;
   name: string;
   category: string;
-  logo: string;
+  logoUrl: string;
   ownerName: string;
   phone: string;
   email?: string;
@@ -19,7 +19,7 @@ export const dummyBusiness: IBusiness[] = [
     id: "1",
     name: "Indy Decor",
     category: "Home Decor",
-    logo: "https://placehold.net/building-600x400.png",
+    logoUrl: "https://placehold.net/building-600x400.png",
     ownerName: "Alice Johnson",
     phone: "(555) 123-4567",
     email: "alice@indydecor.com",
@@ -36,7 +36,7 @@ export const dummyBusiness: IBusiness[] = [
     id: "1",
     name: "Taste of India",
     category: "Restaurant",
-    logo: "https://placehold.net/building-600x400.png",
+    logoUrl: "https://placehold.net/building-600x400.png",
     ownerName: "Raj Patel",
     phone: "(555) 987-6543",
     email: "raj@tasteofindia.com",
@@ -58,7 +58,7 @@ export const dummyBusiness: IBusiness[] = [
     id: "1",
     name: "Bloom Beauty Studio",
     category: "Salon & Spa",
-    logo: "https://placehold.net/building-600x400.png",
+    logoUrl: "https://placehold.net/building-600x400.png",
     ownerName: "Maya Singh",
     phone: "(555) 555-1212",
     email: "maya@bloombeautystudio.com",

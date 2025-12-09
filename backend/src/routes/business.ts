@@ -586,13 +586,20 @@ router.post("/search", async (req: Request, res: Response) => {
     const businesses = await prisma.business.findMany({
       where,
       include: {
-        category: true,
+        category: {
+          select: { name: true },
+        },
         address: true,
       },
     });
 
+    const formatted = businesses.map((b) => ({
+      ...b,
+      category: b.category?.name, // flatten and rename
+    }));
+
     // Filter businesses within the radius (more precise, if performance allows)
-    const filteredBusinesses = businesses.filter((business) => {
+    const filteredBusinesses = formatted.filter((business) => {
       const addr = business.address;
       return isWithinRadius(
         latitude,

@@ -42,7 +42,7 @@ function BusinessDetailPage() {
           <Grid size={{ xs: 12, md: 6 }}>
             <BusinessProfile
               // id={business.businessId}
-              name={business.businessName}
+              businessName={business.businessName}
               ownerName={business.ownerName}
               category={business.categoryName}
               logo={business.logo}

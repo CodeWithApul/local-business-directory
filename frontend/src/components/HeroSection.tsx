@@ -1,5 +1,5 @@
 // src/components/Hero.tsx
-import { Box, Container, Typography, Stack } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 
 const HeroSection = ({ city }: { city?: string }) => {
   return (
@@ -10,17 +10,18 @@ const HeroSection = ({ city }: { city?: string }) => {
         background:
           "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(/images/banner.jpg)",
         backgroundPosition: "center",
-        py: { xs: 4, md: 6 },
+        py: { xs: 2, md: 3 },
         color: "white",
       }}
     >
       <Container maxWidth="md">
-        <Stack spacing={4} alignItems="center" textAlign="center">
-          <Typography variant="h3" fontWeight={700}>
-            Discover Local Gems in {city ?? "Your City"}
+        <Stack spacing={2} alignItems="center" textAlign="center">
+          <Typography variant="h4" fontWeight={700}>
+            Discover Local Gems
+            {/* in {city ?? "Your City"} */}
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.9 }}>
-            From costume rentals to home decor — explore trusted businesses near
+          <Typography variant="h6" sx={{ opacity: 0.9 }} aria-details={city}>
+            From costume rentals to home decor - explore trusted businesses near
             you.
           </Typography>
           {/* <Button

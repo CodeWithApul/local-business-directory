@@ -45,10 +45,10 @@ export const getBoundingBox = (
   const lonDelta =
     ((radiusKm / R) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
   return {
-    minLat: lat - latDelta,
-    maxLat: lat + latDelta,
-    minLon: lon - lonDelta,
-    maxLon: lon + lonDelta,
+    minLat: Number(lat) - latDelta,
+    maxLat: Number(lat) + latDelta,
+    minLon: Number(lon) - lonDelta,
+    maxLon: Number(lon) + lonDelta,
   };
 };
 

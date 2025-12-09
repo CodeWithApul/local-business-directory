@@ -5,11 +5,13 @@ import {
   CardContent,
   CardMedia,
   Divider,
+  Grid,
   Stack,
   Typography,
 } from "@mui/material";
 
-import type { IBusiness } from "../../data/dummyData";
+// import type { IBusiness } from "../../data/dummyData";
+import type { Business } from "../../hooks/useBusinessDetails";
 
 //  <BusinessProfile />
 {
@@ -29,45 +31,53 @@ import type { IBusiness } from "../../data/dummyData";
     </Card> */
 }
 
-function BusinessProfile(props: Partial<IBusiness>) {
-  const { name, ownerName, category, logo, description } = props;
+function BusinessProfile(props: Partial<Business>) {
+  const { businessName, ownerName, category, logo, description } = props;
 
   return (
-    <Card
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      <CardMedia
-        component="img"
-        image={logo}
-        alt="Preview"
-        sx={{ width: 200 }}
-      />
-      <CardContent>
-        <Stack spacing={1}>
-          <Typography variant="h5" color="text.primary">
-            {name}
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Storefront fontSize="small" sx={{ mr: 0.5 }} />
-            <Typography variant="subtitle1" color="text.secondary">
-              {category}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Person fontSize="small" sx={{ mr: 0.5 }} />
-            <Typography variant="subtitle2" color="text.secondary">
-              {ownerName}
-            </Typography>
-          </Box>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="body1" sx={{ marginTop: 2 }}>
-            {description}
-          </Typography>
-        </Stack>
-        {/* <Grid container spacing={2} sx={{ marginTop: 2 }}>
+    <Card>
+      <Grid container>
+        {/* Media Section */}
+        <Grid sx={{ xs: 12 }}>
+          <CardMedia
+            component="img"
+            image={logo || "/images/placeholder-image.png"}
+            alt="Preview"
+            sx={{
+              height: " auto",
+              width: "100%",
+              objectFit: "contain",
+              maxWidth: 300, // limit width
+              margin: "0 auto", // center if smaller
+            }}
+          />
+        </Grid>
+
+        {/* Content Section */}
+        <Grid sx={{ xs: 12 }}>
+          <CardContent>
+            <Stack spacing={1}>
+              <Typography variant="h5" color="text.primary">
+                {businessName}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Storefront fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="subtitle1" color="text.secondary">
+                  {category}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Person fontSize="small" sx={{ mr: 0.5 }} />
+                <Typography variant="subtitle2" color="text.secondary">
+                  {ownerName}
+                </Typography>
+              </Box>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="body1" sx={{ marginTop: 2 }}>
+                {description}
+              </Typography>
+            </Stack>
+            {/* <Grid container spacing={2} sx={{ marginTop: 2 }}>
             <Grid sx={{ xs: 12, sm: 6 }}>
               <Typography variant="body1" gutterBottom>
                 Phone: {phone}
@@ -79,7 +89,9 @@ function BusinessProfile(props: Partial<IBusiness>) {
               </Typography>
             </Grid>
           </Grid> */}
-      </CardContent>
+          </CardContent>
+        </Grid>
+      </Grid>
     </Card>
   );
 }

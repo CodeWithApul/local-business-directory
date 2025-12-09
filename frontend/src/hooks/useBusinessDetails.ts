@@ -6,7 +6,7 @@ import {
 } from "../services/businessService";
 
 // import { getBusinessById } from "../services/businessService";
-type Business = {
+export type Business = {
   businessId?: string;
   businessName: string;
   category: string;

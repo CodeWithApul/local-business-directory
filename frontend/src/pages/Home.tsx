@@ -337,7 +337,7 @@ function Home() {
                 name={b.name}
                 category={b.category}
                 id={b.id}
-                logo={b.logo}
+                logo={b.logoUrl}
               />
             </Grid>
           ))}
