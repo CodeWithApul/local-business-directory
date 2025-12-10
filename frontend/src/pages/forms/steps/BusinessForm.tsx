@@ -143,6 +143,16 @@ export default function BusinessForm({
           helperText={errors.category?.message}
           select
           value={watch("category") || initialValues?.category || ""}
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                style: {
+                  maxHeight: 200, // limit height
+                  overflowY: "auto", // enable scroll
+                },
+              },
+            },
+          }}
         >
           {categories?.map((c, index) => (
             <MenuItem key={index} value={c.id}>
