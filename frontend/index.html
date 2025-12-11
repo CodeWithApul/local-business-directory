@@ -26,6 +26,22 @@
       href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
       rel="stylesheet"
     />
+    <style>
+      @keyframes colorBlink {
+        0% {
+          color: #2874f0;
+        }
+        50% {
+          color: #ff5722;
+        }
+        100% {
+          color: #2874f0;
+        }
+      }
+      .colorBlink {
+        animation: colorBlink 1s infinite;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
