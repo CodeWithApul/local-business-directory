@@ -20,8 +20,9 @@ const PromoBanner = () => {
   };
 
   const handleRedirect = () => {
-    localStorage.setItem("seenOffer", "true"); // mark as seen
-    navigate("/add-business"); // or window.location.href = "/offer"
+    // localStorage.setItem("seenOffer", "true"); // mark as seen
+    handleClose();
+    navigate("/add-business", { replace: true }); // or window.location.href = "/offer"
   };
 
   return (
