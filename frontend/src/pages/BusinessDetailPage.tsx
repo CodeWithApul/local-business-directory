@@ -62,14 +62,18 @@ function BusinessDetailPage() {
               lon={business.lon}
             />
           </Grid>
-          <Grid size={{ xs: 12, md: 12 }}>
-            <CustomImageGallery media={business.media} />
-          </Grid>
+          {business.media && business.media.length > 0 && (
+            <Grid size={{ xs: 12, md: 12 }}>
+              <CustomImageGallery media={business.media} />
+            </Grid>
+          )}
           <Grid size={{ xs: 12, md: 12 }}>
             <MapSection
               latitude={business.lat}
               longitude={business.lon}
-              markerText={`${business.street}, ${business.city}, ${business.state}, ${business.country}, ${business.pinCode}`}
+              markerText={`${business.street}, ${business.city}, ${
+                business.state
+              }, ${business.country}, ${business.pinCode ?? ""}`}
             />
           </Grid>
         </Grid>
