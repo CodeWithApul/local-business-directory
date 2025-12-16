@@ -34,13 +34,6 @@ const PromoBanner = () => {
           left: 0,
           width: "100%",
           height: "100%",
-          //   backgroundImage:
-          //  "url('https://img1.paisawapas.com/images/2019/02/12122313/flipkart.png')",
-          //   backgroundImage:
-          //   "url('https://images.freekaamaal.com/featured_images/149398_flipkart-gift-card.png')", // replace with your background image
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
           backgroundColor: "#f0eaeaff", // Flipkart light background
           opacity: 0.96,
           display: "flex",
@@ -54,11 +47,6 @@ const PromoBanner = () => {
             // background: "linear-gradient(135deg, #ff7eb3, #ff758c, #ff7eb3)",
             background: "linear-gradient(135deg, #ffd1dc, #ff9a9e, #fad0c4)",
             // background: "linear-gradient(135deg, #ffecd2, #fcb69f)",
-
-            // backgroundColor: "rgba(0, 0, 0, 0.7)",
-            // background:
-            //   "url('https://img1.paisawapas.com/images/2019/02/12122313/flipkart.png')",
-
             color: "white",
             padding: "30px",
             borderRadius: "10px",

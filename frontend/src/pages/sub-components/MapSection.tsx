@@ -1,5 +1,6 @@
 import "leaflet/dist/leaflet.css";
 
+import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 import { Box, Typography } from "@mui/material";
@@ -12,6 +13,13 @@ interface MapSectionProps {
   longitude?: number;
   markerText?: string;
 }
+// Fix leaflet's default icon paths
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
 
 const MapComponent: React.FC<MapSectionProps> = ({
   latitude,
