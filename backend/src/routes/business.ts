@@ -1,15 +1,18 @@
-import crypto from 'crypto';
-import dotenv from 'dotenv';
-import { Router } from 'express';
-import ImageKit from 'imagekit';
-import multer from 'multer';
-import path from 'path';
+import crypto from "crypto";
+import dotenv from "dotenv";
+import { Router } from "express";
+import ImageKit from "imagekit";
+import multer from "multer";
+import path from "path";
 
-import { PrismaClient } from '../generated/prisma/client.js';
-import { authMiddleware } from '../middleware/auth.js';
-import { validateSchema } from '../middleware/validateSchema.js';
-import { BusinessBookingSchema, BusinessFormSchema } from '../schema/business.js';
-import { getBoundingBox, isWithinRadius } from '../utils/geoService.js';
+import { PrismaClient } from "../generated/prisma/client.js";
+import { authMiddleware } from "../middleware/auth.js";
+import { validateSchema } from "../middleware/validateSchema.js";
+import {
+  BusinessBookingSchema,
+  BusinessFormSchema,
+} from "../schema/business.js";
+import { getBoundingBox, isWithinRadius } from "../utils/geoService.js";
 
 import type { BusinessForm } from "../schema/business.js";
 import type { AuthenticatedRequest } from "../types/auth.js";
@@ -575,9 +578,11 @@ router.post("/search", async (req: Request, res: Response) => {
     }
     // Only add keyword if provided
     if (keyword !== undefined && keyword !== "") {
-      where.name = { contains: keyword, mode: "insensitive" };
-      where.description = { contains: keyword, mode: "insensitive" };
-      where.category = { name: { contains: keyword, mode: "insensitive" } };
+      where.OR = [
+        { name: { contains: keyword, mode: "insensitive" } },
+        { description: { contains: keyword, mode: "insensitive" } },
+        { category: { name: { contains: keyword, mode: "insensitive" } } },
+      ];
     }
     const businesses = await prisma.business.findMany({
       where,
