@@ -52,7 +52,7 @@ export const useUserLocation = () => {
         // setLocation({ ...dummyLocations[1] });
       },
       (err) => console.error("Location error:", err),
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
     );
   };
   const updateLocation = (location: Location) => {
