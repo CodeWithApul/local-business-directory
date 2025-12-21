@@ -1,15 +1,16 @@
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import dotenv from "dotenv";
-import express from "express";
-import multer from "multer";
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import multer from 'multer';
 
-import businessRoutes from "./routes/business.js";
-import categoryRoutes from "./routes/category.js";
-import locationRoutes from "./routes/location.js";
-import userRoutes from "./routes/user.js";
-import visitorRoutes from "./routes/visitor.js";
-import { paths } from "./utils/paths.js";
+import { adminJs, router } from './routes/admin.js';
+import businessRoutes from './routes/business.js';
+import categoryRoutes from './routes/category.js';
+import locationRoutes from './routes/location.js';
+import userRoutes from './routes/user.js';
+import visitorRoutes from './routes/visitor.js';
+import { paths } from './utils/paths.js';
 
 import type { Request, Response, NextFunction } from "express";
 
@@ -34,6 +35,8 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/visitor", visitorRoutes);
+
+app.use(adminJs.options.rootPath, router);
 
 // Multer + general error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
