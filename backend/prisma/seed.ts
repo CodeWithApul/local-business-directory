@@ -75,7 +75,7 @@ async function main() {
     {
       name: "Personal Care & Services",
       children: [
-        ..."Supplies Barber & Beauty Salons Beauty Supplies, Dry Cleaners & Laundromats Exercise & Fitness, Massage & Body Works Nail Salons, Shoe Repairs Tailors".split(
+        ..."Supplies Barber & Beauty Salons, Beauty Supplies, Dry Cleaners & Laundromats, Exercise & Fitness, Massage & Body Works, Nail Salons, Shoe Repairs, Tailors".split(
           ","
         ),
       ],
@@ -91,7 +91,7 @@ async function main() {
     {
       name: "Real Estate",
       children: [
-        ..."Agencies & Brokerage, Agents & Brokers Apartment & Home Rental Mortgage Broker & Lender Property Management".split(
+        ..."Agencies & Brokerage, Agents & Brokers, Apartment & Home Rental, Mortgage Broker & Lender Property Management".split(
           ","
         ),
       ],
@@ -101,7 +101,7 @@ async function main() {
     {
       name: "Travel & Transportation",
       children: [
-        ..."Hotel, Motel & Extended Stay Moving & Storage, Packaging & Shipping Transportation, Travel & Tourism".split(
+        ..."Hotel, Motel & Extended Stay, Moving & Storage, Packaging & Shipping Transportation, Travel & Tourism".split(
           ","
         ),
       ],
