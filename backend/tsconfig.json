@@ -5,9 +5,9 @@
     "outDir": "./dist",
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "target": "ES2020",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
     "verbatimModuleSyntax": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

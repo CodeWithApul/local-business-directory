@@ -1,7 +1,4 @@
-export interface Category {
-  id: number;
-  name: string;
-}
+import type { Category } from "../types/Category";
 const BASE_API_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export const getCategories = async (): Promise<Category[]> => {

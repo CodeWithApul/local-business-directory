@@ -2,20 +2,14 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  Box,
-  Button,
-  FormHelperText,
-  MenuItem,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Box, Button, FormHelperText, Stack, TextField } from "@mui/material";
 
+import CategoryDropdown from "../../../components/CategoryDropdown.tsx";
 import { getCategories } from "../../../services/categoryService.ts";
 // import categories from "../../../data/categories.json";
 import { BusinessFormSchema } from "../ValidationSchema.ts";
 
-import type { Category } from "../../../services/categoryService.ts";
+import type { Category } from "../../../types/Category";
 
 import type { InferType } from "yup";
 export type BusinessFormValues = InferType<typeof BusinessFormSchema>;
@@ -33,6 +27,7 @@ export default function BusinessForm({
 }: BusinessFormProps) {
   const {
     register,
+    setValue,
     handleSubmit,
     watch,
     formState: { errors },
@@ -114,12 +109,12 @@ export default function BusinessForm({
   const [categories, setCategories] = useState<Category[]>([]);
   useEffect(() => {
     const a = async () => {
-      const categories = await getCategories();
-      console.log(categories);
+      const categories = (await getCategories()).filter((c) => c.id !== 0);
       setCategories(categories);
     };
     a();
   }, []);
+  const wc = watch("category");
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
       <Stack spacing={2}>
@@ -133,7 +128,31 @@ export default function BusinessForm({
           error={!!errors.businessName}
           helperText={errors.businessName?.message}
         />
-        <TextField
+        <input type="hidden" {...register("category")} />
+
+        <CategoryDropdown
+          categories={categories}
+          value={
+            // categories.find(
+            //   (c) =>
+            //     c.id.toString() === wc.toString() ||
+            //     c.children?.find((ch) => ch.id.toString() === wc.toString())
+            // ) || null
+            categories
+              .flatMap((c) => [c, ...(c.children ?? [])])
+              .find((cat) => cat.id.toString() === wc.toString()) || null
+          }
+          onChange={(c) =>
+            setValue("category", c ? c.id.toString() : "", {
+              shouldValidate: true,
+            })
+          }
+        />
+        {errors.category && (
+          <FormHelperText error>{errors.category.message}</FormHelperText>
+        )}
+
+        {/* <TextField
           label="Business Category"
           variant="outlined"
           fullWidth
@@ -159,7 +178,7 @@ export default function BusinessForm({
               {c.name}
             </MenuItem>
           ))}
-        </TextField>
+        </TextField> */}
         <TextField
           label="Owner Name"
           variant="outlined"

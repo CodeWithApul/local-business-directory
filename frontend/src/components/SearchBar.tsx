@@ -6,20 +6,20 @@ import {
   Button,
   IconButton,
   InputAdornment,
-  MenuItem,
   Stack,
   TextField,
   Tooltip,
 } from "@mui/material";
 
-import type { Category } from "../services/categoryService";
+import CategoryDropdown from "./CategoryDropdown";
 
-const ITEM_HEIGHT = 40;
-const MAX_ITEMS_VISIBLE = 5;
+import type { Category } from "../types/Category";
+// const ITEM_HEIGHT = 40;
+// const MAX_ITEMS_VISIBLE = 5;
 
 export interface ISearchBar {
   category: Category | null;
-  onCategoryChange: (value: number) => void;
+  onCategoryChange: (value: Category | null) => void;
   keyword: string;
   onKeywordChange: (value: string) => void;
   categories: Category[];
@@ -59,7 +59,12 @@ const SearchBar = ({
             ),
           }}
         />
-        <TextField
+        <CategoryDropdown
+          categories={categories}
+          onChange={onCategoryChange}
+          value={category}
+        />
+        {/* <TextField
           label="Category"
           select
           defaultValue=""
@@ -82,7 +87,7 @@ const SearchBar = ({
               {cat.name}
             </MenuItem>
           ))}
-        </TextField>
+        </TextField> */}
         <Button
           variant="contained"
           sx={{

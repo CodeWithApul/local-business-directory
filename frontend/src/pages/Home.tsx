@@ -27,7 +27,7 @@ const biharBounds: google.maps.LatLngBoundsLiteral = {
 };
 // import { getAutocompleteSuggestions } from "../services/locationService";
 
-import type { Category } from "../services/categoryService";
+import type { Category } from "../types/Category";
 import type { IBusiness } from "../data/dummyData";
 // import type { Location } from "../hooks/useUserLocation";
 function Home() {
@@ -51,8 +51,13 @@ function Home() {
     useState<IBusiness[]>(dummyBusiness);
 
   const handleSearchChange = (term: string) => setSearchTerm(term);
-  const handleCategoryChange = (categoryId: number) => {
-    const category = listofCategories.find((c) => c.id === categoryId) || null;
+  const handleCategoryChange = (category: Category | null) => {
+    // const category =
+    //   listofCategories.find(
+    //     (c) =>
+    //       c.id === categoryId || c.children?.find((ch) => ch.id === categoryId)
+    //   ) || null;
+    console.log(category);
     setSearchTermCategory(category);
   };
   const handleSearchClick = async () => {

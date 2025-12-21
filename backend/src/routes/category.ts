@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import { PrismaClient } from "../generated/prisma/client.js";
-import { SortOrder } from "../generated/prisma/internal/prismaNamespace.js";
 import { validateSchema } from "../middleware/validateSchema.js";
 import { CategorySchema } from "../schema/category.js";
 
@@ -11,11 +10,19 @@ const prisma = new PrismaClient();
 
 router.get(["/", "/list"], async (_req: Request, res: Response) => {
   const categories = await prisma.category.findMany({
+    where: { parentId: null },
     select: {
       id: true,
       name: true,
+      children: {
+        select: {
+          id: true,
+          name: true,
+        },
+        orderBy: { name: "asc" },
+      },
     },
-    orderBy: { name: SortOrder.asc },
+    orderBy: { name: "asc" },
   });
   res.json(categories);
 });

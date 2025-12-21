@@ -27,10 +27,10 @@ function ShopAuthForm() {
 
     try {
       await login(data);
-      toast.success(`Logged In Successfully!`, { autoClose: 3000 });
+      toast.success(`Logged In Successfully!`, { autoClose: 2000 });
       setTimeout(() => {
         navigate("/shop");
-      }, 3000);
+      }, 2000);
     } catch (err) {
       toast.error(`Error: Invalid credentials.`);
       console.error(err);
@@ -73,6 +73,15 @@ function ShopAuthForm() {
           error={!!errors.password}
           helperText={errors.password?.message}
         />
+        {/* <Link
+          to="/shop/forgot-password"
+          style={{
+            textAlign: "right",
+            color: "#1976d2",
+          }}
+        >
+          Forgot Password?
+        </Link> */}
         <Button variant="contained" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Logging In..." : "Login"}
         </Button>

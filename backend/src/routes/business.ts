@@ -1,19 +1,15 @@
-import { error } from "console";
-import crypto from "crypto";
-import dotenv from "dotenv";
-import { Router } from "express";
-import ImageKit from "imagekit";
-import multer from "multer";
-import path from "path";
+import crypto from 'crypto';
+import dotenv from 'dotenv';
+import { Router } from 'express';
+import ImageKit from 'imagekit';
+import multer from 'multer';
+import path from 'path';
 
-import { PrismaClient } from "../generated/prisma/client.js";
-import { authMiddleware } from "../middleware/auth.js";
-import { validateSchema } from "../middleware/validateSchema.js";
-import {
-  BusinessBookingSchema,
-  BusinessFormSchema,
-} from "../schema/business.js";
-import { getBoundingBox, isWithinRadius } from "../utils/geoService.js";
+import { PrismaClient } from '../generated/prisma/client.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/validateSchema.js';
+import { BusinessBookingSchema, BusinessFormSchema } from '../schema/business.js';
+import { getBoundingBox, isWithinRadius } from '../utils/geoService.js';
 
 import type { BusinessForm } from "../schema/business.js";
 import type { AuthenticatedRequest } from "../types/auth.js";
