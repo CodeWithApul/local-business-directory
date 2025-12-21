@@ -1,9 +1,10 @@
+import { useState } from "react";
+
 import { Autocomplete, Paper, Popper, TextField } from "@mui/material";
 
 import { useCategorySearch } from "../hooks/useCategorySearch";
 
 import type { Category } from "../types/Category";
-
 export default function CategoryDropdown({
   categories,
   onChange,
@@ -13,7 +14,11 @@ export default function CategoryDropdown({
   onChange: (category: Category | null) => void;
   value: Category | null;
 }) {
-  const { searchText, setSearchText, filtered } = useCategorySearch(categories);
+  const [shouldFilter, setShouldFilter] = useState(true);
+  const { searchText, setSearchText, filtered } = useCategorySearch(
+    categories,
+    shouldFilter
+  );
 
   return (
     <Autocomplete
@@ -24,14 +29,16 @@ export default function CategoryDropdown({
       inputValue={searchText || value?.name || ""}
       onInputChange={(_, v, reason) => {
         setSearchText(v);
+        setShouldFilter(true);
         if (reason === "clear") {
           onChange(null);
-        } // <-- reset selected category }
+        } // <-- reset selected category
       }}
       renderInput={(params) => (
         <TextField {...params} label="Select Category" />
       )}
       renderOption={() => null}
+      onFocus={() => setShouldFilter(false)}
       PopperComponent={(props) => (
         <Popper {...props} placement="bottom-start" style={{ width: 400 }}>
           <Paper style={{ maxHeight: 300, overflowY: "auto", padding: 8 }}>
@@ -42,6 +49,13 @@ export default function CategoryDropdown({
                     fontWeight: 600,
                     padding: "4px 0",
                     opacity: 0.8,
+                    cursor: "pointer",
+                    backgroundColor:
+                      value?.id === parent.id ? "#e0e0e0" : "transparent",
+                  }}
+                  onMouseDown={() => {
+                    onChange({ id: parent.id, name: parent.name });
+                    setSearchText(parent.name);
                   }}
                 >
                   {parent?.name}

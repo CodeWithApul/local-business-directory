@@ -10,8 +10,6 @@ export function filterCategories(categories: Category[], searchTerm: string) {
       });
       if (matchParent || matchChildren?.length)
         return { ...c, children: matchParent ? c.children : matchChildren };
-
-      return null;
     })
-    .filter(Boolean);
+    .filter((c) => c !== undefined);
 }
