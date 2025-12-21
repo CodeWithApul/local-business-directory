@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  parentId   Int?
+  parent     Category?  @relation("CategoryToChildren", fields: [parentId], references: [id])
+  children   Category[] @relation("CategoryToChildren") // reverse relation
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  status     String     @default("active")
+  businesses Business[]
+}
+
+model Business {
+  id          Int                   @id @default(autoincrement())
+  name        String
+  description String
+  phoneNumber String
+  email       String
+  website     String?
+  logoUrl     String?
+  categoryId  Int
+  ownerId     Int
+  addressId   Int                   @unique
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  status      String                @default("active")
+  address     Address               @relation(fields: [addressId], references: [id])
+  category    Category              @relation(fields: [categoryId], references: [id])
+  owner       User                  @relation(fields: [ownerId], references: [id])
+  bookings    BusinessBooking[]
+  medias      BusinessMedia[]
+  Review      Review[]
+  views       VisitorBusinessView[]
+}
+
+model BusinessMedia {
+  id         Int      @id @default(autoincrement())
+  url        String
+  type       String
+  businessId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+model Address {
+  id               Int       @id @default(autoincrement())
+  landmark         String?
+  street           String
+  city             String
+  state            String
+  country          String
+  postalCode       String
+  lat              Float?
+  lon              Float?
+  formattedAddress String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  status           String    @default("active")
+  business         Business?
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  username          String     @unique
+  email             String     @unique
+  phoneNumber       String
+  password          String
+  verificationToken String?
+  otpExpiredAt      DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  status            String     @default("active")
+  businesses        Business[]
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  comment    String?
+  businessId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+model BusinessBooking {
+  id               Int      @id @default(autoincrement())
+  businessId       Int
+  bookingStartTime DateTime
+  bookingEndTime   DateTime
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  status           String   @default("active")
+  business         Business @relation(fields: [businessId], references: [id])
+}
+
+model Location {
+  id             Int      @id @default(autoincrement())
+  displayName    String
+  village        String?
+  block          String?
+  district       String?
+  state          String?
+  pinCode        String?
+  lat            Float?
+  lon            Float?
+  source         String?
+  apiDisplayName String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  status         String   @default("active")
+}
+
+model Visitor {
+  id           Int                   @id @default(autoincrement())
+  mobile       String
+  otp          String?
+  otpExpiredAt DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  status       String                @default("active")
+  views        VisitorBusinessView[]
+}
+
+model VisitorBusinessView {
+  id         Int      @id @default(autoincrement())
+  visitorId  Int
+  visitor    Visitor  @relation(fields: [visitorId], references: [id])
+  businessId Int
+  business   Business @relation(fields: [businessId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  status     String   @default("active")
+}
