@@ -14,6 +14,7 @@ function ShopDashboard() {
   const { business, refetchBusiness, loading } = useBusinessDetails();
 
   const handleUpdateBusiness = async (data: BusinessFormValues) => {
+    console.log("00000000000000000000000000");
     try {
       const formattedAddress = `${data.street}, ${data.city}, ${data.state}, ${data.country}`;
       const { lat, lon } = await geocodeAddress(formattedAddress);

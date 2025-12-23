@@ -72,7 +72,7 @@ export default function BusinessForm({
       setPreviewMedia([]);
       return;
     }
-    const urls = mediaFiles.map((m) =>
+    const urls = Array.from(mediaFiles).map((m) =>
       typeof m === "string" ? m : URL.createObjectURL(m!)
     );
 
@@ -129,7 +129,6 @@ export default function BusinessForm({
           helperText={errors.businessName?.message}
         />
         <input type="hidden" {...register("category")} />
-
         <CategoryDropdown
           categories={categories}
           value={
@@ -151,7 +150,6 @@ export default function BusinessForm({
         {errors.category && (
           <FormHelperText error>{errors.category.message}</FormHelperText>
         )}
-
         {/* <TextField
           label="Business Category"
           variant="outlined"
@@ -325,6 +323,7 @@ export default function BusinessForm({
                         borderRadius: 2,
                         border: "1px solid #ccc",
                       }}
+                      key={`preview-${idx}`}
                     />
                   ) : (
                     <Box
@@ -332,6 +331,7 @@ export default function BusinessForm({
                       src={url}
                       controls
                       sx={{ width: 200, height: 200 }}
+                      key={`preview-${idx}`}
                     />
                   );
                 }
@@ -349,6 +349,7 @@ export default function BusinessForm({
                         borderRadius: 2,
                         border: "1px solid #ccc",
                       }}
+                      key={`preview-${idx}`}
                     />
                   ) : (
                     <Box
@@ -356,6 +357,7 @@ export default function BusinessForm({
                       src={url}
                       controls
                       sx={{ width: 200, height: 200 }}
+                      key={`preview-${idx}`}
                     />
                   );
                 }

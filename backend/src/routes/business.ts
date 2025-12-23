@@ -1,9 +1,7 @@
-import crypto from "crypto";
 import dotenv from "dotenv";
 import { Router } from "express";
 import ImageKit from "imagekit";
 import multer from "multer";
-import path from "path";
 
 import { PrismaClient } from "../generated/prisma/client.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -12,6 +10,7 @@ import {
   BusinessBookingSchema,
   BusinessFormSchema,
 } from "../schema/business.js";
+import { uploadFileToImageKit } from "../utils/basicUtil.js";
 import { getBoundingBox, isWithinRadius } from "../utils/geoService.js";
 
 import type { BusinessForm } from "../schema/business.js";
@@ -72,6 +71,12 @@ const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: fileFilter,
   limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB
+});
+
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
+  urlEndpoint: process.env.IMAGEKIT_ENDPOINT || "", //"https://ik.imagekit.io/your_imagekit_id",
 });
 
 router.post(
@@ -238,12 +243,6 @@ router.get("/id/:id", async (req: Request, res: Response) => {
   }
 });
 
-const imagekit = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
-  urlEndpoint: process.env.IMAGEKIT_ENDPOINT || "", //"https://ik.imagekit.io/your_imagekit_id",
-});
-
 // create
 router.post(
   "/create",
@@ -258,16 +257,15 @@ router.post(
           .status(400)
           .json({ error: "No file uploaded or invalid file type." });
       }
-      const fileBuffer = req.file.buffer; // Multer gives you the file buffer
-      const randomStr = crypto.randomBytes(8).toString("hex");
-      const ext = path.extname(req.file.originalname);
-      const newFilename = `${randomStr}${ext}`;
-
-      const response = await imagekit.upload({
-        file: fileBuffer, // can also be base64 or URL
-        fileName: newFilename,
-      });
-      const imagekitURL = response.url;
+      const imagekitURL = await uploadFileToImageKit(
+        req.file.buffer,
+        req.file.originalname
+      );
+      // const response = await imagekit.upload({
+      //   file: fileBuffer, // can also be base64 or URL
+      //   fileName: newFilename,
+      // });
+      // const imagekitURL = response.url;
       /*
       // const newPath = path.join("uploads", newFilename);
       // fs.renameSync(req.file.path, newPath);
@@ -343,17 +341,21 @@ router.post(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const business = req.body as BusinessForm;
-
-      // Extract files from the request
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const logoFile = files?.logo?.[0]; // Single logo file
-      const mediaFiles = files?.media || []; // Array of media files
-
       // Validate the business ID
       if (!business.businessId) {
         return res.status(400).json({ error: "Business ID is required" });
       }
-
+      // Extract files from the request
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const logoFile = files?.logo?.[0]; // Single logo file
+      const mediaFiles = files?.media || []; // Array of media files
+      let imagekitLogoURL = "";
+      if (logoFile)
+        imagekitLogoURL = await uploadFileToImageKit(
+          logoFile.buffer,
+          logoFile.originalname
+        );
+      else imagekitLogoURL = req.body.logo;
       // Update the business
       const updatedBusiness = await prisma.business.update({
         where: { id: business.businessId, ownerId: req.user?.id },
@@ -373,7 +375,7 @@ router.post(
               lon: business.lon,
             },
           },
-          ...(logoFile && { logoUrl: logoFile.filename }), // only include if logoFile exists
+          ...(logoFile && { logoUrl: imagekitLogoURL }), // only include if logoFile exists
           owner: {
             update: {
               username: business.ownerName,
@@ -384,11 +386,19 @@ router.post(
       console.log("mediaFiles", mediaFiles);
       // Handle media files
       if (mediaFiles.length > 0) {
-        const mediaData = mediaFiles.map((file) => ({
-          url: file.filename,
-          type: file.mimetype.startsWith("image/") ? "image" : "video",
-          businessId: updatedBusiness.id,
-        }));
+        const mediaData = [];
+        for (const file of mediaFiles) {
+          const imagekitURL = await uploadFileToImageKit(
+            file.buffer,
+            file.originalname
+          );
+
+          mediaData.push({
+            url: imagekitURL,
+            type: file.mimetype.startsWith("image/") ? "image" : "video",
+            businessId: updatedBusiness.id,
+          });
+        }
 
         // Save media files to the database
         await prisma.businessMedia.createMany({

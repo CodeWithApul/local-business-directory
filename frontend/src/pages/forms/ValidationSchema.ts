@@ -59,6 +59,13 @@ export const BusinessFormSchema = yup.object({
     }),
   media: yup
     .array()
+    .transform((value) => {
+      // If it's a FileList, convert to array
+      if (value instanceof FileList) {
+        return Array.from(value);
+      }
+      return value;
+    })
     .of(
       yup
         .mixed<File | string>()
