@@ -383,7 +383,7 @@ router.post(
           },
         },
       });
-      console.log("mediaFiles", mediaFiles);
+      // console.log("mediaFiles", mediaFiles);
       // Handle media files
       if (mediaFiles.length > 0) {
         const mediaData = [];
