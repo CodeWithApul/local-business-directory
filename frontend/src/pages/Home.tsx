@@ -73,7 +73,7 @@ function Home() {
     const business = await getMatchedRecords({
       latitude: location?.lat,
       longitude: location?.lng,
-      radiusKm: 20,
+      radiusKm: 50,
       categoryId:
         searchTermCategory?.id === 0 ? undefined : searchTermCategory?.id,
       keyword: searchTerm,
